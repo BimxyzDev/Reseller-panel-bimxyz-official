@@ -1,8 +1,7 @@
 // api/account.js
 export const accounts = [
-  { username: "admin", password: "admin123" },
-  { username: "user1", password: "pass123" },
-  { username: "reseller", password: "sell123" }
+  { username: "admin", password: "admin089654" },
+  { username: "rapz12", password: "rapz321" },
 ];
 
 export function validateLogin(username, password) {
