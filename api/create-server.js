@@ -9,11 +9,11 @@ export default async function handler(req, res) {
   // =========================
   // Konfigurasi Reseller & Panel
   // =========================
-  const resellerUser = "123";                     // username reseller web
-  const resellerPass = "1234";                    // password reseller web
+  const resellerUser = "123";                     
+  const resellerPass = "1234";                    
   const PANEL_URL   = "https://adpsianjayserver.privatserver.my.id"; 
-  const API_KEY     = "ptla_3KPJd57IqYW3akbO91rnQxLy4a1BVcWxSPoYohWxQE1"; 
-  const NODE_ID     = 1;                          // ganti sesuai node ID di panel
+  const API_KEY     = "ptla_3KPJd57IqYW3akbO91rnQxLy4a1BVcWxSPoYohWxQE1";  // Application API Key
+  const NODE_ID     = 1;                          // ganti sesuai node ID
   const EGG_ID      = 15;                         // ganti sesuai egg ID
   // =========================
 
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
 
       const userId = userData.attributes.id;
 
-      // 🔹 Cari allocation kosong di node
+      // 🔹 Ambil semua allocation di node
       const allocRes = await fetch(`${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations`, {
         headers: {
           "Authorization": `Bearer ${API_KEY}`,
@@ -66,7 +66,17 @@ export default async function handler(req, res) {
         }
       });
       const allocData = await allocRes.json();
-      const freeAlloc = allocData.data.find(a => a.attributes.assigned_to === null);
+
+      // DEBUG: kirim balik semua allocation biar keliatan
+      console.log("All allocations:", allocData.data.map(a => ({
+        id: a.attributes.id,
+        ip: a.attributes.ip,
+        port: a.attributes.port,
+        assigned_to: a.attributes.assigned_to
+      })));
+
+      // Cari allocation kosong
+      const freeAlloc = allocData.data.find(a => !a.attributes.assigned_to);
 
       if (!freeAlloc) {
         return res.json({ success: false, message: "Tidak ada allocation kosong!" });
@@ -87,7 +97,7 @@ export default async function handler(req, res) {
           docker_image: "ghcr.io/parkervcp/yolks:nodejs_24", 
           startup: "npm start",
           limits: { memory: ram, swap: 0, disk: 5120, io: 500, cpu: 100 },
-          environment: {}, // bisa disesuain sesuai egg
+          environment: {}, // sesuaikan sesuai egg lu
           feature_limits: { databases: 1, backups: 1, allocations: 1 },
           allocation: { default: freeAlloc.attributes.id }
         })
@@ -113,4 +123,4 @@ export default async function handler(req, res) {
   } catch (err) {
     res.json({ success: false, message: err.message });
   }
-  }
+    }
