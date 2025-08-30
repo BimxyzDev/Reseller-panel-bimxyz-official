@@ -9,10 +9,12 @@ export default async function handler(req, res) {
   // =========================
   // Konfigurasi Reseller & Panel
   // =========================
-  const resellerUser = "123";              // username reseller web
-  const resellerPass = "1234";                  // password reseller web
-  const PANEL_URL   = "https://adpsianjayserver.privatserver.my.id"; // ganti domain panel
-  const API_KEY     = "ptla_3KPJd57IqYW3akbO91rnQxLy4a1BVcWxSPoYohWxQE1";          // Application API Key
+  const resellerUser = "123";                     // username reseller web
+  const resellerPass = "1234";                    // password reseller web
+  const PANEL_URL   = "https://adpsianjayserver.privatserver.my.id"; 
+  const API_KEY     = "ptla_3KPJd57IqYW3akbO91rnQxLy4a1BVcWxSPoYohWxQE1"; 
+  const NODE_ID     = 1;                          // ganti sesuai node ID di panel
+  const EGG_ID      = 15;                         // ganti sesuai egg ID
   // =========================
 
   try {
@@ -55,7 +57,22 @@ export default async function handler(req, res) {
 
       const userId = userData.attributes.id;
 
-      // Buat server untuk user baru
+      // 🔹 Cari allocation kosong di node
+      const allocRes = await fetch(`${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations`, {
+        headers: {
+          "Authorization": `Bearer ${API_KEY}`,
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        }
+      });
+      const allocData = await allocRes.json();
+      const freeAlloc = allocData.data.find(a => a.attributes.assigned_to === null);
+
+      if (!freeAlloc) {
+        return res.json({ success: false, message: "Tidak ada allocation kosong!" });
+      }
+
+      // 🔹 Buat server untuk user baru
       const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
         method: "POST",
         headers: {
@@ -66,13 +83,13 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           name,
           user: userId,
-          egg: 15, // ganti sesuai egg ID panel lu
-          docker_image: "ghcr.io/parkervcp/yolks:nodejs_24", // ganti sesuai egg
+          egg: EGG_ID,
+          docker_image: "ghcr.io/parkervcp/yolks:nodejs_24", 
           startup: "npm start",
           limits: { memory: ram, swap: 0, disk: 5120, io: 500, cpu: 100 },
-          environment: {},
+          environment: {}, // bisa disesuain sesuai egg
           feature_limits: { databases: 1, backups: 1, allocations: 1 },
-          allocation: { default: 1 }
+          allocation: { default: freeAlloc.attributes.id }
         })
       });
 
@@ -87,7 +104,8 @@ export default async function handler(req, res) {
         username: userData.attributes.username,
         email: userData.attributes.email,
         password: userPassword,
-        ram
+        ram,
+        allocation: `${freeAlloc.attributes.ip}:${freeAlloc.attributes.port}`
       });
     }
 
@@ -95,4 +113,4 @@ export default async function handler(req, res) {
   } catch (err) {
     res.json({ success: false, message: err.message });
   }
-        }
+  }
