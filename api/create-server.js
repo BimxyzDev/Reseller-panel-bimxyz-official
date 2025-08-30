@@ -66,7 +66,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           name,
           user: userId,
-          egg: 5, // ganti sesuai egg ID panel lu
+          egg: 15, // ganti sesuai egg ID panel lu
           docker_image: "ghcr.io/parkervcp/yolks:nodejs_18", // ganti sesuai egg
           startup: "npm run start",
           limits: { memory: ram, swap: 0, disk: 5120, io: 500, cpu: 100 },
