@@ -9,12 +9,13 @@ export default async function handler(req, res) {
   // =========================
   // Konfigurasi Reseller & Panel
   // =========================
-  const resellerUser = "123";                     
-  const resellerPass = "1234";                    
-  const PANEL_URL   = "https://adpsianjayserver.privatserver.my.id"; 
-  const API_KEY     = "ptla_3KPJd57IqYW3akbO91rnQxLy4a1BVcWxSPoYohWxQE1"; // Application API Key
-  const NODE_ID     = 1;   // ganti sesuai node ID yang bener
-  const EGG_ID      = 15;  // ganti sesuai egg ID
+  const resellerUser = "123"; // username reseller web
+  const resellerPass = "1234"; // password reseller web
+  const PANEL_URL   = "https://adpsianjayserver.privatserver.my.id";
+  const API_KEY     = "ptla_3KPJd57IqYW3akbO91rnQxLy4a1BVcWxSPoYohWxQE1";
+  const NODE_ID     = 1; // ID node Skyzopedia (cek di URL: /admin/nodes/1)
+  const EGG_ID      = 15; // ganti sesuai egg panel lu
+  const DOCKER_IMG  = "ghcr.io/parkervcp/yolks:nodejs_24"; // ganti sesuai egg
   // =========================
 
   try {
@@ -32,7 +33,7 @@ export default async function handler(req, res) {
       const email = `user${Date.now()}@mail.com`;
       const userPassword = Math.random().toString(36).slice(-8);
 
-      // Buat user baru
+      // Buat user baru (non-admin)
       const userRes = await fetch(`${PANEL_URL}/api/application/users`, {
         method: "POST",
         headers: {
@@ -54,25 +55,24 @@ export default async function handler(req, res) {
       if (!userRes.ok) {
         return res.json({ success: false, message: JSON.stringify(userData) });
       }
-
       const userId = userData.attributes.id;
 
-      // 🔹 Ambil allocation dari node
+      // 🔹 Cari allocation kosong di node
       const allocRes = await fetch(`${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations`, {
         headers: {
           "Authorization": `Bearer ${API_KEY}`,
-          "Content-Type": "application/json",
           "Accept": "application/json"
         }
       });
       const allocData = await allocRes.json();
+      if (!allocRes.ok) {
+        return res.json({ success: false, message: JSON.stringify(allocData) });
+      }
 
-      // Cari allocation kosong (assigned_to falsy)
-      let freeAlloc = allocData.data.find(a => !a.attributes.assigned_to);
-
-      // Kalau gak ada, fallback ke allocation pertama
+      // Ambil allocation pertama yang belum assigned
+      const freeAlloc = allocData.data.find(a => a.attributes.assigned === false);
       if (!freeAlloc) {
-        freeAlloc = allocData.data[0];
+        return res.json({ success: false, message: "Tidak ada allocation kosong!" });
       }
 
       // 🔹 Buat server untuk user baru
@@ -87,10 +87,10 @@ export default async function handler(req, res) {
           name,
           user: userId,
           egg: EGG_ID,
-          docker_image: "ghcr.io/parkervcp/yolks:nodejs_24", 
+          docker_image: DOCKER_IMG,
           startup: "npm start",
           limits: { memory: ram, swap: 0, disk: 5120, io: 500, cpu: 100 },
-          environment: {}, // sesuaikan sesuai egg
+          environment: {},
           feature_limits: { databases: 1, backups: 1, allocations: 1 },
           allocation: { default: freeAlloc.attributes.id }
         })
@@ -108,7 +108,7 @@ export default async function handler(req, res) {
         email: userData.attributes.email,
         password: userPassword,
         ram,
-        allocation: `${freeAlloc.attributes.ip}:${freeAlloc.attributes.port}`
+        allocation: freeAlloc.attributes.id
       });
     }
 
@@ -116,4 +116,4 @@ export default async function handler(req, res) {
   } catch (err) {
     res.json({ success: false, message: err.message });
   }
-                   }
+          }
