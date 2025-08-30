@@ -12,9 +12,9 @@ export default async function handler(req, res) {
   const resellerUser = "123";                     
   const resellerPass = "1234";                    
   const PANEL_URL   = "https://adpsianjayserver.privatserver.my.id"; 
-  const API_KEY     = "ptla_3KPJd57IqYW3akbO91rnQxLy4a1BVcWxSPoYohWxQE1";  // Application API Key
-  const NODE_ID     = 1;                          // ganti sesuai node ID
-  const EGG_ID      = 15;                         // ganti sesuai egg ID
+  const API_KEY     = "ptla_3KPJd57IqYW3akbO91rnQxLy4a1BVcWxSPoYohWxQE1"; // Application API Key
+  const NODE_ID     = 1;   // ganti sesuai node ID yang bener
+  const EGG_ID      = 15;  // ganti sesuai egg ID
   // =========================
 
   try {
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       const email = `user${Date.now()}@mail.com`;
       const userPassword = Math.random().toString(36).slice(-8);
 
-      // Buat user baru (non-admin)
+      // Buat user baru
       const userRes = await fetch(`${PANEL_URL}/api/application/users`, {
         method: "POST",
         headers: {
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
 
       const userId = userData.attributes.id;
 
-      // 🔹 Ambil semua allocation di node
+      // 🔹 Ambil allocation dari node
       const allocRes = await fetch(`${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations`, {
         headers: {
           "Authorization": `Bearer ${API_KEY}`,
@@ -67,19 +67,12 @@ export default async function handler(req, res) {
       });
       const allocData = await allocRes.json();
 
-      // DEBUG: kirim balik semua allocation biar keliatan
-      console.log("All allocations:", allocData.data.map(a => ({
-        id: a.attributes.id,
-        ip: a.attributes.ip,
-        port: a.attributes.port,
-        assigned_to: a.attributes.assigned_to
-      })));
+      // Cari allocation kosong (assigned_to falsy)
+      let freeAlloc = allocData.data.find(a => !a.attributes.assigned_to);
 
-      // Cari allocation kosong
-      const freeAlloc = allocData.data.find(a => !a.attributes.assigned_to);
-
+      // Kalau gak ada, fallback ke allocation pertama
       if (!freeAlloc) {
-        return res.json({ success: false, message: "Tidak ada allocation kosong!" });
+        freeAlloc = allocData.data[0];
       }
 
       // 🔹 Buat server untuk user baru
@@ -94,11 +87,11 @@ export default async function handler(req, res) {
           name,
           user: userId,
           egg: EGG_ID,
-          docker_image: "ghcr.io/parkervcp/yolks:nodejs_15", 
+          docker_image: "ghcr.io/parkervcp/yolks:nodejs_24", 
           startup: "npm start",
           limits: { memory: ram, swap: 0, disk: 5120, io: 500, cpu: 100 },
-          environment: {}, // sesuaikan sesuai egg lu
-          feature_limits: { databases: 1, backups: 1, allocations: 2008 },
+          environment: {}, // sesuaikan sesuai egg
+          feature_limits: { databases: 1, backups: 1, allocations: 1 },
           allocation: { default: freeAlloc.attributes.id }
         })
       });
@@ -123,4 +116,4 @@ export default async function handler(req, res) {
   } catch (err) {
     res.json({ success: false, message: err.message });
   }
-    }
+                   }
