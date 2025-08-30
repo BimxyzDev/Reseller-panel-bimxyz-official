@@ -67,8 +67,8 @@ export default async function handler(req, res) {
           name,
           user: userId,
           egg: 15, // ganti sesuai egg ID panel lu
-          docker_image: "ghcr.io/parkervcp/yolks:nodejs_18", // ganti sesuai egg
-          startup: "npm run start",
+          docker_image: "ghcr.io/parkervcp/yolks:nodejs_24", // ganti sesuai egg
+          startup: "npm start",
           limits: { memory: ram, swap: 0, disk: 5120, io: 500, cpu: 100 },
           environment: {},
           feature_limits: { databases: 1, backups: 1, allocations: 1 },
