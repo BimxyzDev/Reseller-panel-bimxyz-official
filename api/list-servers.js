@@ -1,8 +1,8 @@
 // api/list-servers.js
 export default async function handler(req, res) {
   // =========================
-  const PANEL_URL = "https://panel.example.com"; // ganti
-  const API_KEY   = "API_KEY_ADMIN";            // ganti
+  const PANEL_URL = "https://adpsianjayserver.privatserver.my.id"; // ganti
+  const API_KEY   = "ptla_3KPJd57IqYW3akbO91rnQxLy4a1BVcWxSPoYohWxQE1";            // ganti
   // =========================
 
   try {
