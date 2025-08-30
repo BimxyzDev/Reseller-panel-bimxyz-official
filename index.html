@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Reseller Panel Login</title>
+<title>Reseller Panel</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
   body {
@@ -24,7 +24,7 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    width:300px;
+    width:320px;
   }
   input, select, button {
     margin:10px 0;
@@ -37,9 +37,6 @@
     background:#111;
     color:#0f0;
     box-shadow: 0 0 10px #0f0 inset;
-  }
-  input:focus, select:focus {
-    box-shadow: 0 0 15px #0f0 inset;
   }
   button {
     cursor:pointer;
@@ -87,15 +84,16 @@
     <option value="0">Unlimited</option>
   </select>
   <button id="createBtn">Buat Server</button>
+  <button id="listBtn">Lihat Jumlah Server</button>
   <div id="result"></div>
 </div>
 
 <script>
-const PANEL_DOMAIN = "https://adpsianjayserver.privatserver.my.id"; // domain panel
 const loginDiv = document.getElementById('loginDiv');
 const panel = document.getElementById('panel');
 const loginBtn = document.getElementById('loginBtn');
 const loginError = document.getElementById('loginError');
+const resultDiv = document.getElementById('result');
 
 loginBtn.addEventListener('click', async () => {
   const username = document.getElementById('username').value.trim();
@@ -122,7 +120,6 @@ loginBtn.addEventListener('click', async () => {
 document.getElementById('createBtn').addEventListener('click', async () => {
   const name = document.getElementById('serverName').value.trim();
   const ram = document.getElementById('serverRam').value;
-  const resultDiv = document.getElementById('result');
   if(!name) return alert("Nama server harus diisi");
   resultDiv.textContent = "Membuat server...";
   try {
@@ -134,33 +131,34 @@ document.getElementById('createBtn').addEventListener('click', async () => {
     const data = await res.json();
     if(data.success){
       resultDiv.textContent = 
-        `Server berhasil dibuat!\n` +
-        `Login Panel: ${PANEL_DOMAIN}\n` +
+        `✅ Server berhasil dibuat!\n` +
+        `Login Panel: ${data.panel}\n` +
         `Username: ${data.username}\n` +
         `Email: ${data.email}\n` +
         `Password: ${data.password}\n` +
         `RAM: ${data.ram} MB`;
     } else {
-      resultDiv.textContent = "Gagal: " + data.message;
+      resultDiv.textContent = "❌ Gagal: " + data.message;
     }
   } catch(err){
-    resultDiv.textContent = "Error: " + err.message;
+    resultDiv.textContent = "⚠️ Error: " + err.message;
   }
 });
 
-// Disable zoom
-document.addEventListener('touchmove', function(event) {
-  if (event.scale !== 1) event.preventDefault();
-}, { passive: false });
-
-window.addEventListener('wheel', function(e){
-  if(e.ctrlKey) e.preventDefault();
-}, { passive: false });
-
-window.addEventListener('keydown', function(e){
-  if(e.ctrlKey && ['+','-','0','Equal'].includes(e.key)) e.preventDefault();
+document.getElementById('listBtn').addEventListener('click', async () => {
+  resultDiv.textContent = "Mengambil jumlah server...";
+  try {
+    const res = await fetch('/api/list-servers');
+    const data = await res.json();
+    if(data.success){
+      resultDiv.textContent = `📊 Jumlah server di panel: ${data.count}`;
+    } else {
+      resultDiv.textContent = "❌ Gagal ambil data: " + data.message;
+    }
+  } catch(err){
+    resultDiv.textContent = "⚠️ Error: " + err.message;
+  }
 });
 </script>
-
 </body>
 </html>
