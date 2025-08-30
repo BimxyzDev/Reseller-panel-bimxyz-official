@@ -95,18 +95,25 @@ const loginBtn = document.getElementById('loginBtn');
 const loginError = document.getElementById('loginError');
 const resultDiv = document.getElementById('result');
 
+// Auto login jika sudah ada session
+if (localStorage.getItem('username')) {
+  loginDiv.style.display = 'none';
+  panel.style.display = 'flex';
+}
+
 loginBtn.addEventListener('click', async () => {
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value.trim();
   loginError.textContent = "";
   try {
-    const res = await fetch('/api/create-server', {
+    const res = await fetch('/api/server', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({action:'login', username, password})
     });
     const data = await res.json();
     if(data.success){
+      localStorage.setItem('username', username);
       loginDiv.style.display = 'none';
       panel.style.display = 'flex';
     } else {
@@ -123,7 +130,7 @@ document.getElementById('createBtn').addEventListener('click', async () => {
   if(!name) return alert("Nama server harus diisi");
   resultDiv.textContent = "Membuat server...";
   try {
-    const res = await fetch('/api/create-server', {
+    const res = await fetch('/api/server', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({action:'create', name, ram})
@@ -148,7 +155,7 @@ document.getElementById('createBtn').addEventListener('click', async () => {
 document.getElementById('listBtn').addEventListener('click', async () => {
   resultDiv.textContent = "Mengambil jumlah server...";
   try {
-    const res = await fetch('/api/list-servers');
+    const res = await fetch('/api/server');
     const data = await res.json();
     if(data.success){
       resultDiv.textContent = `📊 Jumlah server di panel: ${data.count}`;
