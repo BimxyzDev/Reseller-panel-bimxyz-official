@@ -94,11 +94,11 @@ export default async function handler(req, res) {
           name,
           user: userId,
           egg: EGG_ID,
-          docker_image: "ghcr.io/parkervcp/yolks:nodejs_24", 
+          docker_image: "ghcr.io/parkervcp/yolks:nodejs_15", 
           startup: "npm start",
           limits: { memory: ram, swap: 0, disk: 5120, io: 500, cpu: 100 },
           environment: {}, // sesuaikan sesuai egg lu
-          feature_limits: { databases: 1, backups: 1, allocations: 1 },
+          feature_limits: { databases: 1, backups: 1, allocations: 2008 },
           allocation: { default: freeAlloc.attributes.id }
         })
       });
