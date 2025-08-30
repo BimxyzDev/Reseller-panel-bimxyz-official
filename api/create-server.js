@@ -11,11 +11,11 @@ export default async function handler(req, res) {
   // =========================
   const resellerUser = "123"; // username reseller web
   const resellerPass = "1234"; // password reseller web
-  const PANEL_URL   = "https://adpsianjayserver.privatserver.my.id";
-  const API_KEY     = "ptla_3KPJd57IqYW3akbO91rnQxLy4a1BVcWxSPoYohWxQE1";
-  const NODE_ID     = 1; // ID node Skyzopedia (cek di URL: /admin/nodes/1)
-  const EGG_ID      = 15; // ganti sesuai egg panel lu
-  const DOCKER_IMG  = "ghcr.io/parkervcp/yolks:nodejs_24"; // ganti sesuai egg
+  const PANEL_URL   = "https://adpsianjayserver.privatserver.my.id"; 
+  const API_KEY     = "ptla_3KPJd57IqYW3akbO91rnQxLy4a1BVcWxSPoYohWxQE1"; 
+  const NODE_ID     = 1;   // ID Node lu (lihat di /admin/nodes)
+  const EGG_ID      = 15;  // ganti sesuai Egg ID
+  const DOCKER_IMG  = "ghcr.io/parkervcp/yolks:nodejs_24";
   // =========================
 
   try {
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
       const email = `user${Date.now()}@mail.com`;
       const userPassword = Math.random().toString(36).slice(-8);
 
-      // Buat user baru (non-admin)
+      // Buat user baru
       const userRes = await fetch(`${PANEL_URL}/api/application/users`, {
         method: "POST",
         headers: {
@@ -57,25 +57,27 @@ export default async function handler(req, res) {
       }
       const userId = userData.attributes.id;
 
-      // 🔹 Cari allocation kosong di node
+      // Cari allocation kosong
       const allocRes = await fetch(`${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations`, {
-        headers: {
-          "Authorization": `Bearer ${API_KEY}`,
-          "Accept": "application/json"
-        }
+        headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
       });
       const allocData = await allocRes.json();
-      if (!allocRes.ok) {
-        return res.json({ success: false, message: JSON.stringify(allocData) });
-      }
-
-      // Ambil allocation pertama yang belum assigned
       const freeAlloc = allocData.data.find(a => a.attributes.assigned === false);
       if (!freeAlloc) {
-        return res.json({ success: false, message: "Tidak ada allocation kosong!" });
+        return res.json({ success: false, message: "Ga ada allocation kosong!" });
       }
 
-      // 🔹 Buat server untuk user baru
+      // Ambil environment variable default dari egg
+      const eggRes = await fetch(`${PANEL_URL}/api/application/nests/5/eggs/${EGG_ID}?include=variables`, {
+        headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
+      });
+      const eggData = await eggRes.json();
+      const env = {};
+      eggData.attributes.relationships.variables.data.forEach(v => {
+        env[v.attributes.env_variable] = v.attributes.default_value || "";
+      });
+
+      // Buat server
       const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
         method: "POST",
         headers: {
@@ -88,9 +90,9 @@ export default async function handler(req, res) {
           user: userId,
           egg: EGG_ID,
           docker_image: DOCKER_IMG,
-          startup: "npm start",
+          startup: eggData.attributes.startup,
           limits: { memory: ram, swap: 0, disk: 5120, io: 500, cpu: 100 },
-          environment: {},
+          environment: env,
           feature_limits: { databases: 1, backups: 1, allocations: 1 },
           allocation: { default: freeAlloc.attributes.id }
         })
@@ -107,8 +109,7 @@ export default async function handler(req, res) {
         username: userData.attributes.username,
         email: userData.attributes.email,
         password: userPassword,
-        ram,
-        allocation: freeAlloc.attributes.id
+        ram
       });
     }
 
