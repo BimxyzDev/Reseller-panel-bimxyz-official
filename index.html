@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Reseller Panel Login</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+  body {
+    margin:0;
+    font-family: 'Orbitron', sans-serif;
+    background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+    color: #fff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+  }
+  .card {
+    background: rgba(20,20,20,0.95);
+    padding:30px;
+    border-radius:15px;
+    box-shadow: 0 0 20px #0f0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    width:300px;
+  }
+  input, select, button {
+    margin:10px 0;
+    padding:12px;
+    width:100%;
+    border-radius:8px;
+    border:none;
+    outline:none;
+    font-size:16px;
+    background:#111;
+    color:#0f0;
+    box-shadow: 0 0 10px #0f0 inset;
+  }
+  input:focus, select:focus {
+    box-shadow: 0 0 15px #0f0 inset;
+  }
+  button {
+    cursor:pointer;
+    background:#0f0;
+    color:#000;
+    font-weight:bold;
+    box-shadow: 0 0 20px #0f0;
+    transition:0.3s;
+  }
+  button:hover {
+    box-shadow: 0 0 30px #0f0, 0 0 40px #0f0;
+  }
+  h1,h2 {
+    margin:10px 0;
+    text-align:center;
+  }
+  #panel { display:none; width:100%; }
+  #result { white-space:pre-wrap; margin-top:15px; background:#111; padding:10px; border-radius:8px; max-height:250px; overflow-y:auto; box-shadow: inset 0 0 10px #0f0; }
+</style>
+</head>
+<body>
+
+<div class="card" id="loginDiv">
+  <h1>Reseller Panel Login</h1>
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+  <button id="loginBtn">Login</button>
+  <div id="loginError" style="color:red; text-align:center; margin-top:5px;"></div>
+</div>
+
+<div class="card" id="panel">
+  <h2>Buat Server</h2>
+  <input type="text" id="serverName" placeholder="Nama Server">
+  <select id="serverRam">
+    <option value="1024">1 GB</option>
+    <option value="2048">2 GB</option>
+    <option value="3072">3 GB</option>
+    <option value="4096">4 GB</option>
+    <option value="5120">5 GB</option>
+    <option value="6144">6 GB</option>
+    <option value="7168">7 GB</option>
+    <option value="8192">8 GB</option>
+    <option value="9216">9 GB</option>
+    <option value="10240">10 GB</option>
+    <option value="0">Unlimited</option>
+  </select>
+  <button id="createBtn">Buat Server</button>
+  <div id="result"></div>
+</div>
+
+<script>
+const PANEL_DOMAIN = "https://adpsianjayserver.privatserver.my.id"; // domain panel
+const loginDiv = document.getElementById('loginDiv');
+const panel = document.getElementById('panel');
+const loginBtn = document.getElementById('loginBtn');
+const loginError = document.getElementById('loginError');
+
+loginBtn.addEventListener('click', async () => {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  loginError.textContent = "";
+  try {
+    const res = await fetch('/api/create-server', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'login', username, password})
+    });
+    const data = await res.json();
+    if(data.success){
+      loginDiv.style.display = 'none';
+      panel.style.display = 'flex';
+    } else {
+      loginError.textContent = data.message;
+    }
+  } catch(err){
+    loginError.textContent = err.message;
+  }
+});
+
+document.getElementById('createBtn').addEventListener('click', async () => {
+  const name = document.getElementById('serverName').value.trim();
+  const ram = document.getElementById('serverRam').value;
+  const resultDiv = document.getElementById('result');
+  if(!name) return alert("Nama server harus diisi");
+  resultDiv.textContent = "Membuat server...";
+  try {
+    const res = await fetch('/api/create-server', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'create', name, ram})
+    });
+    const data = await res.json();
+    if(data.success){
+      resultDiv.textContent = 
+        `Server berhasil dibuat!\n` +
+        `Login Panel: ${PANEL_DOMAIN}\n` +
+        `Username: ${data.username}\n` +
+        `Email: ${data.email}\n` +
+        `Password: ${data.password}\n` +
+        `RAM: ${data.ram} MB`;
+    } else {
+      resultDiv.textContent = "Gagal: " + data.message;
+    }
+  } catch(err){
+    resultDiv.textContent = "Error: " + err.message;
+  }
+});
+
+// Disable zoom
+document.addEventListener('touchmove', function(event) {
+  if (event.scale !== 1) event.preventDefault();
+}, { passive: false });
+
+window.addEventListener('wheel', function(e){
+  if(e.ctrlKey) e.preventDefault();
+}, { passive: false });
+
+window.addEventListener('keydown', function(e){
+  if(e.ctrlKey && ['+','-','0','Equal'].includes(e.key)) e.preventDefault();
+});
+</script>
+
+</body>
+</html>
