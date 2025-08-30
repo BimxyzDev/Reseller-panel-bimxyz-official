@@ -1,171 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Reseller Panel —͟͞𝘽𝙞𝙢𝙭𝙮𝙯 𝙤𝙛𝙛𝙞𝙘𝙞𝙖𝙡</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
-  body {
-    margin:0;
-    font-family: 'Orbitron', sans-serif;
-    background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
-    color: #fff;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-  }
-  .card {
-    background: rgba(20,20,20,0.95);
-    padding:30px;
-    border-radius:15px;
-    box-shadow: 0 0 20px #0f0;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    width:320px;
-  }
-  input, select, button {
-    margin:10px 0;
-    padding:12px;
-    width:100%;
-    border-radius:8px;
-    border:none;
-    outline:none;
-    font-size:16px;
-    background:#111;
-    color:#0f0;
-    box-shadow: 0 0 10px #0f0 inset;
-  }
-  button {
-    cursor:pointer;
-    background:#0f0;
-    color:#000;
-    font-weight:bold;
-    box-shadow: 0 0 20px #0f0;
-    transition:0.3s;
-  }
-  button:hover {
-    box-shadow: 0 0 30px #0f0, 0 0 40px #0f0;
-  }
-  h1,h2 {
-    margin:10px 0;
-    text-align:center;
-  }
-  #panel { display:none; width:100%; }
-  #result { white-space:pre-wrap; margin-top:15px; background:#111; padding:10px; border-radius:8px; max-height:250px; overflow-y:auto; box-shadow: inset 0 0 10px #0f0; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reseller Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-black text-green-400 min-h-screen flex flex-col items-center justify-center">
 
-<div class="card" id="loginDiv">
-  <h1>Reseller Panel Login</h1>
-  <input type="text" id="username" placeholder="Username">
-  <input type="password" id="password" placeholder="Password">
-  <button id="loginBtn">Login</button>
-  <div id="loginError" style="color:red; text-align:center; margin-top:5px;"></div>
-</div>
+  <!-- Login Form -->
+  <div id="login-section" class="w-full max-w-sm p-6 bg-gray-900 rounded-2xl shadow-lg">
+    <h1 class="text-2xl font-bold text-center mb-4">Login</h1>
+    <input id="username" type="text" placeholder="Username" class="w-full p-2 mb-2 rounded bg-gray-800 text-green-400 outline-none" />
+    <input id="password" type="password" placeholder="Password" class="w-full p-2 mb-4 rounded bg-gray-800 text-green-400 outline-none" />
+    <button onclick="login()" class="w-full bg-green-500 text-black py-2 rounded hover:bg-green-400">Login</button>
+  </div>
 
-<div class="card" id="panel">
-  <h2>Buat Server</h2>
-  <input type="text" id="serverName" placeholder="Nama Server">
-  <select id="serverRam">
-    <option value="1024">1 GB</option>
-    <option value="2048">2 GB</option>
-    <option value="3072">3 GB</option>
-    <option value="4096">4 GB</option>
-    <option value="5120">5 GB</option>
-    <option value="6144">6 GB</option>
-    <option value="7168">7 GB</option>
-    <option value="8192">8 GB</option>
-    <option value="9216">9 GB</option>
-    <option value="10240">10 GB</option>
-    <option value="0">Unlimited</option>
-  </select>
-  <button id="createBtn">Buat Server</button>
-  <button id="listBtn">Lihat Jumlah Server</button>
-  <div id="result"></div>
-</div>
+  <!-- Panel Section -->
+  <div id="panel-section" class="hidden w-full max-w-md p-6 bg-gray-900 rounded-2xl shadow-lg">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-xl font-bold">Reseller Panel</h1>
+      <button onclick="logout()" class="bg-red-500 text-black px-3 py-1 rounded hover:bg-red-400">Logout</button>
+    </div>
+    <div class="mb-4">
+      <label class="block mb-1">Nama Server</label>
+      <input id="serverName" type="text" placeholder="Nama server" class="w-full p-2 rounded bg-gray-800 text-green-400 outline-none" />
+    </div>
 
-<script>
-const loginDiv = document.getElementById('loginDiv');
-const panel = document.getElementById('panel');
-const loginBtn = document.getElementById('loginBtn');
-const loginError = document.getElementById('loginError');
-const resultDiv = document.getElementById('result');
+    <!-- Custom Dropdown for RAM -->
+    <div class="mb-4 relative">
+      <label class="block mb-1">RAM</label>
+      <div id="ram-dropdown" class="bg-gray-800 p-2 rounded cursor-pointer flex justify-between items-center">
+        <span id="selected-ram">1 GB</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </div>
+      <div id="ram-options" class="absolute z-10 hidden bg-gray-800 mt-1 w-full rounded shadow-lg">
+        <div class="p-2 hover:bg-green-600 cursor-pointer" data-ram="1024">1 GB</div>
+        <div class="p-2 hover:bg-green-600 cursor-pointer" data-ram="2048">2 GB</div>
+        <div class="p-2 hover:bg-green-600 cursor-pointer" data-ram="3072">3 GB</div>
+        <div class="p-2 hover:bg-green-600 cursor-pointer" data-ram="4096">4 GB</div>
+        <div class="p-2 hover:bg-green-600 cursor-pointer" data-ram="5120">5 GB</div>
+        <div class="p-2 hover:bg-green-600 cursor-pointer" data-ram="6144">6 GB</div>
+        <div class="p-2 hover:bg-green-600 cursor-pointer" data-ram="7168">7 GB</div>
+        <div class="p-2 hover:bg-green-600 cursor-pointer" data-ram="8192">8 GB</div>
+        <div class="p-2 hover:bg-green-600 cursor-pointer" data-ram="9216">9 GB</div>
+        <div class="p-2 hover:bg-green-600 cursor-pointer" data-ram="10240">10 GB</div>
+        <div class="p-2 hover:bg-green-600 cursor-pointer" data-ram="0">Unlimited</div>
+      </div>
+    </div>
 
-// Auto login jika sudah ada session
-if (localStorage.getItem('username')) {
-  loginDiv.style.display = 'none';
-  panel.style.display = 'flex';
-}
+    <button onclick="createServer()" class="w-full bg-green-500 text-black py-2 rounded hover:bg-green-400">Create Server</button>
 
-loginBtn.addEventListener('click', async () => {
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value.trim();
-  loginError.textContent = "";
-  try {
-    const res = await fetch('/api/server', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({action:'login', username, password})
+    <div id="server-count" class="mt-4 text-center text-sm text-green-300"></div>
+  </div>
+
+  <script>
+    let selectedRam = 1024; // Default 1 GB
+
+    // Load login session
+    if (localStorage.getItem("loggedIn") === "true") {
+      document.getElementById("login-section").classList.add("hidden");
+      document.getElementById("panel-section").classList.remove("hidden");
+      fetchServerCount();
+    }
+
+    // Toggle RAM dropdown
+    const dropdown = document.getElementById("ram-dropdown");
+    const options = document.getElementById("ram-options");
+    dropdown.addEventListener("click", () => {
+      options.classList.toggle("hidden");
     });
-    const data = await res.json();
-    if(data.success){
-      localStorage.setItem('username', username);
-      loginDiv.style.display = 'none';
-      panel.style.display = 'flex';
-    } else {
-      loginError.textContent = data.message;
-    }
-  } catch(err){
-    loginError.textContent = err.message;
-  }
-});
 
-document.getElementById('createBtn').addEventListener('click', async () => {
-  const name = document.getElementById('serverName').value.trim();
-  const ram = document.getElementById('serverRam').value;
-  if(!name) return alert("Nama server harus diisi");
-  resultDiv.textContent = "Membuat server...";
-  try {
-    const res = await fetch('/api/server', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({action:'create', name, ram})
+    options.querySelectorAll("div").forEach(item => {
+      item.addEventListener("click", () => {
+        const value = item.getAttribute("data-ram");
+        const text = item.innerText;
+        selectedRam = parseInt(value);
+        document.getElementById("selected-ram").innerText = text;
+        options.classList.add("hidden");
+      });
     });
-    const data = await res.json();
-    if(data.success){
-      resultDiv.textContent = 
-        `✅ Server berhasil dibuat!\n` +
-        `Login Panel: ${data.panel}\n` +
-        `Username: ${data.username}\n` +
-        `Email: ${data.email}\n` +
-        `Password: ${data.password}\n` +
-        `RAM: ${data.ram} MB`;
-    } else {
-      resultDiv.textContent = "❌ Gagal: " + data.message;
-    }
-  } catch(err){
-    resultDiv.textContent = "⚠️ Error: " + err.message;
-  }
-});
 
-document.getElementById('listBtn').addEventListener('click', async () => {
-  resultDiv.textContent = "Mengambil jumlah server...";
-  try {
-    const res = await fetch('/api/server');
-    const data = await res.json();
-    if(data.success){
-      resultDiv.textContent = `📊 Jumlah server di panel: ${data.count}`;
-    } else {
-      resultDiv.textContent = "❌ Gagal ambil data: " + data.message;
+    // Login
+    async function login() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      const res = await fetch("/api/server", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "login", username, password })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem("loggedIn", "true");
+        document.getElementById("login-section").classList.add("hidden");
+        document.getElementById("panel-section").classList.remove("hidden");
+        fetchServerCount();
+      } else {
+        alert("Login gagal!");
+      }
     }
-  } catch(err){
-    resultDiv.textContent = "⚠️ Error: " + err.message;
-  }
-});
-</script>
+
+    // Logout
+    function logout() {
+      localStorage.removeItem("loggedIn");
+      document.getElementById("panel-section").classList.add("hidden");
+      document.getElementById("login-section").classList.remove("hidden");
+    }
+
+    // Create Server
+    async function createServer() {
+      const name = document.getElementById("serverName").value;
+      if (!name) {
+        alert("Nama server harus diisi!");
+        return;
+      }
+
+      const res = await fetch("/api/server", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "create", name, ram: selectedRam })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        alert(`Server berhasil dibuat!\nPanel: ${data.panel}\nUsername: ${data.username}\nPassword: ${data.password}`);
+        fetchServerCount();
+      } else {
+        alert("Gagal membuat server: " + data.message);
+      }
+    }
+
+    // Fetch server count
+    async function fetchServerCount() {
+      const res = await fetch("/api/server?action=list");
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById("server-count").innerText = `Total Server: ${data.count}`;
+      }
+    }
+  </script>
 </body>
-</html>
+  </html>
