@@ -9,7 +9,7 @@ const PANEL_DOMAIN = "https://adpsianjayserver.privatserver.my.id";
 
 // Contoh login sederhana untuk web (username/password statis)
 const USERS = [
-  { username: "reseller1", password: "pass123" },
+  { username: "1", password: "123" },
   { username: "reseller2", password: "pass456" }
 ];
 
