@@ -9,8 +9,8 @@ export default async function handler(req, res) {
   // =========================
   // Konfigurasi Reseller & Panel
   // =========================
-  const resellerUser = "Bimxyz"; // username reseller web
-  const resellerPass = "1234"; // password reseller web
+  const resellerUser = "Bimxyz","buyer111"; // username reseller web
+  const resellerPass = "1234","buyer123"; // password reseller web
   const PANEL_URL   = "https://adpsianjayserver.privatserver.my.id"; 
   const API_KEY     = "ptla_3KPJd57IqYW3akbO91rnQxLy4a1BVcWxSPoYohWxQE1"; 
   const NODE_ID     = 1;   // ID Node lu (lihat di /admin/nodes)
