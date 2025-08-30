@@ -88,12 +88,7 @@ export default async function handler(req, res) {
           user: userId,
           egg: EGG_ID,
           docker_image: DOCKER_IMG,
-           startup: spc,
-        environment: {
-          INST: "npm",
-          USER_UPLOAD: "0",
-          AUTO_UPDATE: "0",
-          CMD_RUN: "npm start",
+           startup: "npm start",
         },
           limits: { memory: ram, swap: 0, disk: 5120, io: 500, cpu: 100 },
           environment: {},
