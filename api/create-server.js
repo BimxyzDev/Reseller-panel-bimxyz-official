@@ -11,8 +11,8 @@ export default async function handler(req, res) {
   // =========================
   const resellerUser = "123";              // username reseller web
   const resellerPass = "1234";                  // password reseller web
-  const PANEL_URL   = "https://panel.example.com"; // ganti domain panel
-  const API_KEY     = "API_KEY_ADMIN";          // Application API Key
+  const PANEL_URL   = "https://adpsianjayserver.privatserver.my.id"; // ganti domain panel
+  const API_KEY     = "ptla_3KPJd57IqYW3akbO91rnQxLy4a1BVcWxSPoYohWxQE1";          // Application API Key
   // =========================
 
   try {
