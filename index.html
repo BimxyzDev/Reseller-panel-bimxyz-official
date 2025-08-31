@@ -1,141 +1,176 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Reseller Panel —͟͞𝘽𝙞𝙢𝙭𝙮𝙯 𝙤𝙛𝙛𝙞𝙘𝙞𝙖𝙡</title>
+<title>Reseller Panel — 𝘽𝙞𝙢𝙭𝙮𝙯 𝙤𝙛𝙛𝙞𝙘𝙞𝙖𝙡</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
   body {
-    margin:0;
+    margin: 0;
     font-family: 'Orbitron', sans-serif;
     background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
     color: #fff;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    padding: 10px;
-    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
   }
   .card {
-    background: rgba(20,20,20,0.95);
-    padding:20px;
-    border-radius:15px;
+    background: rgba(20, 20, 20, 0.95);
+    padding: 20px;
+    border-radius: 15px;
     box-shadow: 0 0 20px #0f0;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    width: 90%;
-    max-width: 320px;
+    width: 320px;
+    animation: neon-glow 2s infinite alternate;
+  }
+  @keyframes neon-glow {
+    from { box-shadow: 0 0 10px #0f0; }
+    to { box-shadow: 0 0 30px #0f0; }
   }
   input, select, button {
-    margin:8px 0;
-    padding:10px;
-    width:100%;
-    border-radius:8px;
-    border:none;
-    outline:none;
-    font-size:14px;
-    background:#111;
-    color:#0f0;
+    margin: 10px 0;
+    padding: 10px;
+    width: 100%;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    background: #111;
+    color: #0f0;
     box-shadow: 0 0 10px #0f0 inset;
-    box-sizing: border-box;
   }
   button {
-    cursor:pointer;
-    background:#0f0;
-    color:#000;
-    font-weight:bold;
-    box-shadow: 0 0 20px #0f0;
-    transition:0.3s;
+    cursor: pointer;
+    background: #0f0;
+    color: #000;
+    font-weight: bold;
+    transition: 0.3s;
   }
   button:hover {
-    box-shadow: 0 0 30px #0f0, 0 0 40px #0f0;
+    box-shadow: 0 0 20px #0f0, 0 0 40px #0f0;
   }
-  h1,h2 {
-    margin:10px 0;
-    text-align:center;
-    font-size: 18px;
-  }
-  #panel { display:none; width:100%; }
-  #result {
-    white-space:pre-wrap;
-    margin-top:10px;
-    background:#111;
-    padding:8px;
-    border-radius:8px;
-    max-height:180px;
-    overflow-y:auto;
+  .info {
+    font-size: 12px;
+    text-align: left;
+    margin-bottom: 10px;
+    background: #111;
+    padding: 10px;
+    border-radius: 8px;
     box-shadow: inset 0 0 10px #0f0;
-    font-size: 13px;
   }
-  .logout-btn {
-    background: red;
-    color: white;
-    box-shadow: 0 0 20px red;
-  }
-  .logout-btn:hover {
-    box-shadow: 0 0 30px red, 0 0 40px red;
-  }
-  footer {
-    position: fixed;
-    bottom: 5px;
+  .server-status {
     text-align: center;
-    width: 100%;
-    font-size: 10px;
+    margin-bottom: 10px;
+  }
+  .server-status span {
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    color: #000;
+  }
+  .online {
+    background-color: #0f0;
+  }
+  .maintenance {
+    background-color: #ff0000;
+    color: #fff;
+  }
+  #result {
+    white-space: pre-wrap;
+    margin-top: 10px;
+    background: #111;
+    padding: 10px;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: inset 0 0 10px #0f0;
+  }
+  .contact {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-size: 24px;
+  }
+  .contact a {
     color: #0f0;
+    transition: 0.3s;
+  }
+  .contact a:hover {
+    color: #fff;
+    transform: scale(1.2);
+  }
+  @media(max-width: 400px){
+    .card{ width: 90%; }
   }
 </style>
 </head>
 <body>
-
-<div class="card" id="loginDiv">
-  <h1>Reseller Panel Login</h1>
-  <input type="text" id="username" placeholder="Username">
-  <input type="password" id="password" placeholder="Password">
-  <button id="loginBtn">Login</button>
-  <div id="loginError" style="color:red; text-align:center; margin-top:5px; font-size:12px;"></div>
-</div>
-
-<div class="card" id="panel">
-  <h2>Buat Server</h2>
-  <input type="text" id="serverName" placeholder="Nama Server">
-  <select id="serverRam">
-    <option value="1024">1 GB</option>
-    <option value="2048">2 GB</option>
-    <option value="3072">3 GB</option>
-    <option value="4096">4 GB</option>
-    <option value="5120">5 GB</option>
-    <option value="6144">6 GB</option>
-    <option value="7168">7 GB</option>
-    <option value="8192">8 GB</option>
-    <option value="9216">9 GB</option>
-    <option value="10240">10 GB</option>
-    <option value="0">Unlimited</option>
-  </select>
-  <button id="createBtn">Buat Server</button>
-  <button id="listBtn">Lihat Jumlah Server</button>
-  <button id="logoutBtn" class="logout-btn">Logout</button>
-  <div id="result"></div>
-</div>
-
-<footer>© 2025 Bimxyz Official – All Rights Reserved</footer>
-
-<script>
+  <div class="card" id="loginDiv">
+    <div class="server-status" id="serverStatus">Checking server...</div>
+    <h1>Reseller Panel Login</h1>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button id="loginBtn">Login</button>
+    <div id="loginError" style="color:red; text-align:center; margin-top:5px;"></div>
+  </div>  <div class="card" id="panel" style="display:none;">
+    <div class="info">
+      📍 ᴄᴀᴛᴀᴛᴀɴ ᴘᴇɴᴛɪɴɢ:
+      <br>• WEB JANGAN DI DDOS
+      <br>• TUTUPI DOMAIN KETIKA DI SCREENSHOT
+      <br>• DOMAIN JANGAN DI SEBAR
+      <br>• ALL TRANSAKSI NO REFUND
+      <br>• EXPIRED 1 BULAN PENUH
+      <br>• GARANSI 10 HARI 1X CLAIM
+      <br>• IKUTI CHANNEL INFORMATION UNTUK UPDATE STATUS
+    </div>
+    <h2>Buat Server</h2>
+    <input type="text" id="serverName" placeholder="Nama Server">
+    <select id="serverRam"></select>
+    <button id="createBtn">Buat Server</button>
+    <button id="listBtn">Lihat Jumlah Server</button>
+    <div id="result"></div>
+    <div class="contact">
+      <a href="https://whatsapp.com/channel/0029Vb6xLRoGJP8DZkSO3F1w" target="_blank"><i class="fab fa-whatsapp"></i></a>
+      <a href="https://wa.me/6285797133997" target="_blank"><i class="fas fa-headset"></i></a>
+    </div>
+  </div><script>
 const loginDiv = document.getElementById('loginDiv');
 const panel = document.getElementById('panel');
 const loginBtn = document.getElementById('loginBtn');
 const loginError = document.getElementById('loginError');
 const resultDiv = document.getElementById('result');
-const logoutBtn = document.getElementById('logoutBtn');
+const serverStatus = document.getElementById('serverStatus');
+const ramSelect = document.getElementById('serverRam');
 
-// Auto login jika sudah ada session
+// Dynamic RAM options
+['1','2','3','4','5','6','7','8','9','10','Unlimited'].forEach((val, i) => {
+  const opt = document.createElement('option');
+  opt.value = i === 10 ? 0 : (1024 * (i+1));
+  opt.textContent = i === 10 ? 'Unlimited' : `${val} GB`;
+  ramSelect.appendChild(opt);
+});
+
+// Check server status
+(async () => {
+  try {
+    const res = await fetch('/api/server');
+    const data = await res.json();
+    serverStatus.innerHTML = `<span class="${data.success ? 'online' : 'maintenance'}">${data.success ? 'ONLINE' : 'MAINTENANCE'}</span>`;
+  } catch {
+    serverStatus.innerHTML = `<span class="maintenance">MAINTENANCE</span>`;
+  }
+})();
+
+// Auto login
 if (localStorage.getItem('username')) {
   loginDiv.style.display = 'none';
-  panel.style.display = 'flex';
+  panel.style.display = 'block';
 }
 
+// Login
 loginBtn.addEventListener('click', async () => {
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value.trim();
@@ -150,7 +185,7 @@ loginBtn.addEventListener('click', async () => {
     if(data.success){
       localStorage.setItem('username', username);
       loginDiv.style.display = 'none';
-      panel.style.display = 'flex';
+      panel.style.display = 'block';
     } else {
       loginError.textContent = data.message;
     }
@@ -159,9 +194,11 @@ loginBtn.addEventListener('click', async () => {
   }
 });
 
-document.getElementById('createBtn').addEventListener('click', async () => {
+// Create server
+const createBtn = document.getElementById('createBtn');
+createBtn.addEventListener('click', async () => {
   const name = document.getElementById('serverName').value.trim();
-  const ram = document.getElementById('serverRam').value;
+  const ram = ramSelect.value;
   if(!name) return alert("Nama server harus diisi");
   resultDiv.textContent = "Membuat server...";
   try {
@@ -172,13 +209,7 @@ document.getElementById('createBtn').addEventListener('click', async () => {
     });
     const data = await res.json();
     if(data.success){
-      resultDiv.textContent = 
-        `✅ Server berhasil dibuat!\n` +
-        `Login Panel: ${data.panel}\n` +
-        `Username: ${data.username}\n` +
-        `Email: ${data.email}\n` +
-        `Password: ${data.password}\n` +
-        `RAM: ${data.ram} MB`;
+      resultDiv.textContent = `✅ Server berhasil dibuat!\nLogin Panel: ${data.panel}\nUsername: ${data.username}\nEmail: ${data.email}\nPassword: ${data.password}\nRAM: ${data.ram} MB`;
     } else {
       resultDiv.textContent = "❌ Gagal: " + data.message;
     }
@@ -187,7 +218,9 @@ document.getElementById('createBtn').addEventListener('click', async () => {
   }
 });
 
-document.getElementById('listBtn').addEventListener('click', async () => {
+// List servers
+const listBtn = document.getElementById('listBtn');
+listBtn.addEventListener('click', async () => {
   resultDiv.textContent = "Mengambil jumlah server...";
   try {
     const res = await fetch('/api/server');
@@ -201,13 +234,5 @@ document.getElementById('listBtn').addEventListener('click', async () => {
     resultDiv.textContent = "⚠️ Error: " + err.message;
   }
 });
-
-// Logout
-logoutBtn.addEventListener('click', () => {
-  localStorage.removeItem('username');
-  panel.style.display = 'none';
-  loginDiv.style.display = 'flex';
-});
-</script>
-</body>
+</script></body>
 </html>
