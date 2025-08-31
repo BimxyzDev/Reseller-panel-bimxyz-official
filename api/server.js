@@ -2,7 +2,7 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "";
+  const PANEL_URL = "https://adpsianjayserver.privatserver.my.id";
   const API_KEY   = "ptla_3KPJd57IqYW3akbO91rnQxLy4a1BVcWxSPoYohWxQE1";
   const NODE_ID   = 1;
   const EGG_ID    = 15;
