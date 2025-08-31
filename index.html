@@ -6,146 +6,96 @@
 <title>Reseller Panel —͟͞𝘽𝙞𝙢𝙭𝙮𝙯 𝙤𝙛𝙛𝙞𝙘𝙞𝙖𝙡</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
-
   body {
-    margin: 0;
+    margin:0;
     font-family: 'Orbitron', sans-serif;
-    background: #000;
+    background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
     color: #fff;
-    overflow: hidden;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-  }
-
-  /* Background animasi grid */
-  .bg-animation {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #0f0 1px, transparent 1px),
-                linear-gradient(225deg, #0f0 1px, transparent 1px);
-    background-size: 40px 40px;
-    opacity: 0.1;
-    animation: movebg 10s linear infinite;
-    z-index: -1;
-  }
-  @keyframes movebg {
-    0% { background-position: 0 0, 0 0; }
-    100% { background-position: 40px 40px, 40px 40px; }
-  }
-
-  /* Card utama */
-  .card {
-    background: rgba(20,20,20,0.9);
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 0 20px #0f0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 280px;
-    opacity: 0;
-    transform: scale(0.9);
-    animation: fadeIn 0.8s forwards;
-  }
-
-  @keyframes fadeIn {
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  /* Input, tombol, dan dropdown */
-  input, select, button {
-    margin: 8px 0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
     padding: 10px;
-    width: 100%;
-    border-radius: 8px;
-    border: none;
-    outline: none;
-    font-size: 14px;
-    background: #111;
-    color: #0f0;
-    box-shadow: 0 0 8px #0f0 inset;
+    box-sizing: border-box;
   }
-
+  .card {
+    background: rgba(20,20,20,0.95);
+    padding:20px;
+    border-radius:15px;
+    box-shadow: 0 0 20px #0f0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    width: 90%;
+    max-width: 320px;
+  }
+  input, select, button {
+    margin:8px 0;
+    padding:10px;
+    width:100%;
+    border-radius:8px;
+    border:none;
+    outline:none;
+    font-size:14px;
+    background:#111;
+    color:#0f0;
+    box-shadow: 0 0 10px #0f0 inset;
+    box-sizing: border-box;
+  }
   button {
-    cursor: pointer;
-    background: #0f0;
-    color: #000;
-    font-weight: bold;
-    box-shadow: 0 0 18px #0f0;
-    transition: 0.3s;
-    font-size: 14px;
+    cursor:pointer;
+    background:#0f0;
+    color:#000;
+    font-weight:bold;
+    box-shadow: 0 0 20px #0f0;
+    transition:0.3s;
   }
-
   button:hover {
-    box-shadow: 0 0 25px #0f0, 0 0 35px #0f0;
+    box-shadow: 0 0 30px #0f0, 0 0 40px #0f0;
   }
-
-  h1, h2 {
-    margin: 8px 0;
-    text-align: center;
+  h1,h2 {
+    margin:10px 0;
+    text-align:center;
     font-size: 18px;
   }
-
-  #panel {
-    display: none;
-    width: 100%;
-  }
-
+  #panel { display:none; width:100%; }
   #result {
-    white-space: pre-wrap;
-    margin-top: 10px;
-    background: #111;
-    padding: 8px;
-    border-radius: 8px;
-    max-height: 200px;
-    overflow-y: auto;
-    box-shadow: inset 0 0 8px #0f0;
+    white-space:pre-wrap;
+    margin-top:10px;
+    background:#111;
+    padding:8px;
+    border-radius:8px;
+    max-height:180px;
+    overflow-y:auto;
+    box-shadow: inset 0 0 10px #0f0;
     font-size: 13px;
   }
-
-  /* Branding dan footer */
-  .branding {
-    position: absolute;
-    top: 10px;
-    text-align: center;
-    width: 100%;
-    font-size: 16px;
-    text-shadow: 0 0 10px #0f0;
-    color: #0f0;
+  .logout-btn {
+    background: red;
+    color: white;
+    box-shadow: 0 0 20px red;
   }
-
+  .logout-btn:hover {
+    box-shadow: 0 0 30px red, 0 0 40px red;
+  }
   footer {
-    position: absolute;
-    bottom: 10px;
+    position: fixed;
+    bottom: 5px;
     text-align: center;
     width: 100%;
-    font-size: 11px;
+    font-size: 10px;
     color: #0f0;
-    opacity: 0.7;
   }
 </style>
 </head>
 <body>
-
-<div class="bg-animation"></div>
-
-<div class="branding">🚀 Bimxyz Official Reseller Panel</div>
 
 <div class="card" id="loginDiv">
   <h1>Reseller Panel Login</h1>
   <input type="text" id="username" placeholder="Username">
   <input type="password" id="password" placeholder="Password">
   <button id="loginBtn">Login</button>
-  <div id="loginError" style="color:red; text-align:center; margin-top:5px;"></div>
+  <div id="loginError" style="color:red; text-align:center; margin-top:5px; font-size:12px;"></div>
 </div>
 
 <div class="card" id="panel">
@@ -166,11 +116,11 @@
   </select>
   <button id="createBtn">Buat Server</button>
   <button id="listBtn">Lihat Jumlah Server</button>
-  <button id="logoutBtn" style="background:red; color:#fff; box-shadow:0 0 15px red; font-size:14px;">Logout</button>
+  <button id="logoutBtn" class="logout-btn">Logout</button>
   <div id="result"></div>
 </div>
 
-<footer>© 2025 Bimxyz Official — All Rights Reserved</footer>
+<footer>© 2025 Bimxyz Official – All Rights Reserved</footer>
 
 <script>
 const loginDiv = document.getElementById('loginDiv');
@@ -252,7 +202,7 @@ document.getElementById('listBtn').addEventListener('click', async () => {
   }
 });
 
-// Logout fitur
+// Logout
 logoutBtn.addEventListener('click', () => {
   localStorage.removeItem('username');
   panel.style.display = 'none';
@@ -260,4 +210,4 @@ logoutBtn.addEventListener('click', () => {
 });
 </script>
 </body>
-  </html>
+</html>
