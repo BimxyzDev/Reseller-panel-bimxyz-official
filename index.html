@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -115,7 +116,9 @@
     <input type="password" id="password" placeholder="Password">
     <button id="loginBtn">Login</button>
     <div id="loginError" style="color:red; text-align:center; margin-top:5px;"></div>
-  </div>  <div class="card" id="panel" style="display:none;">
+  </div>
+
+  <div class="card" id="panel" style="display:none;">
     <div class="info">
       📍 ᴄᴀᴛᴀᴛᴀɴ ᴘᴇɴᴛɪɴɢ:
       <br>• WEB JANGAN DI DDOS
@@ -131,12 +134,15 @@
     <select id="serverRam"></select>
     <button id="createBtn">Buat Server</button>
     <button id="listBtn">Lihat Jumlah Server</button>
+    <button id="logoutBtn">Logout</button>
     <div id="result"></div>
     <div class="contact">
       <a href="https://whatsapp.com/channel/0029Vb6xLRoGJP8DZkSO3F1w" target="_blank"><i class="fab fa-whatsapp"></i></a>
       <a href="https://wa.me/6285797133997" target="_blank"><i class="fas fa-headset"></i></a>
     </div>
-  </div><script>
+  </div>
+
+<script>
 const loginDiv = document.getElementById('loginDiv');
 const panel = document.getElementById('panel');
 const loginBtn = document.getElementById('loginBtn');
@@ -144,6 +150,7 @@ const loginError = document.getElementById('loginError');
 const resultDiv = document.getElementById('result');
 const serverStatus = document.getElementById('serverStatus');
 const ramSelect = document.getElementById('serverRam');
+const logoutBtn = document.getElementById('logoutBtn');
 
 // Dynamic RAM options
 ['1','2','3','4','5','6','7','8','9','10','Unlimited'].forEach((val, i) => {
@@ -195,8 +202,7 @@ loginBtn.addEventListener('click', async () => {
 });
 
 // Create server
-const createBtn = document.getElementById('createBtn');
-createBtn.addEventListener('click', async () => {
+document.getElementById('createBtn').addEventListener('click', async () => {
   const name = document.getElementById('serverName').value.trim();
   const ram = ramSelect.value;
   if(!name) return alert("Nama server harus diisi");
@@ -219,8 +225,7 @@ createBtn.addEventListener('click', async () => {
 });
 
 // List servers
-const listBtn = document.getElementById('listBtn');
-listBtn.addEventListener('click', async () => {
+document.getElementById('listBtn').addEventListener('click', async () => {
   resultDiv.textContent = "Mengambil jumlah server...";
   try {
     const res = await fetch('/api/server');
@@ -233,11 +238,13 @@ listBtn.addEventListener('click', async () => {
   } catch(err){
     resultDiv.textContent = "⚠️ Error: " + err.message;
   }
-  <button id="logoutBtn">Logout</button>
-  document.getElementById('logoutBtn').addEventListener('click', () => {
+});
+
+// Logout
+logoutBtn.addEventListener('click', () => {
   localStorage.removeItem('username');
   location.reload();
 });
-});
-</script></body>
+</script>
+</body>
 </html>
