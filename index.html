@@ -233,6 +233,11 @@ listBtn.addEventListener('click', async () => {
   } catch(err){
     resultDiv.textContent = "⚠️ Error: " + err.message;
   }
+  <button id="logoutBtn">Logout</button>
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+  localStorage.removeItem('username');
+  location.reload();
+});
 });
 </script></body>
 </html>
