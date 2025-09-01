@@ -46,8 +46,10 @@ export default async function handler(req, res) {
 
       // ====== Create server ======
       if (action === "create") {
-        // EMAIL SEKARANG SESUAI FORMAT: serverName@username.com
-        const email = `${name.toLowerCase().replace(/\s+/g, "_")}@${username.toLowerCase()}.com`;
+        // Buat email sesuai reseller, fallback jika username kosong
+        const resellerDomain = username ? `${username.toLowerCase()}.com` : "mail.com";
+        const cleanName = name.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
+        const email = `${cleanName}@${resellerDomain}`;
         const userPassword = Math.random().toString(36).slice(-8);
 
         // Buat user baru
@@ -60,13 +62,14 @@ export default async function handler(req, res) {
           },
           body: JSON.stringify({
             email,
-            username: name.toLowerCase().replace(/\s+/g, "_"),
+            username: cleanName,
             first_name: name,
             last_name: "Client",
             password: userPassword,
             root_admin: false
           })
         });
+
         const userData = await userRes.json();
         if (!userRes.ok) {
           return res.json({ success: false, message: JSON.stringify(userData) });
@@ -136,31 +139,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ success: false, message: "Method not allowed" });
-                                     }            feature_limits: { databases: 1, backups: 1, allocations: 1 },
-            allocation: { default: freeAlloc.attributes.id }
-          })
-        });
-
-        const serverData = await serverRes.json();
-        if (!serverRes.ok) {
-          return res.json({ success: false, message: JSON.stringify(serverData) });
-        }
-
-        return res.json({
-          success: true,
-          panel: PANEL_URL,
-          username: userData.attributes.username,
-          email: userData.attributes.email,
-          password: userPassword,
-          ram
-        });
-      }
-
-      return res.json({ success: false, message: "Action tidak dikenal" });
-    } catch (err) {
-      return res.json({ success: false, message: err.message });
-    }
-  }
-
-  return res.status(405).json({ success: false, message: "Method not allowed" });
-          }
+}
