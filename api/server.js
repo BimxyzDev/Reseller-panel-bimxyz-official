@@ -2,8 +2,8 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://anjayserverpaneladp.sallserver.web.id";
-  const API_KEY   = "ptla_M5ER35d4I9cmEMIvhQgmoYcJSW75eG4jzCBAw8QEmtA";
+  const PANEL_URL = "https://tailahvvip.sallnetwork.web.id";
+  const API_KEY   = "ptla_5cMcOcMZQ4FIThp32rFjh924PIemGJx98XFC3qLhYtu";
   const NODE_ID   = 1;
   const EGG_ID    = 15;
   const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_24";
