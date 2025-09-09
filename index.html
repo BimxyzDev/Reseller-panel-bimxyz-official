@@ -143,8 +143,7 @@
 <body>
   <!-- LOGIN PANEL -->
   <div class="card" id="loginDiv">
-    <div class="server-status" id="serverStatusPrivat">Checking Server Privat...</div>
-    <div class="server-status" id="serverStatusPublik">Checking Server Publik...</div>
+    <div class="server-status" id="serverStatus">Checking server...</div>
     <h1>Reseller Panel Login</h1>
     <input type="text" id="username" placeholder="Username">
     <input type="password" id="password" placeholder="Password">
@@ -154,8 +153,7 @@
 
   <!-- CPANEL UTAMA -->
   <div class="card" id="panel" style="display:none;">
-    <div class="server-status" id="serverStatusPanelPrivat">Checking Server Privat...</div>
-    <div class="server-status" id="serverStatusPanelPublik">Checking Server Publik...</div>
+    <div class="server-status" id="serverStatusPanel">Checking server...</div>
     <div class="info">
       📍 ᴄᴀᴛᴀᴛᴀɴ ᴘᴇɴᴛɪɴɢ:
       <br>• WEB JANGAN DI DDOS
@@ -168,10 +166,6 @@
     </div>
     <h2>Buat Server</h2>
     <input type="text" id="serverName" placeholder="Nama Server">
-    <select id="serverSelect">
-      <option value="privat">Server Privat</option>
-      <option value="publik">Server Publik</option>
-    </select>
     <select id="serverRam"></select>
     <button id="createBtn">Buat Server</button>
     <button id="listBtn">Lihat Jumlah Server</button>
@@ -189,8 +183,9 @@ const panel = document.getElementById('panel');
 const loginBtn = document.getElementById('loginBtn');
 const loginError = document.getElementById('loginError');
 const resultDiv = document.getElementById('result');
+const serverStatus = document.getElementById('serverStatus');
+const serverStatusPanel = document.getElementById('serverStatusPanel');
 const ramSelect = document.getElementById('serverRam');
-const serverSelect = document.getElementById('serverSelect');
 
 // RAM options
 ['1','2','3','4','5','6','7','8','9','10','Unlimited'].forEach((val, i) => {
@@ -205,18 +200,13 @@ const serverSelect = document.getElementById('serverSelect');
   try {
     const res = await fetch('/api/server');
     const data = await res.json();
-    const privatHTML = `<span class="${data.server1 ? 'online' : 'maintenance'}">${data.server1 ? 'ONLINE' : 'MAINTENANCE'}</span>`;
-    const publikHTML = `<span class="${data.server2 ? 'online' : 'maintenance'}">${data.server2 ? 'ONLINE' : 'MAINTENANCE'}</span>`;
-    document.getElementById('serverStatusPrivat').innerHTML = "Server Privat: " + privatHTML;
-    document.getElementById('serverStatusPublik').innerHTML = "Server Publik: " + publikHTML;
-    document.getElementById('serverStatusPanelPrivat').innerHTML = "Server Privat: " + privatHTML;
-    document.getElementById('serverStatusPanelPublik').innerHTML = "Server Publik: " + publikHTML;
+    const statusHTML = `<span class="${data.success ? 'online' : 'maintenance'}">${data.success ? 'ONLINE' : 'MAINTENANCE'}</span>`;
+    serverStatus.innerHTML = statusHTML;
+    serverStatusPanel.innerHTML = statusHTML;
   } catch {
     const offlineHTML = `<span class="maintenance">MAINTENANCE</span>`;
-    document.getElementById('serverStatusPrivat').innerHTML = "Server Privat: " + offlineHTML;
-    document.getElementById('serverStatusPublik').innerHTML = "Server Publik: " + offlineHTML;
-    document.getElementById('serverStatusPanelPrivat').innerHTML = "Server Privat: " + offlineHTML;
-    document.getElementById('serverStatusPanelPublik').innerHTML = "Server Publik: " + offlineHTML;
+    serverStatus.innerHTML = offlineHTML;
+    serverStatusPanel.innerHTML = offlineHTML;
   }
 })();
 
@@ -254,14 +244,13 @@ loginBtn.addEventListener('click', async () => {
 document.getElementById('createBtn').addEventListener('click', async () => {
   const name = document.getElementById('serverName').value.trim();
   const ram = ramSelect.value;
-  const server = serverSelect.value;
   if(!name) return alert("Nama server harus diisi");
   resultDiv.textContent = "Membuat server...";
   try {
     const res = await fetch('/api/server', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({action:'create', name, ram, server})
+      body: JSON.stringify({action:'create', name, ram})
     });
     const data = await res.json();
     if(data.success){
@@ -281,7 +270,7 @@ document.getElementById('listBtn').addEventListener('click', async () => {
     const res = await fetch('/api/server');
     const data = await res.json();
     if(data.success){
-      resultDiv.textContent = `📊 Jumlah server:\nPrivat: ${data.count1}\nPublik: ${data.count2}`;
+      resultDiv.textContent = `📊 Jumlah server di panel: ${data.count}`;
     } else {
       resultDiv.textContent = "❌ Gagal ambil data: " + data.message;
     }
@@ -297,4 +286,4 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 });
 </script>
 </body>
-  </html>
+</html>
