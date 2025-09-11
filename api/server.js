@@ -32,7 +32,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const { action, username, password, name, ram } = req.body;
+    const { action, username, password, name, ram, serverId } = req.body;
 
     try {
       // ====== Login ======
@@ -124,8 +124,30 @@ export default async function handler(req, res) {
           username: userData.attributes.username,
           email: userData.attributes.email,
           password: userPassword,
-          ram
+          ram,
+          serverId: serverData.attributes.id // simpan id server buat hapus nanti
         });
+      }
+
+      // ====== Delete server ======
+      if (action === "delete") {
+        if (!serverId) {
+          return res.json({ success: false, message: "Server ID harus ada!" });
+        }
+        const delRes = await fetch(`${PANEL_URL}/api/application/servers/${serverId}`, {
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${API_KEY}`,
+            "Accept": "application/json"
+          }
+        });
+
+        if (delRes.status === 204) {
+          return res.json({ success: true, message: "Server berhasil dihapus" });
+        } else {
+          const errData = await delRes.json();
+          return res.json({ success: false, message: JSON.stringify(errData) });
+        }
       }
 
       return res.json({ success: false, message: "Action tidak dikenal" });
@@ -135,4 +157,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ success: false, message: "Method not allowed" });
-          }
+           }
