@@ -14,11 +14,11 @@ body {
   background: #0d1117;
   color: #e6e6e6;
   display: flex;
-  justify-content: center;
-  align-items: center;   /* card ketengah */
+  justify-content: center;   /* center horizontal */
+  align-items: center;       /* center vertical */
   flex-direction: column;
-  height: 100vh;         /* pasin layar */
-  overflow-y: hidden;    /* cegah scroll global */
+  min-height: 100vh;         /* biar pas layar */
+  overflow-y: hidden;        /* cegah scroll global */
 }
 
 /* Judul */
@@ -31,15 +31,14 @@ h1, h2 {
 /* Card utama */
 .card {
   background: #161b22;
-  padding: 25px;
+  padding: 30px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  width: 420px;           /* digedein */
-  margin: auto;
-  margin-bottom: 20px;
-  overflow-y: auto;      
-  max-height: 90vh;      
-  box-sizing: border-box; 
+  width: 460px;              /* gede */
+  margin: 0;
+  overflow-y: auto;
+  max-height: 90vh;
+  box-sizing: border-box;
 }
 
 /* Input, select, button */
@@ -47,8 +46,8 @@ input, select, button {
   margin: 10px 0;
   padding: 10px;
   width: 100%;
-  max-width: 100%;       /* fix input kepanjangan */
-  box-sizing: border-box; 
+  max-width: 100%;
+  box-sizing: border-box;
   border-radius: 8px;
   border: 1px solid #30363d;
   outline: none;
@@ -110,7 +109,7 @@ button:hover { background: #2ea043; }
   background: #0d1117;
   padding: 10px;
   border-radius: 8px;
-  max-height: 200px;   /* batasi scroll */
+  max-height: 200px;
   overflow-y: auto;
   border: 1px solid #30363d;
   font-size: 13px;
@@ -136,19 +135,22 @@ button:hover { background: #2ea043; }
 /* Riwayat server */
 #historySection { display: none; }
 #historyList {
-  max-height: 400px;   /* batasi scroll riwayat */
+  max-height: 400px;
   overflow-y: auto;
   margin-top: 10px;
 }
 #historyList .card { margin-bottom: 10px; }
 
 /* Responsive */
-@media(max-width: 480px){
-  .card{ width: 95%; }
+@media(max-width: 500px){
+  .card {
+    width: 95%;
+    padding: 20px;
+  }
 }
 </style>
 </head>
-<body>
+<body> 
 
 <!-- LOGIN PANEL -->
 <div class="card" id="loginDiv">
@@ -165,13 +167,13 @@ button:hover { background: #2ea043; }
   <div class="server-status" id="serverStatusPanel">Checking server...</div>
   <div class="info">
     📍 ᴄᴀᴛᴀᴛᴀɴ ᴘᴇɴᴛɪɴɢ:
-    <br>• WEB JANGAN DI DDOS
-    <br>• TUTUPI DOMAIN KETIKA DI SCREENSHOT
-    <br>• DOMAIN JANGAN DI SEBAR
+    <br>• PANEL JANGAN DI DDOS
+    <br>• TUTUPI DOMAIN PANEL KETIKA DI SCREENSHOT
+    <br>• DOMAIN PANEL JANGAN DI SEBAR
     <br>• ALL TRANSAKSI NO REFUND
-    <br>• EXPIRED 1 BULAN PENUH
-    <br>• GARANSI 10 HARI 1X CLAIM
-    <br>• IKUTI CHANNEL INFORMATION UNTUK UPDATE STATUS
+    <br>• EXPIRED PANEL ±1 BULAN PENUH
+    <br>• BIKIN SERVER HARUS DIPAKAI
+    <br>• IKUTI CHANNEL INFORMATION (IKON WHATSAPP) UNTUK UPDATE STATUS
   </div>
   <h2>Buat Server</h2>
   <input type="text" id="serverName" placeholder="Nama Server" maxlength="20">
