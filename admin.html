@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — Reseller</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0d1117;
+      color: #e6e6e6;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .container {
+      width: 95%;
+      max-width: 600px;
+      margin-top: 40px;
+      background: #161b22;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #e6e6e6;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    button {
+      background: #238636;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover { background: #2ea043; }
+    .section { margin-top: 20px; }
+    .hidden { display: none; }
+    pre {
+      background: #0d1117;
+      padding: 10px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Admin Panel</h1>
+
+    <!-- Login -->
+    <div id="loginSection">
+      <h3>Login Admin</h3>
+      <input type="text" id="adminUser" placeholder="Username">
+      <input type="password" id="adminPass" placeholder="Password">
+      <button onclick="loginAdmin()">Login</button>
+      <p id="loginMsg"></p>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="hidden">
+      <!-- Update Config -->
+      <div class="section">
+        <h3>Update Config</h3>
+        <input type="text" id="panelUrl" placeholder="Panel URL">
+        <input type="text" id="apiKey" placeholder="API Key">
+        <button onclick="updateConfig()">Simpan Config</button>
+        <p id="configMsg"></p>
+      </div>
+
+      <!-- List Users -->
+      <div class="section">
+        <h3>Data User cPanel</h3>
+        <button onclick="listUsers()">Tampilkan User</button>
+        <pre id="userList">Belum ada data...</pre>
+      </div>
+    </div>
+  </div>
+
+<script>
+let isAdmin = false;
+
+async function loginAdmin() {
+  const username = document.getElementById("adminUser").value;
+  const password = document.getElementById("adminPass").value;
+
+  const res = await fetch("/api/server", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "login", role: "admin", username, password })
+  });
+  const data = await res.json();
+
+  if (data.success) {
+    isAdmin = true;
+    document.getElementById("loginSection").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+  } else {
+    document.getElementById("loginMsg").innerText = data.message;
+  }
+}
+
+async function updateConfig() {
+  if (!isAdmin) return;
+  const panel_url = document.getElementById("panelUrl").value;
+  const api_key = document.getElementById("apiKey").value;
+
+  const res = await fetch("/api/server", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "updateConfig", role: "admin", panel_url, api_key })
+  });
+  const data = await res.json();
+  document.getElementById("configMsg").innerText = data.message || "Gagal update config";
+}
+
+async function listUsers() {
+  if (!isAdmin) return;
+
+  const res = await fetch("/api/server", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "listUsers", role: "admin" })
+  });
+  const data = await res.json();
+
+  if (data.success) {
+    document.getElementById("userList").innerText = JSON.stringify(data.users, null, 2);
+  } else {
+    document.getElementById("userList").innerText = data.message || "Gagal ambil data user";
+  }
+}
+</script>
+</body>
+</html>
