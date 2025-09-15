@@ -1,55 +1,58 @@
 // api/server.js
-import { validateLogin } from './account';
+import { MongoClient } from "mongodb";
+import { validateLogin } from "./account";
+
+const uri = process.env.MONGODB_URI; // simpen di .env
+const client = new MongoClient(uri);
+
+// Konstanta (tetap di repo, bukan DB)
+const NODE_ID = 1;
+const EGG_ID = 15;
+const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_24";
+
+// Login Admin hardcode / dari .env
+const ADMIN_USER = process.env.ADMIN_USER || "admin";
+const ADMIN_PASS = process.env.ADMIN_PASS || "password";
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://adminpanel.anjayserverpanel.my.id";
-  const API_KEY   = "ptla_G3pQ2DOUvpYu6yoK7L6TmaHcNzdpXlCEKcrDhU2CiYO";
-  const NODE_ID   = 1;
-  const EGG_ID    = 15;
-  const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_24";
+  await client.connect();
+  const db = client.db("reseller_panel");
+  const configCollection = db.collection("config");
+  const usersCollection = db.collection("users");
 
-  if (req.method === "GET") {
-    // ====== List servers ======
-    try {
-      const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${API_KEY}`,
-          "Accept": "application/json"
-        }
-      });
-      const serverData = await serverRes.json();
-      if (!serverRes.ok) {
-        return res.json({ success: false, message: JSON.stringify(serverData) });
-      }
-      return res.json({
-        success: true,
-        count: serverData.meta.pagination.total
-      });
-    } catch (err) {
-      return res.json({ success: false, message: err.message });
-    }
-  }
+  // Ambil config panel_url & api_key
+  const config = await configCollection.findOne({ _id: "panelConfig" });
+
+  let PANEL_URL = config?.panel_url || "https://your-default-panel.url";
+  let API_KEY = config?.api_key || "your-default-apikey";
 
   if (req.method === "POST") {
-    const { action, username, password, name, ram, serverId } = req.body;
+    const { action, username, password, name, ram, serverId, role } = req.body;
 
     try {
       // ====== Login ======
       if (action === "login") {
-        if (validateLogin(username, password)) {
-          return res.json({ success: true });
-        } else {
-          return res.json({ success: false, message: "Login gagal!" });
+        if (role === "admin") {
+          if (username === ADMIN_USER && password === ADMIN_PASS) {
+            return res.json({ success: true, role: "admin" });
+          }
+          return res.json({ success: false, message: "Login admin gagal!" });
+        }
+
+        if (role === "user") {
+          if (validateLogin(username, password)) {
+            return res.json({ success: true, role: "user" });
+          }
+          return res.json({ success: false, message: "Login user gagal!" });
         }
       }
 
-      // ====== Create server ======
+      // ====== Create server (User) ======
       if (action === "create") {
         const email = `user${Date.now()}@mail.com`;
         const userPassword = Math.random().toString(36).slice(-8);
 
-        // Buat user baru
+        // Buat user baru di panel
         const userRes = await fetch(`${PANEL_URL}/api/application/users`, {
           method: "POST",
           headers: {
@@ -118,6 +121,16 @@ export default async function handler(req, res) {
           return res.json({ success: false, message: JSON.stringify(serverData) });
         }
 
+        // Simpan user ke DB
+        await usersCollection.insertOne({
+          username: userData.attributes.username,
+          email: userData.attributes.email,
+          password: userPassword,
+          ram,
+          serverId: serverData.attributes.id,
+          createdAt: new Date()
+        });
+
         return res.json({
           success: true,
           panel: PANEL_URL,
@@ -125,7 +138,7 @@ export default async function handler(req, res) {
           email: userData.attributes.email,
           password: userPassword,
           ram,
-          serverId: serverData.attributes.id // simpan id server buat hapus nanti
+          serverId: serverData.attributes.id
         });
       }
 
@@ -143,11 +156,29 @@ export default async function handler(req, res) {
         });
 
         if (delRes.status === 204) {
+          await usersCollection.deleteOne({ serverId });
           return res.json({ success: true, message: "Server berhasil dihapus" });
         } else {
           const errData = await delRes.json();
           return res.json({ success: false, message: JSON.stringify(errData) });
         }
+      }
+
+      // ====== Admin update config ======
+      if (action === "updateConfig" && role === "admin") {
+        const { panel_url, api_key } = req.body;
+        await configCollection.updateOne(
+          { _id: "panelConfig" },
+          { $set: { panel_url, api_key } },
+          { upsert: true }
+        );
+        return res.json({ success: true, message: "Config berhasil diupdate" });
+      }
+
+      // ====== Admin lihat user ======
+      if (action === "listUsers" && role === "admin") {
+        const users = await usersCollection.find().toArray();
+        return res.json({ success: true, users });
       }
 
       return res.json({ success: false, message: "Action tidak dikenal" });
@@ -156,5 +187,28 @@ export default async function handler(req, res) {
     }
   }
 
+  // ====== GET → jumlah server ======
+  if (req.method === "GET") {
+    try {
+      const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${API_KEY}`,
+          "Accept": "application/json"
+        }
+      });
+      const serverData = await serverRes.json();
+      if (!serverRes.ok) {
+        return res.json({ success: false, message: JSON.stringify(serverData) });
+      }
+      return res.json({
+        success: true,
+        count: serverData.meta.pagination.total
+      });
+    } catch (err) {
+      return res.json({ success: false, message: err.message });
+    }
+  }
+
   return res.status(405).json({ success: false, message: "Method not allowed" });
-           }
+              }
