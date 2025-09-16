@@ -270,17 +270,28 @@ document.getElementById('createBtn').addEventListener('click', async ()=>{
   const name = document.getElementById('serverName').value.trim();
   const ram = ramSelect.value;
   if(!name) return alert("Nama server harus diisi");
-  resultDiv.textContent="Membuat server...";
-  try{
-    const res = await fetch('/api/server',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'create', name, ram})
+  resultDiv.textContent = "Membuat server...";
+  try {
+    const res = await fetch('/api/server', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({action:'create', name, ram})
     });
     const data = await res.json();
     if(data.success){
-      resultDiv.textContent=`✅ Server berhasil dibuat!\nLogin Panel: ${data.panel}\nUsername: ${data.username}\nEmail: ${data.email}\nPassword: ${data.password}\nRAM: ${data.ram*550} MB`;
-
+      resultDiv.textContent = `✅ Server berhasil dibuat!
+Login Panel: ${data.panel}
+Username: ${data.username}
+Email: ${data.email}
+Password: ${data.password}
+RAM: ${data.ram == 0 ? 'Unlimited' : data.ram * 550 + ' MB'}`;
+    } else {
+      resultDiv.textContent = "❌ Gagal: " + data.message;
+    }
+  } catch(err){
+    resultDiv.textContent = "⚠️ Error: " + err.message;
+  }
+});
       // Simpan ke riwayat
       const history = JSON.parse(localStorage.getItem('serverHistory')||'[]');
       history.push({
