@@ -1,20 +1,79 @@
 // api/server.js
-import { validateLogin } from './account';
+import { MongoClient } from "mongodb";
+
+// === CONFIG FIX ===
+const NODE_ID     = 1;   // tetap hardcode
+const EGG_ID      = 15;  // tetap hardcode
+const DOCKER_IMG  = "ghcr.io/parkervcp/yolks:nodejs_24";
+
+const MONGO_URI   = "mongodb+srv://bimaputra436123_db_user:UBw7SRgkBNZJKa9J@cluster0.6gh1zyd.mongodb.net/reseller_panel";
+const ADMIN_USER  = "admin";
+const ADMIN_PASS  = "12345";
+
+// Reuse Mongo Client
+let client;
+async function getClient() {
+  if (!client) {
+    client = new MongoClient(MONGO_URI);
+    await client.connect();
+  }
+  return client;
+}
+
+async function getConfigFromDB() {
+  const db = (await getClient()).db("reseller_panel");
+  const col = db.collection("config");
+  const cfg = await col.findOne({ type: "server" });
+  return cfg || {};
+}
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://adminpanel.anjayserverpanel.my.id";
-  const API_KEY   = "ptla_G3pQ2DOUvpYu6yoK7L6TmaHcNzdpXlCEKcrDhU2CiYO";
-  const NODE_ID   = 1;
-  const EGG_ID    = 15;
-  const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_24";
+  // ===== ADMIN API =====
+  if (req.method === "POST" && req.body?.action === "adminLogin") {
+    const { username, password } = req.body;
+    if (username === ADMIN_USER && password === ADMIN_PASS) {
+      return res.json({ success: true, message: "Login admin berhasil" });
+    }
+    return res.json({ success: false, message: "User/pass salah!" });
+  }
 
-  if (req.method === "GET") {
-    // ====== List servers ======
+  if (req.method === "POST" && req.body?.action === "updateConfig") {
+    const { panelUrl, apiKey } = req.body;
     try {
-      const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
+      const db = (await getClient()).db("reseller_panel");
+      const col = db.collection("config");
+      await col.updateOne(
+        { type: "server" },
+        { $set: { panelUrl, apiKey } },
+        { upsert: true }
+      );
+      return res.json({ success: true, message: "Config berhasil diupdate" });
+    } catch (err) {
+      return res.json({ success: false, message: err.message });
+    }
+  }
+
+  if (req.method === "GET" && req.query?.action === "getConfig") {
+    try {
+      const cfg = await getConfigFromDB();
+      return res.json({ success: true, data: cfg });
+    } catch (err) {
+      return res.json({ success: false, message: err.message });
+    }
+  }
+
+  // ===== USER API =====
+  if (req.method === "GET") {
+    try {
+      const { panelUrl, apiKey } = await getConfigFromDB();
+      if (!panelUrl || !apiKey) {
+        return res.json({ success: false, message: "Config belum diset di admin panel" });
+      }
+
+      const serverRes = await fetch(`${panelUrl}/api/application/servers`, {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${API_KEY}`,
+          "Authorization": `Bearer ${apiKey}`,
           "Accept": "application/json"
         }
       });
@@ -35,25 +94,30 @@ export default async function handler(req, res) {
     const { action, username, password, name, ram, serverId } = req.body;
 
     try {
-      // ====== Login ======
+      const { panelUrl, apiKey } = await getConfigFromDB();
+      if (!panelUrl || !apiKey) {
+        return res.json({ success: false, message: "Config belum diset di admin panel" });
+      }
+
+      // ===== Login user =====
       if (action === "login") {
-        if (validateLogin(username, password)) {
+        if (username === "user" && password === "pass") {
           return res.json({ success: true });
         } else {
           return res.json({ success: false, message: "Login gagal!" });
         }
       }
 
-      // ====== Create server ======
+      // ===== Create server =====
       if (action === "create") {
         const email = `user${Date.now()}@mail.com`;
         const userPassword = Math.random().toString(36).slice(-8);
 
         // Buat user baru
-        const userRes = await fetch(`${PANEL_URL}/api/application/users`, {
+        const userRes = await fetch(`${panelUrl}/api/application/users`, {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${API_KEY}`,
+            "Authorization": `Bearer ${apiKey}`,
             "Content-Type": "application/json",
             "Accept": "application/json"
           },
@@ -73,8 +137,8 @@ export default async function handler(req, res) {
         const userId = userData.attributes.id;
 
         // Cari allocation kosong
-        const allocRes = await fetch(`${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations`, {
-          headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
+        const allocRes = await fetch(`${panelUrl}/api/application/nodes/${NODE_ID}/allocations`, {
+          headers: { "Authorization": `Bearer ${apiKey}`, "Accept": "application/json" }
         });
         const allocData = await allocRes.json();
         const freeAlloc = allocData.data.find(a => a.attributes.assigned === false);
@@ -83,8 +147,8 @@ export default async function handler(req, res) {
         }
 
         // Ambil environment variable default dari egg
-        const eggRes = await fetch(`${PANEL_URL}/api/application/nests/5/eggs/${EGG_ID}?include=variables`, {
-          headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
+        const eggRes = await fetch(`${panelUrl}/api/application/nests/5/eggs/${EGG_ID}?include=variables`, {
+          headers: { "Authorization": `Bearer ${apiKey}`, "Accept": "application/json" }
         });
         const eggData = await eggRes.json();
         const env = {};
@@ -93,10 +157,10 @@ export default async function handler(req, res) {
         });
 
         // Buat server
-        const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
+        const serverRes = await fetch(`${panelUrl}/api/application/servers`, {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${API_KEY}`,
+            "Authorization": `Bearer ${apiKey}`,
             "Content-Type": "application/json",
             "Accept": "application/json"
           },
@@ -120,24 +184,24 @@ export default async function handler(req, res) {
 
         return res.json({
           success: true,
-          panel: PANEL_URL,
+          panel: panelUrl,
           username: userData.attributes.username,
           email: userData.attributes.email,
           password: userPassword,
           ram,
-          serverId: serverData.attributes.id // simpan id server buat hapus nanti
+          serverId: serverData.attributes.id
         });
       }
 
-      // ====== Delete server ======
+      // ===== Delete server =====
       if (action === "delete") {
         if (!serverId) {
           return res.json({ success: false, message: "Server ID harus ada!" });
         }
-        const delRes = await fetch(`${PANEL_URL}/api/application/servers/${serverId}`, {
+        const delRes = await fetch(`${panelUrl}/api/application/servers/${serverId}`, {
           method: "DELETE",
           headers: {
-            "Authorization": `Bearer ${API_KEY}`,
+            "Authorization": `Bearer ${apiKey}`,
             "Accept": "application/json"
           }
         });
@@ -157,4 +221,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ success: false, message: "Method not allowed" });
-           }
+}
