@@ -3,148 +3,161 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel — Reseller</title>
+  <title>Admin Panel - Reseller</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #0d1117;
-      color: #e6e6e6;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      background: #f9fafb;
+      margin: 0; padding: 0;
+      display: flex; align-items: center; justify-content: center;
       min-height: 100vh;
     }
-    .container {
-      width: 95%;
-      max-width: 600px;
-      margin-top: 40px;
-      background: #161b22;
-      padding: 20px;
+    .card {
+      background: #fff;
+      padding: 24px;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      max-width: 420px;
+      width: 100%;
     }
-    h1 {
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
       text-align: center;
-      margin-bottom: 20px;
-      color: #fff;
+      color: #111827;
     }
-    input, button {
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+    input {
       width: 100%;
       padding: 10px;
-      margin: 8px 0;
+      border: 1px solid #d1d5db;
       border-radius: 8px;
-      border: 1px solid #30363d;
-      background: #0d1117;
-      color: #e6e6e6;
       font-size: 14px;
-      box-sizing: border-box;
     }
     button {
-      background: #238636;
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:hover { background: #2ea043; }
-    .section { margin-top: 20px; }
-    .hidden { display: none; }
-    pre {
-      background: #0d1117;
-      padding: 10px;
+      width: 100%;
+      padding: 12px;
+      background: #2563eb;
+      color: white;
+      border: none;
       border-radius: 8px;
-      overflow-x: auto;
-      font-size: 13px;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 10px;
     }
+    button:hover { background: #1d4ed8; }
+    .danger { background: #dc2626; }
+    .danger:hover { background: #b91c1c; }
+    .msg {
+      margin-top: 10px;
+      font-size: 14px;
+      text-align: center;
+    }
+    .success { color: #16a34a; }
+    .error { color: #dc2626; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Admin Panel</h1>
-
-    <!-- Login -->
-    <div id="loginSection">
-      <h3>Login Admin</h3>
-      <input type="text" id="adminUser" placeholder="Username">
-      <input type="password" id="adminPass" placeholder="Password">
+  <div class="card">
+    <!-- LOGIN -->
+    <div id="loginForm">
+      <h2>Login Admin</h2>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="adminUser" placeholder="Username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="adminPass" placeholder="Password">
+      </div>
       <button onclick="loginAdmin()">Login</button>
-      <p id="loginMsg"></p>
+      <div class="msg" id="loginMsg"></div>
     </div>
 
-    <!-- Dashboard -->
-    <div id="dashboard" class="hidden">
-      <!-- Update Config -->
-      <div class="section">
-        <h3>Update Config</h3>
-        <input type="text" id="panelUrl" placeholder="Panel URL">
-        <input type="text" id="apiKey" placeholder="API Key">
-        <button onclick="updateConfig()">Simpan Config</button>
-        <p id="configMsg"></p>
+    <!-- DASHBOARD -->
+    <div id="dashboard" style="display:none;">
+      <h2>Server Config</h2>
+      <div class="form-group">
+        <label>Panel URL</label>
+        <input type="text" id="panelUrl" placeholder="https://panel.example.com">
       </div>
-
-      <!-- List Users -->
-      <div class="section">
-        <h3>Data User cPanel</h3>
-        <button onclick="listUsers()">Tampilkan User</button>
-        <pre id="userList">Belum ada data...</pre>
+      <div class="form-group">
+        <label>API Key</label>
+        <input type="text" id="apiKey" placeholder="API Key...">
       </div>
+      <button onclick="updateConfig()">💾 Simpan Config</button>
+      <button onclick="getConfig()">📌 Lihat Config</button>
+      <button class="danger" onclick="logout()">🚪 Logout</button>
+      <div class="msg" id="dashMsg"></div>
     </div>
   </div>
 
-<script>
-let isAdmin = false;
+  <script>
+    async function loginAdmin() {
+      const username = document.getElementById("adminUser").value.trim();
+      const password = document.getElementById("adminPass").value.trim();
+      const res = await fetch("/api/server", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ action: "adminLogin", username, password })
+      });
+      const data = await res.json();
+      const msg = document.getElementById("loginMsg");
+      if (data.success) {
+        msg.textContent = data.message;
+        msg.className = "msg success";
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+      } else {
+        msg.textContent = data.message;
+        msg.className = "msg error";
+      }
+    }
 
-async function loginAdmin() {
-  const username = document.getElementById("adminUser").value;
-  const password = document.getElementById("adminPass").value;
+    async function updateConfig() {
+      const panelUrl = document.getElementById("panelUrl").value.trim();
+      const apiKey = document.getElementById("apiKey").value.trim();
+      const res = await fetch("/api/server", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ action: "updateConfig", panelUrl, apiKey })
+      });
+      const data = await res.json();
+      const msg = document.getElementById("dashMsg");
+      msg.textContent = data.message;
+      msg.className = data.success ? "msg success" : "msg error";
+    }
 
-  const res = await fetch("/api/server", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "login", role: "admin", username, password })
-  });
-  const data = await res.json();
+    async function getConfig() {
+      const res = await fetch("/api/server?action=getConfig");
+      const data = await res.json();
+      const msg = document.getElementById("dashMsg");
+      if (data.success && data.data) {
+        document.getElementById("panelUrl").value = data.data.panelUrl || "";
+        document.getElementById("apiKey").value = data.data.apiKey || "";
+        msg.textContent = "Config berhasil ditampilkan";
+        msg.className = "msg success";
+      } else {
+        msg.textContent = data.message || "Gagal ambil config";
+        msg.className = "msg error";
+      }
+    }
 
-  if (data.success) {
-    isAdmin = true;
-    document.getElementById("loginSection").classList.add("hidden");
-    document.getElementById("dashboard").classList.remove("hidden");
-  } else {
-    document.getElementById("loginMsg").innerText = data.message;
-  }
-}
-
-async function updateConfig() {
-  if (!isAdmin) return;
-  const panel_url = document.getElementById("panelUrl").value;
-  const api_key = document.getElementById("apiKey").value;
-
-  const res = await fetch("/api/server", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "updateConfig", role: "admin", panel_url, api_key })
-  });
-  const data = await res.json();
-  document.getElementById("configMsg").innerText = data.message || "Gagal update config";
-}
-
-async function listUsers() {
-  if (!isAdmin) return;
-
-  const res = await fetch("/api/server", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "listUsers", role: "admin" })
-  });
-  const data = await res.json();
-
-  if (data.success) {
-    document.getElementById("userList").innerText = JSON.stringify(data.users, null, 2);
-  } else {
-    document.getElementById("userList").innerText = data.message || "Gagal ambil data user";
-  }
-}
-</script>
+    function logout() {
+      document.getElementById("dashboard").style.display = "none";
+      document.getElementById("loginForm").style.display = "block";
+      document.getElementById("adminUser").value = "";
+      document.getElementById("adminPass").value = "";
+      document.getElementById("loginMsg").textContent = "";
+    }
+  </script>
 </body>
 </html>
