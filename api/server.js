@@ -1,123 +1,91 @@
 // api/server.js
 import { MongoClient } from "mongodb";
+import { validateLogin } from "./account";
 
-// === CONFIG FIX ===
-const NODE_ID     = 1;   // tetap hardcode
-const EGG_ID      = 15;  // tetap hardcode
-const DOCKER_IMG  = "ghcr.io/parkervcp/yolks:nodejs_24";
+const uri = "mongodb+srv://bimaputra436123_db_user:UBw7SRgkBNZJKa9J@cluster0.6gh1zyd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const client = new MongoClient(uri);
 
-const MONGO_URI   = "mongodb+srv://bimaputra436123_db_user:UBw7SRgkBNZJKa9J@cluster0.6gh1zyd.mongodb.net/reseller_panel";
-const ADMIN_USER  = "admin";
-const ADMIN_PASS  = "12345";
+// Admin login hardcode
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "admin123";
 
-// Reuse Mongo Client
-let client;
-async function getClient() {
-  if (!client) {
-    client = new MongoClient(MONGO_URI);
-    await client.connect();
-  }
-  return client;
-}
-
-async function getConfigFromDB() {
-  const db = (await getClient()).db("reseller_panel");
-  const col = db.collection("config");
-  const cfg = await col.findOne({ type: "server" });
-  return cfg || {};
-}
+// Default static config (node_id dll tetep disini, ga ke DB)
+const NODE_ID = 1;
+const EGG_ID = 15;
+const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_24";
 
 export default async function handler(req, res) {
-  // ===== ADMIN API =====
-  if (req.method === "POST" && req.body?.action === "adminLogin") {
-    const { username, password } = req.body;
-    if (username === ADMIN_USER && password === ADMIN_PASS) {
-      return res.json({ success: true, message: "Login admin berhasil" });
-    }
-    return res.json({ success: false, message: "User/pass salah!" });
-  }
-
-  if (req.method === "POST" && req.body?.action === "updateConfig") {
-    const { panelUrl, apiKey } = req.body;
-    try {
-      const db = (await getClient()).db("reseller_panel");
-      const col = db.collection("config");
-      await col.updateOne(
-        { type: "server" },
-        { $set: { panelUrl, apiKey } },
-        { upsert: true }
-      );
-      return res.json({ success: true, message: "Config berhasil diupdate" });
-    } catch (err) {
-      return res.json({ success: false, message: err.message });
-    }
-  }
-
-  if (req.method === "GET" && req.query?.action === "getConfig") {
-    try {
-      const cfg = await getConfigFromDB();
-      return res.json({ success: true, data: cfg });
-    } catch (err) {
-      return res.json({ success: false, message: err.message });
-    }
-  }
-
-  // ===== USER API =====
-  if (req.method === "GET") {
-    try {
-      const { panelUrl, apiKey } = await getConfigFromDB();
-      if (!panelUrl || !apiKey) {
-        return res.json({ success: false, message: "Config belum diset di admin panel" });
-      }
-
-      const serverRes = await fetch(`${panelUrl}/api/application/servers`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "Accept": "application/json"
-        }
-      });
-      const serverData = await serverRes.json();
-      if (!serverRes.ok) {
-        return res.json({ success: false, message: JSON.stringify(serverData) });
-      }
-      return res.json({
-        success: true,
-        count: serverData.meta.pagination.total
-      });
-    } catch (err) {
-      return res.json({ success: false, message: err.message });
-    }
-  }
+  await client.connect();
+  const db = client.db("reseller_panel");
+  const configs = db.collection("configs");
+  const users = db.collection("users");
 
   if (req.method === "POST") {
-    const { action, username, password, name, ram, serverId } = req.body;
+    const { action, username, password, name, ram, serverId, panelUrl, apiKey } = req.body;
 
     try {
-      const { panelUrl, apiKey } = await getConfigFromDB();
-      if (!panelUrl || !apiKey) {
-        return res.json({ success: false, message: "Config belum diset di admin panel" });
-      }
-
-      // ===== Login user =====
-      if (action === "login") {
-        if (username === "user" && password === "pass") {
-          return res.json({ success: true });
-        } else {
-          return res.json({ success: false, message: "Login gagal!" });
+      // ===== Admin Login =====
+      if (action === "adminLogin") {
+        if (username === ADMIN_USER && password === ADMIN_PASS) {
+          return res.json({ success: true, role: "admin" });
         }
+        return res.json({ success: false, message: "Login admin gagal!" });
       }
 
-      // ===== Create server =====
+      // ===== User Login (cPanel user) =====
+      if (action === "login") {
+        if (validateLogin(username, password)) {
+          return res.json({ success: true, role: "user" });
+        }
+        return res.json({ success: false, message: "Login user gagal!" });
+      }
+
+      // ===== Tambah User cPanel =====
+      if (action === "addUser") {
+        await users.insertOne({ username, password });
+        return res.json({ success: true, message: "User berhasil ditambahkan" });
+      }
+
+      // ===== Hapus User cPanel =====
+      if (action === "deleteUser") {
+        await users.deleteOne({ username });
+        return res.json({ success: true, message: "User berhasil dihapus" });
+      }
+
+      // ===== Ambil semua user =====
+      if (action === "getUsers") {
+        const allUsers = await users.find().toArray();
+        return res.json({ success: true, users: allUsers });
+      }
+
+      // ===== Update Config Panel =====
+      if (action === "updateConfig") {
+        await configs.updateOne({}, { $set: { panelUrl, apiKey } }, { upsert: true });
+        return res.json({ success: true, message: "Config berhasil diperbarui" });
+      }
+
+      // ===== Ambil Config Panel =====
+      if (action === "getConfig") {
+        const config = await configs.findOne({});
+        return res.json({ success: true, config });
+      }
+
+      // ===== Create Server =====
       if (action === "create") {
+        const config = await configs.findOne({});
+        if (!config) return res.json({ success: false, message: "Config panel belum diset!" });
+
+        const PANEL_URL = config.panelUrl;
+        const API_KEY = config.apiKey;
+
         const email = `user${Date.now()}@mail.com`;
         const userPassword = Math.random().toString(36).slice(-8);
 
         // Buat user baru
-        const userRes = await fetch(`${panelUrl}/api/application/users`, {
+        const userRes = await fetch(`${PANEL_URL}/api/application/users`, {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${apiKey}`,
+            "Authorization": `Bearer ${API_KEY}`,
             "Content-Type": "application/json",
             "Accept": "application/json"
           },
@@ -130,6 +98,7 @@ export default async function handler(req, res) {
             root_admin: false
           })
         });
+
         const userData = await userRes.json();
         if (!userRes.ok) {
           return res.json({ success: false, message: JSON.stringify(userData) });
@@ -137,8 +106,8 @@ export default async function handler(req, res) {
         const userId = userData.attributes.id;
 
         // Cari allocation kosong
-        const allocRes = await fetch(`${panelUrl}/api/application/nodes/${NODE_ID}/allocations`, {
-          headers: { "Authorization": `Bearer ${apiKey}`, "Accept": "application/json" }
+        const allocRes = await fetch(`${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations`, {
+          headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
         });
         const allocData = await allocRes.json();
         const freeAlloc = allocData.data.find(a => a.attributes.assigned === false);
@@ -147,8 +116,8 @@ export default async function handler(req, res) {
         }
 
         // Ambil environment variable default dari egg
-        const eggRes = await fetch(`${panelUrl}/api/application/nests/5/eggs/${EGG_ID}?include=variables`, {
-          headers: { "Authorization": `Bearer ${apiKey}`, "Accept": "application/json" }
+        const eggRes = await fetch(`${PANEL_URL}/api/application/nests/5/eggs/${EGG_ID}?include=variables`, {
+          headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
         });
         const eggData = await eggRes.json();
         const env = {};
@@ -157,10 +126,10 @@ export default async function handler(req, res) {
         });
 
         // Buat server
-        const serverRes = await fetch(`${panelUrl}/api/application/servers`, {
+        const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${apiKey}`,
+            "Authorization": `Bearer ${API_KEY}`,
             "Content-Type": "application/json",
             "Accept": "application/json"
           },
@@ -184,7 +153,7 @@ export default async function handler(req, res) {
 
         return res.json({
           success: true,
-          panel: panelUrl,
+          panel: PANEL_URL,
           username: userData.attributes.username,
           email: userData.attributes.email,
           password: userPassword,
@@ -193,15 +162,21 @@ export default async function handler(req, res) {
         });
       }
 
-      // ===== Delete server =====
+      // ===== Delete Server =====
       if (action === "delete") {
+        const config = await configs.findOne({});
+        if (!config) return res.json({ success: false, message: "Config panel belum diset!" });
+
+        const PANEL_URL = config.panelUrl;
+        const API_KEY = config.apiKey;
+
         if (!serverId) {
           return res.json({ success: false, message: "Server ID harus ada!" });
         }
-        const delRes = await fetch(`${panelUrl}/api/application/servers/${serverId}`, {
+        const delRes = await fetch(`${PANEL_URL}/api/application/servers/${serverId}`, {
           method: "DELETE",
           headers: {
-            "Authorization": `Bearer ${apiKey}`,
+            "Authorization": `Bearer ${API_KEY}`,
             "Accept": "application/json"
           }
         });
@@ -221,4 +196,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ success: false, message: "Method not allowed" });
-}
+          }
