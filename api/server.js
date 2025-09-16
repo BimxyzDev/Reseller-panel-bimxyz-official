@@ -104,14 +104,22 @@ export default async function handler(req, res) {
             docker_image: DOCKER_IMG,
             startup: eggData.attributes.startup,
             limits: (() => {
-              if (ram === 'unlimited') return { memory: 0, swap: 0, disk: 0, io: 500, cpu: 0 };
-              const ramNumber = parseInt(ram);
+              if (ram === 'unlimited') {
+                return {
+                  memory: 0,
+                  swap: 0,
+                  disk: 0,
+                  io: 500,
+                  cpu: 0
+                };
+              }
+              const ramNumber = parseInt(ram); // 1,2,3...10
               return {
-                memory: ramNumber * 1, // MB
+                memory: ramNumber * 550, // RAM 550 MB per "GB"
                 swap: 0,
-                disk: ramNumber * 550,
+                disk: ramNumber * 550,   // Disk 550 MB per "GB"
                 io: 500,
-                cpu: ramNumber * 150
+                cpu: ramNumber * 150     // CPU 150% per "GB"
               };
             })(),
             environment: env,
@@ -163,4 +171,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ success: false, message: "Method not allowed" });
-          }
+            }
