@@ -297,19 +297,6 @@ RAM: ${ramText}`;
     resultDiv.textContent = "⚠️ Error: " + err.message;
   }
 });
-      // Simpan ke riwayat
-      const history = JSON.parse(localStorage.getItem('serverHistory')||'[]');
-      history.push({
-        date: new Date().toLocaleString(),
-        username: data.username,
-        password: data.password,
-        panel: data.panel,
-        serverId: data.serverId
-      });
-      localStorage.setItem('serverHistory', JSON.stringify(history));
-    } else resultDiv.textContent="❌ Gagal: "+data.message;
-  }catch(err){ resultDiv.textContent="⚠️ Error: "+err.message; }
-});
 
 // List servers
 document.getElementById('listBtn').addEventListener('click', async ()=>{
