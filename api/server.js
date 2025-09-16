@@ -1,16 +1,18 @@
 // api/server.js
 import { MongoClient } from "mongodb";
 
+// ====== KONFIG REPO (hardcoded) ======
 const MONGO_URI = "mongodb+srv://<user>:<pass>@cluster0.6gh1zyd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 const DB_NAME = "reseller_panel";
-const ADMIN_USER = "admin";   // username admin
-const ADMIN_PASS = "admin123"; // password admin
+const ADMIN_USER = "admin";       // admin login
+const ADMIN_PASS = "admin123";    // admin login
 
-// Tetap di repo, bukan DB
+// Konstanta server (tetap di repo)
 const NODE_ID = 1;
 const EGG_ID = 15;
 const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_24";
 
+// ====== DB Connection Cache ======
 let cachedClient = null;
 async function connectDB() {
   if (cachedClient) return cachedClient;
@@ -20,6 +22,7 @@ async function connectDB() {
   return client;
 }
 
+// ====== API HANDLER ======
 export default async function handler(req, res) {
   const client = await connectDB();
   const db = client.db(DB_NAME);
@@ -38,20 +41,39 @@ export default async function handler(req, res) {
         return res.json({ success: false, message: "Admin login gagal!" });
       }
 
-      // ====== ADMIN: UPDATE SETTINGS ======
-      if (action === "updateSettings") {
+      // ====== ADMIN: UPDATE CONFIG ======
+      if (action === "updateConfig") {
         await settings.updateOne(
           { _id: "config" },
           { $set: { panelUrl, apiKey } },
           { upsert: true }
         );
-        return res.json({ success: true, message: "Settings disimpan!" });
+        return res.json({ success: true, message: "Config berhasil disimpan!" });
       }
 
-      // ====== ADMIN: GET SETTINGS ======
-      if (action === "getSettings") {
+      // ====== ADMIN: GET CONFIG ======
+      if (action === "getConfig") {
         const data = await settings.findOne({ _id: "config" });
-        return res.json({ success: true, settings: data || {} });
+        return res.json({ success: true, config: data || {} });
+      }
+
+      // ====== ADMIN: ADD USER ======
+      if (action === "addUser") {
+        if (!username || !password) return res.json({ success: false, message: "Username & password wajib!" });
+        await users.insertOne({ username, password });
+        return res.json({ success: true, message: "User berhasil ditambahkan!" });
+      }
+
+      // ====== ADMIN: GET USERS ======
+      if (action === "getUsers") {
+        const list = await users.find({}).toArray();
+        return res.json({ success: true, users: list });
+      }
+
+      // ====== ADMIN: DELETE USER ======
+      if (action === "deleteUser") {
+        await users.deleteOne({ username });
+        return res.json({ success: true, message: "User berhasil dihapus!" });
       }
 
       // ====== USER LOGIN ======
@@ -61,7 +83,7 @@ export default async function handler(req, res) {
         return res.json({ success: false, message: "Login gagal!" });
       }
 
-      // Ambil panel settings dari DB
+      // ====== LOAD PANEL CONFIG ======
       const config = await settings.findOne({ _id: "config" });
       if (!config) {
         return res.json({ success: false, message: "Panel belum dikonfigurasi admin!" });
@@ -162,14 +184,14 @@ export default async function handler(req, res) {
           headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
         });
         if (delRes.status === 204) {
-          return res.json({ success: true, message: "Server berhasil dihapus" });
+          return res.json({ success: true, message: "Server berhasil dihapus!" });
         } else {
           const errData = await delRes.json();
           return res.json({ success: false, message: JSON.stringify(errData) });
         }
       }
 
-      return res.json({ success: false, message: "Action tidak dikenal" });
+      return res.json({ success: false, message: "Action tidak dikenal!" });
     } catch (err) {
       return res.json({ success: false, message: err.message });
     }
@@ -200,4 +222,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ success: false, message: "Method not allowed" });
-            }
+}
