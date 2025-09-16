@@ -9,7 +9,6 @@ export default async function handler(req, res) {
   const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_24";
 
   if (req.method === "GET") {
-    // ====== List servers ======
     try {
       const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
         method: "GET",
@@ -35,7 +34,6 @@ export default async function handler(req, res) {
     const { action, username, password, name, ram, serverId } = req.body;
 
     try {
-      // ====== Login ======
       if (action === "login") {
         if (validateLogin(username, password)) {
           return res.json({ success: true });
@@ -44,7 +42,6 @@ export default async function handler(req, res) {
         }
       }
 
-      // ====== Create server ======
       if (action === "create") {
         const email = `user${Date.now()}@mail.com`;
         const userPassword = Math.random().toString(36).slice(-8);
@@ -92,7 +89,7 @@ export default async function handler(req, res) {
           env[v.attributes.env_variable] = v.attributes.default_value || "";
         });
 
-        // Buat server
+        // Buat server dengan limits sesuai permintaan
         const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
           method: "POST",
           headers: {
@@ -106,7 +103,17 @@ export default async function handler(req, res) {
             egg: EGG_ID,
             docker_image: DOCKER_IMG,
             startup: eggData.attributes.startup,
-            limits: { memory: ram, swap: 0, disk: 5120, io: 500, cpu: 100 },
+            limits: (() => {
+              if (ram === 'unlimited') return { memory: 0, swap: 0, disk: 0, io: 500, cpu: 0 };
+              const ramNumber = parseInt(ram);
+              return {
+                memory: ramNumber * 1024, // MB
+                swap: 0,
+                disk: ramNumber * 550,
+                io: 500,
+                cpu: ramNumber * 150
+              };
+            })(),
             environment: env,
             feature_limits: { databases: 1, backups: 1, allocations: 1 },
             allocation: { default: freeAlloc.attributes.id }
@@ -125,11 +132,10 @@ export default async function handler(req, res) {
           email: userData.attributes.email,
           password: userPassword,
           ram,
-          serverId: serverData.attributes.id // simpan id server buat hapus nanti
+          serverId: serverData.attributes.id
         });
       }
 
-      // ====== Delete server ======
       if (action === "delete") {
         if (!serverId) {
           return res.json({ success: false, message: "Server ID harus ada!" });
@@ -157,4 +163,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ success: false, message: "Method not allowed" });
-           }
+          }
