@@ -107,7 +107,7 @@ export default async function handler(req, res) {
               if (ram === 'unlimited') return { memory: 0, swap: 0, disk: 0, io: 500, cpu: 0 };
               const ramNumber = parseInt(ram);
               return {
-                memory: ramNumber * 1024, // MB
+                memory: ramNumber * 1, // MB
                 swap: 0,
                 disk: ramNumber * 550,
                 io: 500,
