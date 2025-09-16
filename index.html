@@ -213,8 +213,8 @@ const backBtn = document.getElementById('backBtn');
 // RAM options
 ['1','2','3','4','5','6','7','8','9','10','Unlimited'].forEach((val,i)=>{
   const opt = document.createElement('option');
-  opt.value = i===10?0:1024*(i+1);
-  opt.textContent = i===10?'Unlimited':`${val} GB`;
+  opt.value = i === 10 ? 'unlimited' : (i + 1); // kirim angka 1–10 atau "unlimited"
+  opt.textContent = i === 10 ? 'Unlimited' : `${val} GB`; // tampilan tetap 1GB, 2GB, dst
   ramSelect.appendChild(opt);
 });
 
