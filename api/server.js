@@ -1,95 +1,5 @@
 // api/server.js
 import { MongoClient } from "mongodb";
-import { validateLogin } from "./account";
-
-const uri = "mongodb+srv://bimaputra436123_db_user:UBw7SRgkBNZJKa9J@cluster0.6gh1zyd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-const client = new MongoClient(uri);
-
-// Admin login hardcode
-const ADMIN_USER = "admin";
-const ADMIN_PASS = "admin123";
-
-// Default static config (node_id dll tetep disini, ga ke DB)
-const NODE_ID = 1;
-const EGG_ID = 15;
-const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_24";
-
-export default async function handler(req, res) {
-  await client.connect();
-  const db = client.db("reseller_panel");
-  const configs = db.collection("configs");
-  const users = db.collection("users");
-
-  if (req.method === "POST") {
-    const { action, username, password, name, ram, serverId, panelUrl, apiKey } = req.body;
-
-    try {
-      // ===== Admin Login =====
-      if (action === "adminLogin") {
-        if (username === ADMIN_USER && password === ADMIN_PASS) {
-          return res.json({ success: true, role: "admin" });
-        }
-        return res.json({ success: false, message: "Login admin gagal!" });
-      }
-
-      // ===== User Login (cPanel user) =====
-      if (action === "login") {
-        if (validateLogin(username, password)) {
-          return res.json({ success: true, role: "user" });
-        }
-        return res.json({ success: false, message: "Login user gagal!" });
-      }
-
-      // ===== Tambah User cPanel =====
-      if (action === "addUser") {
-        await users.insertOne({ username, password });
-        return res.json({ success: true, message: "User berhasil ditambahkan" });
-      }
-
-      // ===== Hapus User cPanel =====
-      if (action === "deleteUser") {
-        await users.deleteOne({ username });
-        return res.json({ success: true, message: "User berhasil dihapus" });
-      }
-
-      // ===== Ambil semua user =====
-      if (action === "getUsers") {
-        const allUsers = await users.find().toArray();
-        return res.json({ success: true, users: allUsers });
-      }
-
-      // ===== Update Config Panel =====
-      if (action === "updateConfig") {
-        await configs.updateOne({}, { $set: { panelUrl, apiKey } }, { upsert: true });
-        return res.json({ success: true, message: "Config berhasil diperbarui" });
-      }
-
-      // ===== Ambil Config Panel =====
-      if (action === "getConfig") {
-        const config = await configs.findOne({});
-        return res.json({ success: true, config });
-      }
-
-      // ===== Create Server =====
-      if (action === "create") {
-        const config = await configs.findOne({});
-        if (!config) return res.json({ success: false, message: "Config panel belum diset!" });
-
-        const PANEL_URL = config.panelUrl;
-        const API_KEY = config.apiKey;
-
-        const email = `user${Date.now()}@mail.com`;
-        const userPassword = Math.random().toString(36).slice(-8);
-
-        // Buat user baru
-        const userRes = await fetch(`${PANEL_URL}/api/application/users`, {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${API_KEY}`,
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-// api/server.js
-import { MongoClient } from "mongodb";
 
 const MONGO_URI = "mongodb+srv://<user>:<pass>@cluster0.6gh1zyd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 const DB_NAME = "reseller_panel";
@@ -290,4 +200,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ success: false, message: "Method not allowed" });
-    }
+            }
