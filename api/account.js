@@ -1,6 +1,6 @@
 // api/account.js
 export const accounts = [
-  { username: "admin", password: "admin089654" },
+  { username: "admin", password: "admin09654" },
   { username: "rapz12", password: "rapz321" },
   { username: "Alpan", password: "Alpan354" },
     { username: "mamz", password: "mamz9772" },
@@ -18,7 +18,7 @@ export const accounts = [
   { username: "RAIZO", password: "RAIZO9847" },
   { username: "wahyuu22", password: "wahyuu2247" },
   { username: "ashurammk", password: "ashurammk889" },
-    { username: "nopal", password: "nopal6301" },
+
     { username: "Ocim", password: "Ocim6651" },
   
 ];
