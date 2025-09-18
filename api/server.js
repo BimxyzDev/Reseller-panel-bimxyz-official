@@ -3,10 +3,10 @@ import { validateLogin } from './account';
 
 export default async function handler(req, res) {
   const PANEL_URL = "https://adminpanel.anjayserverpanel.my.id";
-  const API_KEY   = "ptla_G3pQ2DOUvpYu6yoK7L6TmaHcNzdpXlCEKcrDhU2CiYO";
+  const API_KEY   = "ptla_wWFIGmSt0xdmGOatDRTZkX00gAVDimp6FEtrSodMuTI";
   const NODE_ID   = 1;
   const EGG_ID    = 15;
-  const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_24";
+  const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_20";
 
   if (req.method === "GET") {
     try {
