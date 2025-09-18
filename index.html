@@ -224,32 +224,12 @@ const backBtn = document.getElementById('backBtn');
   }
 })();
 
-// Cek session sekali pas buka/refresh
-async function checkSession(){
-  const username = localStorage.getItem('username');
-  if(!username) return;
-  try {
-    const res = await fetch('/api/server',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'checkSession', username})
-    });
-    const data = await res.json();
-    if(!data.valid){
-      localStorage.removeItem('username');
-      alert("Akun Anda sudah tidak valid. Silakan login ulang.");
-      location.reload();
-    }
-  } catch(err){
-    console.error("Gagal cek session:", err.message);
-  }
-}
-
-// Auto login
+// Auto login + cek session
 if(localStorage.getItem('username')){
-  checkSession();
   loginDiv.style.display='none';
   panel.style.display='block';
+  checkSession(); // cek sekali pas reload
+  startSessionChecker();
 }
 
 // Login
@@ -269,6 +249,7 @@ loginBtn.addEventListener('click', async ()=>{
       loginDiv.style.display='none';
       panel.style.display='block';
       checkSession();
+      startSessionChecker();
     } else loginError.textContent = data.message;
   }catch(err){ loginError.textContent = err.message; }
 });
@@ -373,7 +354,33 @@ function renderHistory(){
     historyList.appendChild(card);
   });
 }
+
+// Fungsi cek session ke backend
+async function checkSession(){
+  const username = localStorage.getItem('username');
+  if(!username) return;
+  try {
+    const res = await fetch('/api/server',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'checkSession', username})
+    });
+    const data = await res.json();
+    if(!data.valid){
+      localStorage.removeItem('username');
+      alert("Akun Anda sudah tidak valid. Silakan login ulang.");
+      location.reload();
+    }
+  } catch(err){
+    console.error("Gagal cek session:", err.message);
+  }
+}
+
+// Interval cek session tiap 30 detik
+function startSessionChecker(){
+  setInterval(checkSession, 30000);
+}
 </script>
 
 </body>
-</html>
+  </html>
