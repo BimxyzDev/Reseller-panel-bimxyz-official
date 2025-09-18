@@ -9,7 +9,6 @@ export default async function handler(req, res) {
   const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_24";
 
   if (req.method === "GET") {
-    // ====== List servers ======
     try {
       const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
         method: "GET",
@@ -35,7 +34,6 @@ export default async function handler(req, res) {
     const { action, username, password, name, ram, serverId } = req.body;
 
     try {
-      // ====== Login ======
       if (action === "login") {
         if (validateLogin(username, password)) {
           return res.json({ success: true });
@@ -44,7 +42,6 @@ export default async function handler(req, res) {
         }
       }
 
-      // ====== Create server ======
       if (action === "create") {
         const email = `user${Date.now()}@mail.com`;
         const userPassword = Math.random().toString(36).slice(-8);
@@ -72,12 +69,24 @@ export default async function handler(req, res) {
         }
         const userId = userData.attributes.id;
 
-        // Cari allocation kosong (fix: ambil banyak biar ga kepotong pagination)
-        const allocRes = await fetch(`${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations?per_page=5000`, {
-          headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
-        });
-        const allocData = await allocRes.json();
-        const freeAlloc = allocData.data.find(a => a.attributes.assigned === false);
+        // Cari allocation kosong (loop semua halaman)
+        let freeAlloc = null;
+        let page = 1;
+        while (!freeAlloc) {
+          const allocRes = await fetch(`${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations?page=${page}`, {
+            headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
+          });
+          const allocData = await allocRes.json();
+          if (!allocRes.ok) {
+            return res.json({ success: false, message: JSON.stringify(allocData) });
+          }
+          freeAlloc = allocData.data.find(a => a.attributes.assigned === false);
+          if (freeAlloc) break;
+
+          if (page >= allocData.meta.pagination.total_pages) break;
+          page++;
+        }
+
         if (!freeAlloc) {
           return res.json({ success: false, message: "Ga ada allocation kosong!" });
         }
@@ -92,7 +101,7 @@ export default async function handler(req, res) {
           env[v.attributes.env_variable] = v.attributes.default_value || "";
         });
 
-        // Buat server
+        // Buat server dengan limits sesuai permintaan
         const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
           method: "POST",
           headers: {
@@ -106,7 +115,19 @@ export default async function handler(req, res) {
             egg: EGG_ID,
             docker_image: DOCKER_IMG,
             startup: eggData.attributes.startup,
-            limits: { memory: ram, swap: 0, disk: 5120, io: 500, cpu: 100 },
+            limits: (() => {
+              if (ram === 'unlimited') {
+                return { memory: 0, swap: 0, disk: 0, io: 500, cpu: 0 };
+              }
+              const ramNumber = parseInt(ram);
+              return {
+                memory: ramNumber * 550,
+                swap: 0,
+                disk: ramNumber * 550,
+                io: 500,
+                cpu: ramNumber * 150
+              };
+            })(),
             environment: env,
             feature_limits: { databases: 1, backups: 1, allocations: 1 },
             allocation: { default: freeAlloc.attributes.id }
@@ -125,11 +146,10 @@ export default async function handler(req, res) {
           email: userData.attributes.email,
           password: userPassword,
           ram,
-          serverId: serverData.attributes.id // simpan id server buat hapus nanti
+          serverId: serverData.attributes.id
         });
       }
 
-      // ====== Delete server ======
       if (action === "delete") {
         if (!serverId) {
           return res.json({ success: false, message: "Server ID harus ada!" });
@@ -157,4 +177,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ success: false, message: "Method not allowed" });
-      }
+            }
