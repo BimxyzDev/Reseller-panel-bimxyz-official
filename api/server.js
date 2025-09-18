@@ -3,12 +3,13 @@ import { validateLogin } from './account';
 
 export default async function handler(req, res) {
   const PANEL_URL = "https://adminpanel.anjayserverpanel.my.id";
-  const API_KEY   = "ptla_wWFIGmSt0xdmGOatDRTZkX00gAVDimp6FEtrSodMuTI";
+  const API_KEY   = "ptla_G3pQ2DOUvpYu6yoK7L6TmaHcNzdpXlCEKcrDhU2CiYO";
   const NODE_ID   = 1;
   const EGG_ID    = 15;
-  const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_20";
+  const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_24";
 
   if (req.method === "GET") {
+    // ====== List servers ======
     try {
       const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
         method: "GET",
@@ -34,6 +35,7 @@ export default async function handler(req, res) {
     const { action, username, password, name, ram, serverId } = req.body;
 
     try {
+      // ====== Login ======
       if (action === "login") {
         if (validateLogin(username, password)) {
           return res.json({ success: true });
@@ -42,6 +44,7 @@ export default async function handler(req, res) {
         }
       }
 
+      // ====== Create server ======
       if (action === "create") {
         const email = `user${Date.now()}@mail.com`;
         const userPassword = Math.random().toString(36).slice(-8);
@@ -69,8 +72,8 @@ export default async function handler(req, res) {
         }
         const userId = userData.attributes.id;
 
-        // Cari allocation kosong
-        const allocRes = await fetch(`${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations`, {
+        // Cari allocation kosong (fix: ambil banyak biar ga kepotong pagination)
+        const allocRes = await fetch(`${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations?per_page=5000`, {
           headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
         });
         const allocData = await allocRes.json();
@@ -89,7 +92,7 @@ export default async function handler(req, res) {
           env[v.attributes.env_variable] = v.attributes.default_value || "";
         });
 
-        // Buat server dengan limits sesuai permintaan
+        // Buat server
         const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
           method: "POST",
           headers: {
@@ -103,25 +106,7 @@ export default async function handler(req, res) {
             egg: EGG_ID,
             docker_image: DOCKER_IMG,
             startup: eggData.attributes.startup,
-            limits: (() => {
-              if (ram === 'unlimited') {
-                return {
-                  memory: 0,
-                  swap: 0,
-                  disk: 0,
-                  io: 500,
-                  cpu: 0
-                };
-              }
-              const ramNumber = parseInt(ram); // 1,2,3...10
-              return {
-                memory: ramNumber * 550, // RAM 550 MB per "GB"
-                swap: 0,
-                disk: ramNumber * 550,   // Disk 550 MB per "GB"
-                io: 500,
-                cpu: ramNumber * 150     // CPU 150% per "GB"
-              };
-            })(),
+            limits: { memory: ram, swap: 0, disk: 5120, io: 500, cpu: 100 },
             environment: env,
             feature_limits: { databases: 1, backups: 1, allocations: 1 },
             allocation: { default: freeAlloc.attributes.id }
@@ -140,10 +125,11 @@ export default async function handler(req, res) {
           email: userData.attributes.email,
           password: userPassword,
           ram,
-          serverId: serverData.attributes.id
+          serverId: serverData.attributes.id // simpan id server buat hapus nanti
         });
       }
 
+      // ====== Delete server ======
       if (action === "delete") {
         if (!serverId) {
           return res.json({ success: false, message: "Server ID harus ada!" });
@@ -171,4 +157,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ success: false, message: "Method not allowed" });
-            }
+      }
