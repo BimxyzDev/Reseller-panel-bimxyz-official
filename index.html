@@ -279,7 +279,7 @@ document.getElementById('createBtn').addEventListener('click', async ()=>{
     });
     const data = await res.json();
     if(data.success){
-      resultDiv.textContent=`✅ Server berhasil dibuat!\nLogin Panel: ${data.panel}\nUsername: ${data.username}\nEmail: ${data.email}\nPassword: ${data.password}\nRAM: ${data.ram} MB`;
+      resultDiv.textContent=`✅ Server berhasil dibuat!\nLogin Panel: ${data.panel}\nUsername: ${data.username}\nEmail: ${data.email}\nPassword: ${data.password}\nRAM: ${data.ram*550} MB`;
 
       // Simpan ke riwayat
       const history = JSON.parse(localStorage.getItem('serverHistory')||'[]');
@@ -363,4 +363,4 @@ function renderHistory(){
 </script>
 
 </body>
-</html>
+                                                                                      </html>
