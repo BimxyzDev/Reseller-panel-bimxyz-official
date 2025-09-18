@@ -224,11 +224,32 @@ const backBtn = document.getElementById('backBtn');
   }
 })();
 
+// Cek session sekali pas buka/refresh
+async function checkSession(){
+  const username = localStorage.getItem('username');
+  if(!username) return;
+  try {
+    const res = await fetch('/api/server',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'checkSession', username})
+    });
+    const data = await res.json();
+    if(!data.valid){
+      localStorage.removeItem('username');
+      alert("Akun Anda sudah tidak valid. Silakan login ulang.");
+      location.reload();
+    }
+  } catch(err){
+    console.error("Gagal cek session:", err.message);
+  }
+}
+
 // Auto login
 if(localStorage.getItem('username')){
+  checkSession();
   loginDiv.style.display='none';
   panel.style.display='block';
-  startSessionChecker();
 }
 
 // Login
@@ -247,7 +268,7 @@ loginBtn.addEventListener('click', async ()=>{
       localStorage.setItem('username', username);
       loginDiv.style.display='none';
       panel.style.display='block';
-      startSessionChecker();
+      checkSession();
     } else loginError.textContent = data.message;
   }catch(err){ loginError.textContent = err.message; }
 });
@@ -352,30 +373,7 @@ function renderHistory(){
     historyList.appendChild(card);
   });
 }
-
-// Cek session ke backend tiap 10 detik
-function startSessionChecker(){
-  setInterval(async ()=>{
-    const username = localStorage.getItem('username');
-    if(!username) return;
-    try {
-      const res = await fetch('/api/server',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'checkSession', username})
-      });
-      const data = await res.json();
-      if(!data.valid){
-        localStorage.removeItem('username');
-        alert("Akun Anda sudah tidak valid. Silakan login ulang.");
-        location.reload();
-      }
-    } catch(err){
-      console.error("Gagal cek session:", err.message);
-    }
-  }, 10000);
-}
 </script>
 
 </body>
-</html>
+    </html>
