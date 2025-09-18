@@ -224,11 +224,10 @@ const backBtn = document.getElementById('backBtn');
   }
 })();
 
-// Auto login + cek session
+// Auto login
 if(localStorage.getItem('username')){
   loginDiv.style.display='none';
   panel.style.display='block';
-  checkSession(); // cek sekali pas reload
   startSessionChecker();
 }
 
@@ -248,7 +247,6 @@ loginBtn.addEventListener('click', async ()=>{
       localStorage.setItem('username', username);
       loginDiv.style.display='none';
       panel.style.display='block';
-      checkSession();
       startSessionChecker();
     } else loginError.textContent = data.message;
   }catch(err){ loginError.textContent = err.message; }
@@ -355,30 +353,27 @@ function renderHistory(){
   });
 }
 
-// Fungsi cek session ke backend
-async function checkSession(){
-  const username = localStorage.getItem('username');
-  if(!username) return;
-  try {
-    const res = await fetch('/api/server',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'checkSession', username})
-    });
-    const data = await res.json();
-    if(!data.valid){
-      localStorage.removeItem('username');
-      alert("Akun Anda sudah tidak valid. Silakan login ulang.");
-      location.reload();
-    }
-  } catch(err){
-    console.error("Gagal cek session:", err.message);
-  }
-}
-
-// Interval cek session tiap 30 detik
+// Cek session ke backend tiap 10 detik
 function startSessionChecker(){
-  setInterval(checkSession, 30000);
+  setInterval(async ()=>{
+    const username = localStorage.getItem('username');
+    if(!username) return;
+    try {
+      const res = await fetch('/api/server',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'checkSession', username})
+      });
+      const data = await res.json();
+      if(!data.valid){
+        localStorage.removeItem('username');
+        alert("Akun Anda sudah tidak valid. Silakan login ulang.");
+        location.reload();
+      }
+    } catch(err){
+      console.error("Gagal cek session:", err.message);
+    }
+  }, 10000);
 }
 </script>
 
