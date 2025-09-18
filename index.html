@@ -1,71 +1,74 @@
-<!DOCTYPE html>  <html lang="en">  
-<head>  
-<meta charset="UTF-8">  
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  
-<title>Reseller Panel — 𝘽𝙞𝙢𝙭𝙮𝙯 𝙤𝙛𝙛𝙞𝙘𝙞𝙖𝙡</title>  
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  
-<style>  
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Poppins&display=swap');  body {
-margin: 0;
-font-family: 'Poppins', sans-serif;
-background: #0d1117;
-color: #e6e6e6;
-display: flex;
-justify-content: center;   /* center horizontal /
-align-items: center;       / center vertical /
-flex-direction: column;
-min-height: 100vh;         / biar pas layar /
-overflow-y: hidden;        / cegah scroll global */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Reseller Panel — 𝘽𝙞𝙢𝙭𝙮𝙯 𝙤𝙛𝙛𝙞𝙘𝙞𝙖𝙡</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Poppins&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #0d1117;
+  color: #e6e6e6;
+  display: flex;
+  justify-content: center;   /* center horizontal */
+  align-items: center;       /* center vertical */
+  flex-direction: column;
+  min-height: 100vh;         /* biar pas layar */
+  overflow-y: hidden;        /* cegah scroll global */
 }
 
 /* Judul */
 h1, h2 {
-font-family: 'Orbitron', sans-serif;
-color: #fff;
-margin-bottom: 15px;
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
+  margin-bottom: 15px;
 }
 
-/* Card utama /
+/* Card utama */
 .card {
-background: #161b22;
-padding: 30px;
-border-radius: 12px;
-box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-width: 460px;              / gede */
-margin: 0;
-overflow-y: auto;
-max-height: 90vh;
-box-sizing: border-box;
+  background: #161b22;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  width: 460px;              /* gede */
+  margin: 0;
+  overflow-y: auto;
+  max-height: 90vh;
+  box-sizing: border-box;
 }
 
 /* Input, select, button */
 input, select, button {
-margin: 10px 0;
-padding: 10px;
-width: 100%;
-max-width: 100%;
-box-sizing: border-box;
-border-radius: 8px;
-border: 1px solid #30363d;
-outline: none;
-font-size: 14px;
-background: #0d1117;
-color: #e6e6e6;
-transition: all 0.2s ease;
+  margin: 10px 0;
+  padding: 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+  outline: none;
+  font-size: 14px;
+  background: #0d1117;
+  color: #e6e6e6;
+  transition: all 0.2s ease;
 }
 
 input:focus, select:focus {
-border-color: #58a6ff;
-box-shadow: 0 0 0 2px rgba(88,166,255,0.3);
+  border-color: #58a6ff;
+  box-shadow: 0 0 0 2px rgba(88,166,255,0.3);
 }
 
 button {
-cursor: pointer;
-background: #238636;
-color: #fff;
-font-weight: bold;
-border: none;
-transition: 0.3s;
+  cursor: pointer;
+  background: #238636;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  transition: 0.3s;
 }
 button:hover { background: #2ea043; }
 #logoutBtn { background: #da3633; }
@@ -75,277 +78,289 @@ button:hover { background: #2ea043; }
 
 /* Info penting */
 .info {
-font-size: 12px;
-line-height: 1.4;
-margin-bottom: 15px;
-background: #0d1117;
-padding: 10px;
-border-radius: 8px;
-border: 1px solid #30363d;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 15px;
+  background: #0d1117;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #30363d;
 }
 
 /* Status server */
 .server-status {
-text-align: center;
-margin-bottom: 10px;
-font-size: 13px;
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 13px;
 }
 .server-status span {
-padding: 4px 10px;
-border-radius: 5px;
-font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-weight: bold;
 }
 .online { background-color: #2ea043; color: #fff; }
 .maintenance { background-color: #da3633; color: #fff; }
 
 /* Hasil create server */
 #result {
-font-family: 'Poppins', sans-serif;
-white-space: pre-wrap;
-margin-top: 10px;
-background: #0d1117;
-padding: 10px;
-border-radius: 8px;
-max-height: 200px;
-overflow-y: auto;
-border: 1px solid #30363d;
-font-size: 13px;
+  font-family: 'Poppins', sans-serif;
+  white-space: pre-wrap;
+  margin-top: 10px;
+  background: #0d1117;
+  padding: 10px;
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #30363d;
+  font-size: 13px;
 }
 
 /* Contact */
 .contact {
-margin-top: 20px;
-display: flex;
-justify-content: center;
-gap: 20px;
-font-size: 22px;
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 22px;
 }
 .contact a {
-color: #58a6ff;
-transition: 0.3s;
+  color: #58a6ff;
+  transition: 0.3s;
 }
 .contact a:hover {
-color: #1f6feb;
-transform: scale(1.1);
+  color: #1f6feb;
+  transform: scale(1.1);
 }
 
 /* Riwayat server */
 #historySection { display: none; }
 #historyList {
-max-height: 400px;
-overflow-y: auto;
-margin-top: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 10px;
 }
 #historyList .card { margin-bottom: 10px; }
 
 /* Responsive */
 @media(max-width: 500px){
-.card {
-width: 95%;
-padding: 20px;
-}
+  .card {
+    width: 95%;
+    padding: 20px;
+  }
 }
 </style>
+</head>
+<body> 
 
-</head>  
-<body>   <!-- LOGIN PANEL -->  <div class="card" id="loginDiv">  
-  <div class="server-status" id="serverStatus">Checking server...</div>  
-  <h1>Reseller Panel Login</h1>  
-  <input type="text" id="username" placeholder="Username">  
-  <input type="password" id="password" placeholder="Password">  
-  <button id="loginBtn">Login</button>  
-  <div id="loginError" style="color:red; text-align:center; margin-top:5px;"></div>  
-</div>  <!-- CPANEL UTAMA -->  <div class="card" id="panel" style="display:none;">  
-  <div class="server-status" id="serverStatusPanel">Checking server...</div>  
-  <div class="info">  
-    📍 ᴄᴀᴛᴀᴛᴀɴ ᴘᴇɴᴛɪɴɢ:  
-    <br>• PANEL JANGAN DI DDOS  
-    <br>• TUTUPI DOMAIN PANEL KETIKA DI SCREENSHOT  
-    <br>• DOMAIN PANEL JANGAN DI SEBAR  
-    <br>• ALL TRANSAKSI NO REFUND  
-    <br>• EXPIRED PANEL ±1 BULAN PENUH  
-    <br>• BIKIN SERVER HARUS DIPAKAI  
-    <br>• IKUTI CHANNEL INFORMATION (IKON WHATSAPP) UNTUK UPDATE STATUS  
-  </div>  
-  <h2>Buat Server</h2>  
-  <input type="text" id="serverName" placeholder="Nama Server" maxlength="20">  
-  <select id="serverRam"></select>  
-  <button id="createBtn">Buat Server</button>  
-  <button id="listBtn">Lihat Jumlah Server</button>  
-  <button id="historyBtn">Lihat Riwayat</button>  
-  <div id="result"></div>  
-  <button id="logoutBtn" style="margin-top:10px;">Logout</button>  
-  <div class="contact">  
-    <a href="https://whatsapp.com/channel/0029Vb6xLRoGJP8DZkSO3F1w" target="_blank"><i class="fab fa-whatsapp"></i></a>  
-    <a href="https://wa.me/6285797133997" target="_blank"><i class="fas fa-headset"></i></a>  
-  </div>  
-</div>  <!-- RIWAYAT SERVER -->  <div class="card" id="historySection">  
-  <h2>Riwayat Server</h2>  
-  <div id="historyList"></div>  
-  <button id="backBtn">Kembali</button>  
-</div>  <script>  
-const loginDiv = document.getElementById('loginDiv');  
-const panel = document.getElementById('panel');  
-const historySection = document.getElementById('historySection');  
-const loginBtn = document.getElementById('loginBtn');  
-const loginError = document.getElementById('loginError');  
-const resultDiv = document.getElementById('result');  
-const serverStatus = document.getElementById('serverStatus');  
-const serverStatusPanel = document.getElementById('serverStatusPanel');  
-const ramSelect = document.getElementById('serverRam');  
-const historyBtn = document.getElementById('historyBtn');  
-const historyList = document.getElementById('historyList');  
-const backBtn = document.getElementById('backBtn');  
-  
-// RAM options  
-['1','2','3','4','5','6','7','8','9','10','Unlimited'].forEach((val,i)=>{  
-  const opt = document.createElement('option');  
-  opt.value = i === 10 ? 'unlimited' : (i + 1); // kirim angka 1–10 atau "unlimited"  
-  opt.textContent = i === 10 ? 'Unlimited' : `${val} GB`; // tampilan tetap 1GB, 2GB, dst  
-  ramSelect.appendChild(opt);  
-});  
-  
-// Check server status  
-(async () => {  
-  try {  
-    const res = await fetch('/api/server');  
-    const data = await res.json();  
-    const statusHTML = `<span class="${data.success?'online':'maintenance'}">${data.success?'ONLINE':'MAINTENANCE'}</span>`;  
-    serverStatus.innerHTML = statusHTML;  
-    serverStatusPanel.innerHTML = statusHTML;  
-  } catch {  
-    const offlineHTML = `<span class="maintenance">MAINTENANCE</span>`;  
-    serverStatus.innerHTML = offlineHTML;  
-    serverStatusPanel.innerHTML = offlineHTML;  
-  }  
-})();  
-  
-// Auto login  
-if(localStorage.getItem('username')){  
-  loginDiv.style.display='none';  
-  panel.style.display='block';  
-}  
-  
-// Login  
-loginBtn.addEventListener('click', async ()=>{  
-  const username = document.getElementById('username').value.trim();  
-  const password = document.getElementById('password').value.trim();  
-  loginError.textContent="";  
-  try{  
-    const res = await fetch('/api/server',{  
-      method:'POST',  
-      headers:{'Content-Type':'application/json'},  
-      body:JSON.stringify({action:'login', username, password})  
-    });  
-    const data = await res.json();  
-    if(data.success){  
-      localStorage.setItem('username', username);  
-      loginDiv.style.display='none';  
-      panel.style.display='block';  
-    } else loginError.textContent = data.message;  
-  }catch(err){ loginError.textContent = err.message; }  
-});  
-  
-// Logout  
-document.getElementById('logoutBtn').addEventListener('click',()=>{  
-  localStorage.removeItem('username'); // cuma login yg dihapus  
-  location.reload();  
-});  
-  
-// Create server  
-document.getElementById('createBtn').addEventListener('click', async ()=>{  
-  const name = document.getElementById('serverName').value.trim();  
-  const ram = ramSelect.value;  
-  if(!name) return alert("Nama server harus diisi");  
-  resultDiv.textContent="Membuat server...";  
-  try{  
-    const res = await fetch('/api/server',{  
-      method:'POST',  
-      headers:{'Content-Type':'application/json'},  
-      body:JSON.stringify({action:'create', name, ram})  
-    });  
-    const data = await res.json();  
-    if(data.success){  
-      resultDiv.textContent=`✅ Server berhasil dibuat!\nLogin Panel: ${data.panel}\nUsername: ${data.username}\nEmail: ${data.email}\nPassword: ${data.password}\nRAM: ${data.ram*550} MB`;  
-  
-      // Simpan ke riwayat  
-      const history = JSON.parse(localStorage.getItem('serverHistory')||'[]');  
-      history.push({  
-        date: new Date().toLocaleString(),  
-        username: data.username,  
-        password: data.password,  
-        panel: data.panel,  
-        serverId: data.serverId  
-      });  
-      localStorage.setItem('serverHistory', JSON.stringify(history));  
-    } else resultDiv.textContent="❌ Gagal: "+data.message;  
-  }catch(err){ resultDiv.textContent="⚠️ Error: "+err.message; }  
-});  
-  
-// List servers  
-document.getElementById('listBtn').addEventListener('click', async ()=>{  
-  resultDiv.textContent="Mengambil jumlah server...";  
-  try{  
-    const res = await fetch('/api/server');  
-    const data = await res.json();  
-    if(data.success) resultDiv.textContent=`📊 Jumlah server di panel: ${data.count}`;  
-    else resultDiv.textContent="❌ Gagal ambil data: "+data.message;  
-  }catch(err){ resultDiv.textContent="⚠️ Error: "+err.message; }  
-});  
-  
-// Lihat Riwayat  
-historyBtn.addEventListener('click', ()=>{  
-  panel.style.display='none';  
-  historySection.style.display='block';  
-  renderHistory();  
-});  
-  
-// Kembali ke panel utama  
-backBtn.addEventListener('click', ()=>{  
-  historySection.style.display='none';  
-  panel.style.display='block';  
-});  
-  
-// Render riwayat  
-function renderHistory(){  
-  historyList.innerHTML='';  
-  const history = JSON.parse(localStorage.getItem('serverHistory')||'[]');  
-  if(history.length===0){  
-    historyList.innerHTML='<p>Tidak ada riwayat server.</p>';  
-    return;  
-  }  
-  history.forEach((entry,i)=>{  
-    const card = document.createElement('div');  
-    card.className='card';  
-    card.innerHTML=`  
-      <strong>${entry.username}</strong><br>  
-      Password: ${entry.password}<br>  
-      Panel: <a href="${entry.panel}" target="_blank">${entry.panel}</a><br>  
-      Tanggal: ${entry.date}  
-    `;  
-    const delBtn = document.createElement('button');  
-    delBtn.textContent='Delete Server';  
-    delBtn.className='deleteBtn';  
-    delBtn.addEventListener('click', async ()=>{  
-      if(!confirm('Yakin hapus server ini?')) return;  
-      try{  
-        const res = await fetch('/api/server',{  
-          method:'POST',  
-          headers:{'Content-Type':'application/json'},  
-          body:JSON.stringify({action:'delete', serverId: entry.serverId})  
-        });  
-        const data = await res.json();  
-        if(data.success){  
-          alert('Server berhasil dihapus!');  
-          history.splice(i,1);  
-          localStorage.setItem('serverHistory', JSON.stringify(history));  
-          renderHistory();  
-        } else alert('Gagal hapus server: '+data.message);  
-      }catch(err){ alert('Error: '+err.message); }  
-    });  
-    card.appendChild(delBtn);  
-    historyList.appendChild(card);  
-  });  
-}  
-</script>  </body>  
+<!-- LOGIN PANEL -->
+<div class="card" id="loginDiv">
+  <div class="server-status" id="serverStatus">Checking server...</div>
+  <h1>Reseller Panel Login</h1>
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+  <button id="loginBtn">Login</button>
+  <div id="loginError" style="color:red; text-align:center; margin-top:5px;"></div>
+</div>
+
+<!-- CPANEL UTAMA -->
+<div class="card" id="panel" style="display:none;">
+  <div class="server-status" id="serverStatusPanel">Checking server...</div>
+  <div class="info">
+    📍 ᴄᴀᴛᴀᴛᴀɴ ᴘᴇɴᴛɪɴɢ:
+    <br>• PANEL JANGAN DI DDOS
+    <br>• TUTUPI DOMAIN PANEL KETIKA DI SCREENSHOT
+    <br>• DOMAIN PANEL JANGAN DI SEBAR
+    <br>• ALL TRANSAKSI NO REFUND
+    <br>• EXPIRED PANEL ±1 BULAN PENUH
+    <br>• BIKIN SERVER HARUS DIPAKAI
+    <br>• IKUTI CHANNEL INFORMATION (IKON WHATSAPP) UNTUK UPDATE STATUS
+  </div>
+  <h2>Buat Server</h2>
+  <input type="text" id="serverName" placeholder="Nama Server" maxlength="20">
+  <select id="serverRam"></select>
+  <button id="createBtn">Buat Server</button>
+  <button id="listBtn">Lihat Jumlah Server</button>
+  <button id="historyBtn">Lihat Riwayat</button>
+  <div id="result"></div>
+  <button id="logoutBtn" style="margin-top:10px;">Logout</button>
+  <div class="contact">
+    <a href="https://whatsapp.com/channel/0029Vb6xLRoGJP8DZkSO3F1w" target="_blank"><i class="fab fa-whatsapp"></i></a>
+    <a href="https://wa.me/6285797133997" target="_blank"><i class="fas fa-headset"></i></a>
+  </div>
+</div>
+
+<!-- RIWAYAT SERVER -->
+<div class="card" id="historySection">
+  <h2>Riwayat Server</h2>
+  <div id="historyList"></div>
+  <button id="backBtn">Kembali</button>
+</div>
+
+<script>
+const loginDiv = document.getElementById('loginDiv');
+const panel = document.getElementById('panel');
+const historySection = document.getElementById('historySection');
+const loginBtn = document.getElementById('loginBtn');
+const loginError = document.getElementById('loginError');
+const resultDiv = document.getElementById('result');
+const serverStatus = document.getElementById('serverStatus');
+const serverStatusPanel = document.getElementById('serverStatusPanel');
+const ramSelect = document.getElementById('serverRam');
+const historyBtn = document.getElementById('historyBtn');
+const historyList = document.getElementById('historyList');
+const backBtn = document.getElementById('backBtn');
+
+// RAM options
+['1','2','3','4','5','6','7','8','9','10','Unlimited'].forEach((val,i)=>{
+  const opt = document.createElement('option');
+  opt.value = i === 10 ? 'unlimited' : (i + 1); // kirim angka 1–10 atau "unlimited"
+  opt.textContent = i === 10 ? 'Unlimited' : `${val} GB`; // tampilan tetap 1GB, 2GB, dst
+  ramSelect.appendChild(opt);
+});
+
+// Check server status
+(async () => {
+  try {
+    const res = await fetch('/api/server');
+    const data = await res.json();
+    const statusHTML = `<span class="${data.success?'online':'maintenance'}">${data.success?'ONLINE':'MAINTENANCE'}</span>`;
+    serverStatus.innerHTML = statusHTML;
+    serverStatusPanel.innerHTML = statusHTML;
+  } catch {
+    const offlineHTML = `<span class="maintenance">MAINTENANCE</span>`;
+    serverStatus.innerHTML = offlineHTML;
+    serverStatusPanel.innerHTML = offlineHTML;
+  }
+})();
+
+// Auto login
+if(localStorage.getItem('username')){
+  loginDiv.style.display='none';
+  panel.style.display='block';
+}
+
+// Login
+loginBtn.addEventListener('click', async ()=>{
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  loginError.textContent="";
+  try{
+    const res = await fetch('/api/server',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'login', username, password})
+    });
+    const data = await res.json();
+    if(data.success){
+      localStorage.setItem('username', username);
+      loginDiv.style.display='none';
+      panel.style.display='block';
+    } else loginError.textContent = data.message;
+  }catch(err){ loginError.textContent = err.message; }
+});
+
+// Logout
+document.getElementById('logoutBtn').addEventListener('click',()=>{
+  localStorage.removeItem('username'); // cuma login yg dihapus
+  location.reload();
+});
+
+// Create server
+document.getElementById('createBtn').addEventListener('click', async ()=>{
+  const name = document.getElementById('serverName').value.trim();
+  const ram = ramSelect.value;
+  if(!name) return alert("Nama server harus diisi");
+  resultDiv.textContent="Membuat server...";
+  try{
+    const res = await fetch('/api/server',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'create', name, ram})
+    });
+    const data = await res.json();
+    if(data.success){
+      resultDiv.textContent=`✅ Server berhasil dibuat!\nLogin Panel: ${data.panel}\nUsername: ${data.username}\nEmail: ${data.email}\nPassword: ${data.password}\nRAM: ${data.ram} MB`;
+
+      // Simpan ke riwayat
+      const history = JSON.parse(localStorage.getItem('serverHistory')||'[]');
+      history.push({
+        date: new Date().toLocaleString(),
+        username: data.username,
+        password: data.password,
+        panel: data.panel,
+        serverId: data.serverId
+      });
+      localStorage.setItem('serverHistory', JSON.stringify(history));
+    } else resultDiv.textContent="❌ Gagal: "+data.message;
+  }catch(err){ resultDiv.textContent="⚠️ Error: "+err.message; }
+});
+
+// List servers
+document.getElementById('listBtn').addEventListener('click', async ()=>{
+  resultDiv.textContent="Mengambil jumlah server...";
+  try{
+    const res = await fetch('/api/server');
+    const data = await res.json();
+    if(data.success) resultDiv.textContent=`📊 Jumlah server di panel: ${data.count}`;
+    else resultDiv.textContent="❌ Gagal ambil data: "+data.message;
+  }catch(err){ resultDiv.textContent="⚠️ Error: "+err.message; }
+});
+
+// Lihat Riwayat
+historyBtn.addEventListener('click', ()=>{
+  panel.style.display='none';
+  historySection.style.display='block';
+  renderHistory();
+});
+
+// Kembali ke panel utama
+backBtn.addEventListener('click', ()=>{
+  historySection.style.display='none';
+  panel.style.display='block';
+});
+
+// Render riwayat
+function renderHistory(){
+  historyList.innerHTML='';
+  const history = JSON.parse(localStorage.getItem('serverHistory')||'[]');
+  if(history.length===0){
+    historyList.innerHTML='<p>Tidak ada riwayat server.</p>';
+    return;
+  }
+  history.forEach((entry,i)=>{
+    const card = document.createElement('div');
+    card.className='card';
+    card.innerHTML=`
+      <strong>${entry.username}</strong><br>
+      Password: ${entry.password}<br>
+      Panel: <a href="${entry.panel}" target="_blank">${entry.panel}</a><br>
+      Tanggal: ${entry.date}
+    `;
+    const delBtn = document.createElement('button');
+    delBtn.textContent='Delete Server';
+    delBtn.className='deleteBtn';
+    delBtn.addEventListener('click', async ()=>{
+      if(!confirm('Yakin hapus server ini?')) return;
+      try{
+        const res = await fetch('/api/server',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'delete', serverId: entry.serverId})
+        });
+        const data = await res.json();
+        if(data.success){
+          alert('Server berhasil dihapus!');
+          history.splice(i,1);
+          localStorage.setItem('serverHistory', JSON.stringify(history));
+          renderHistory();
+        } else alert('Gagal hapus server: '+data.message);
+      }catch(err){ alert('Error: '+err.message); }
+    });
+    card.appendChild(delBtn);
+    historyList.appendChild(card);
+  });
+}
+</script>
+
+</body>
 </html>
