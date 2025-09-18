@@ -14,31 +14,34 @@ body {
   background: #0d1117;
   color: #e6e6e6;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: center;   /* center horizontal */
+  align-items: center;       /* center vertical */
   flex-direction: column;
-  min-height: 100vh;
-  overflow-y: hidden;
+  min-height: 100vh;         /* biar pas layar */
+  overflow-y: hidden;        /* cegah scroll global */
 }
 
+/* Judul */
 h1, h2 {
   font-family: 'Orbitron', sans-serif;
   color: #fff;
   margin-bottom: 15px;
 }
 
+/* Card utama */
 .card {
   background: #161b22;
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  width: 460px;
+  width: 460px;              /* gede */
   margin: 0;
   overflow-y: auto;
   max-height: 90vh;
   box-sizing: border-box;
 }
 
+/* Input, select, button */
 input, select, button {
   margin: 10px 0;
   padding: 10px;
@@ -73,6 +76,7 @@ button:hover { background: #2ea043; }
 .deleteBtn { background: #da3633; margin-top:5px; }
 .deleteBtn:hover { background: #f85149; }
 
+/* Info penting */
 .info {
   font-size: 12px;
   line-height: 1.4;
@@ -83,6 +87,7 @@ button:hover { background: #2ea043; }
   border: 1px solid #30363d;
 }
 
+/* Status server */
 .server-status {
   text-align: center;
   margin-bottom: 10px;
@@ -96,6 +101,7 @@ button:hover { background: #2ea043; }
 .online { background-color: #2ea043; color: #fff; }
 .maintenance { background-color: #da3633; color: #fff; }
 
+/* Hasil create server */
 #result {
   font-family: 'Poppins', sans-serif;
   white-space: pre-wrap;
@@ -109,6 +115,7 @@ button:hover { background: #2ea043; }
   font-size: 13px;
 }
 
+/* Contact */
 .contact {
   margin-top: 20px;
   display: flex;
@@ -125,6 +132,7 @@ button:hover { background: #2ea043; }
   transform: scale(1.1);
 }
 
+/* Riwayat server */
 #historySection { display: none; }
 #historyList {
   max-height: 400px;
@@ -133,6 +141,7 @@ button:hover { background: #2ea043; }
 }
 #historyList .card { margin-bottom: 10px; }
 
+/* Responsive */
 @media(max-width: 500px){
   .card {
     width: 95%;
@@ -204,8 +213,8 @@ const backBtn = document.getElementById('backBtn');
 // RAM options
 ['1','2','3','4','5','6','7','8','9','10','Unlimited'].forEach((val,i)=>{
   const opt = document.createElement('option');
-  opt.value = i === 10 ? 'unlimited' : (i + 1);
-  opt.textContent = i === 10 ? 'Unlimited' : `${val} GB`;
+  opt.value = i === 10 ? 'unlimited' : (i + 1); // kirim angka 1–10 atau "unlimited"
+  opt.textContent = i === 10 ? 'Unlimited' : `${val} GB`; // tampilan tetap 1GB, 2GB, dst
   ramSelect.appendChild(opt);
 });
 
@@ -228,7 +237,6 @@ const backBtn = document.getElementById('backBtn');
 if(localStorage.getItem('username')){
   loginDiv.style.display='none';
   panel.style.display='block';
-  startSessionChecker();
 }
 
 // Login
@@ -247,14 +255,13 @@ loginBtn.addEventListener('click', async ()=>{
       localStorage.setItem('username', username);
       loginDiv.style.display='none';
       panel.style.display='block';
-      startSessionChecker();
     } else loginError.textContent = data.message;
   }catch(err){ loginError.textContent = err.message; }
 });
 
 // Logout
 document.getElementById('logoutBtn').addEventListener('click',()=>{
-  localStorage.removeItem('username');
+  localStorage.removeItem('username'); // cuma login yg dihapus
   location.reload();
 });
 
@@ -274,6 +281,7 @@ document.getElementById('createBtn').addEventListener('click', async ()=>{
     if(data.success){
       resultDiv.textContent=`✅ Server berhasil dibuat!\nLogin Panel: ${data.panel}\nUsername: ${data.username}\nEmail: ${data.email}\nPassword: ${data.password}\nRAM: ${data.ram*550} MB`;
 
+      // Simpan ke riwayat
       const history = JSON.parse(localStorage.getItem('serverHistory')||'[]');
       history.push({
         date: new Date().toLocaleString(),
@@ -352,30 +360,7 @@ function renderHistory(){
     historyList.appendChild(card);
   });
 }
-
-// Cek session ke backend tiap 10 detik
-function startSessionChecker(){
-  setInterval(async ()=>{
-    const username = localStorage.getItem('username');
-    if(!username) return;
-    try {
-      const res = await fetch('/api/server',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'checkSession', username})
-      });
-      const data = await res.json();
-      if(!data.valid){
-        localStorage.removeItem('username');
-        alert("Akun Anda sudah tidak valid. Silakan login ulang.");
-        location.reload();
-      }
-    } catch(err){
-      console.error("Gagal cek session:", err.message);
-    }
-  }, 10000);
-}
 </script>
 
 </body>
-  </html>
+    </html>
