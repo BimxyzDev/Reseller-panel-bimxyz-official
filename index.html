@@ -14,28 +14,11 @@ body {
   background: #0d1117;
   color: #e6e6e6;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: center;   /* center horizontal */
+  align-items: center;       /* center vertical */
   flex-direction: column;
-  min-height: 100vh;
-  overflow-y: hidden;
-}
-
-/* Loading screen */
-#loadingScreen {
-  position: fixed;
-  top: 0; 
-  left: 0;
-  width: 100%; 
-  height: 100%;
-  background: #0d1117;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Orbitron', sans-serif;
-  font-size: 20px;
-  z-index: 9999;
+  min-height: 100vh;         /* biar pas layar */
+  overflow-y: hidden;        /* cegah scroll global */
 }
 
 /* Judul */
@@ -51,7 +34,7 @@ h1, h2 {
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  width: 460px;
+  width: 460px;              /* gede */
   margin: 0;
   overflow-y: auto;
   max-height: 90vh;
@@ -169,11 +152,8 @@ button:hover { background: #2ea043; }
 </head>
 <body> 
 
-<!-- LOADING -->
-<div id="loadingScreen">🔄 Checking account...</div>
-
 <!-- LOGIN PANEL -->
-<div class="card" id="loginDiv" style="display:none;">
+<div class="card" id="loginDiv">
   <div class="server-status" id="serverStatus">Checking server...</div>
   <h1>Reseller Panel Login</h1>
   <input type="text" id="username" placeholder="Username">
@@ -229,13 +209,12 @@ const ramSelect = document.getElementById('serverRam');
 const historyBtn = document.getElementById('historyBtn');
 const historyList = document.getElementById('historyList');
 const backBtn = document.getElementById('backBtn');
-const loadingScreen = document.getElementById('loadingScreen');
 
 // RAM options
 ['1','2','3','4','5','6','7','8','9','10','Unlimited'].forEach((val,i)=>{
   const opt = document.createElement('option');
-  opt.value = i === 10 ? 'unlimited' : (i + 1);
-  opt.textContent = i === 10 ? 'Unlimited' : `${val} GB`;
+  opt.value = i === 10 ? 'unlimited' : (i + 1); // kirim angka 1–10 atau "unlimited"
+  opt.textContent = i === 10 ? 'Unlimited' : `${val} GB`; // tampilan tetap 1GB, 2GB, dst
   ramSelect.appendChild(opt);
 });
 
@@ -254,35 +233,11 @@ const loadingScreen = document.getElementById('loadingScreen');
   }
 })();
 
-// AUTO CHECK LOGIN (loading 2–3 detik)
-window.addEventListener('load', async ()=>{
-  const username = localStorage.getItem('username');
-  await new Promise(r=>setTimeout(r,2000)); // delay 2 detik
-
-  if(username){
-    try {
-      const res = await fetch('/api/account',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'check', username})
-      });
-      const data = await res.json();
-      if(data.valid){
-        loginDiv.style.display='none';
-        panel.style.display='block';
-      } else {
-        localStorage.removeItem('username');
-        loginDiv.style.display='block';
-      }
-    } catch {
-      localStorage.removeItem('username');
-      loginDiv.style.display='block';
-    }
-  } else {
-    loginDiv.style.display='block';
-  }
-  loadingScreen.style.display='none';
-});
+// Auto login
+if(localStorage.getItem('username')){
+  loginDiv.style.display='none';
+  panel.style.display='block';
+}
 
 // Login
 loginBtn.addEventListener('click', async ()=>{
@@ -290,7 +245,7 @@ loginBtn.addEventListener('click', async ()=>{
   const password = document.getElementById('password').value.trim();
   loginError.textContent="";
   try{
-    const res = await fetch('/api/account',{
+    const res = await fetch('/api/server',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:'login', username, password})
@@ -306,7 +261,7 @@ loginBtn.addEventListener('click', async ()=>{
 
 // Logout
 document.getElementById('logoutBtn').addEventListener('click',()=>{
-  localStorage.removeItem('username');
+  localStorage.removeItem('username'); // cuma login yg dihapus
   location.reload();
 });
 
@@ -326,6 +281,7 @@ document.getElementById('createBtn').addEventListener('click', async ()=>{
     if(data.success){
       resultDiv.textContent=`✅ Server berhasil dibuat!\nLogin Panel: ${data.panel}\nUsername: ${data.username}\nEmail: ${data.email}\nPassword: ${data.password}\nRAM: ${data.ram*550} MB`;
 
+      // Simpan ke riwayat
       const history = JSON.parse(localStorage.getItem('serverHistory')||'[]');
       history.push({
         date: new Date().toLocaleString(),
@@ -407,4 +363,4 @@ function renderHistory(){
 </script>
 
 </body>
-    </html>
+</html>
