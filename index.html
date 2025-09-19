@@ -6,28 +6,165 @@
 <title>Reseller Panel — 𝘽𝙞𝙢𝙭𝙮𝙯 𝙤𝙛𝙛𝙞𝙘𝙞𝙖𝙡</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-/* (CSS sama persis dari file lu, ga gue ubah) */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Poppins&display=swap');
-body{margin:0;font-family:'Poppins',sans-serif;background:#0d1117;color:#e6e6e6;display:flex;justify-content:center;align-items:center;flex-direction:column;min-height:100vh;overflow-y:hidden;}
-#loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#0d1117;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:20px;z-index:9999;}
-h1,h2{font-family:'Orbitron',sans-serif;color:#fff;margin-bottom:15px;}
-.card{background:#161b22;padding:30px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.5);width:460px;margin:0;overflow-y:auto;max-height:90vh;box-sizing:border-box;}
-input,select,button{margin:10px 0;padding:10px;width:100%;max-width:100%;box-sizing:border-box;border-radius:8px;border:1px solid #30363d;outline:none;font-size:14px;background:#0d1117;color:#e6e6e6;transition:all 0.2s ease;}
-input:focus,select:focus{border-color:#58a6ff;box-shadow:0 0 0 2px rgba(88,166,255,0.3);}
-button{cursor:pointer;background:#238636;color:#fff;font-weight:bold;border:none;transition:0.3s;}
-button:hover{background:#2ea043;}#logoutBtn{background:#da3633;}#logoutBtn:hover{background:#f85149;}
-.deleteBtn{background:#da3633;margin-top:5px;}.deleteBtn:hover{background:#f85149;}
-.info{font-size:12px;line-height:1.4;margin-bottom:15px;background:#0d1117;padding:10px;border-radius:8px;border:1px solid #30363d;}
-.server-status{text-align:center;margin-bottom:10px;font-size:13px;}
-.server-status span{padding:4px 10px;border-radius:5px;font-weight:bold;}
-.online{background-color:#2ea043;color:#fff;}
-.maintenance{background-color:#da3633;color:#fff;}
-#result{font-family:'Poppins',sans-serif;white-space:pre-wrap;margin-top:10px;background:#0d1117;padding:10px;border-radius:8px;max-height:200px;overflow-y:auto;border:1px solid #30363d;font-size:13px;}
-.contact{margin-top:20px;display:flex;justify-content:center;gap:20px;font-size:22px;}
-.contact a{color:#58a6ff;transition:0.3s;}
-.contact a:hover{color:#1f6feb;transform:scale(1.1);}
-#historySection{display:none;}#historyList{max-height:400px;overflow-y:auto;margin-top:10px;}#historyList .card{margin-bottom:10px;}
-@media(max-width:500px){.card{width:95%;padding:20px;}}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #0d1117;
+  color: #e6e6e6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-y: hidden;
+}
+
+/* Loading screen */
+#loadingScreen {
+  position: fixed;
+  top: 0; 
+  left: 0;
+  width: 100%; 
+  height: 100%;
+  background: #0d1117;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 20px;
+  z-index: 9999;
+}
+
+/* Judul */
+h1, h2 {
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+/* Card utama */
+.card {
+  background: #161b22;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  width: 460px;
+  margin: 0;
+  overflow-y: auto;
+  max-height: 90vh;
+  box-sizing: border-box;
+}
+
+/* Input, select, button */
+input, select, button {
+  margin: 10px 0;
+  padding: 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+  outline: none;
+  font-size: 14px;
+  background: #0d1117;
+  color: #e6e6e6;
+  transition: all 0.2s ease;
+}
+
+input:focus, select:focus {
+  border-color: #58a6ff;
+  box-shadow: 0 0 0 2px rgba(88,166,255,0.3);
+}
+
+button {
+  cursor: pointer;
+  background: #238636;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  transition: 0.3s;
+}
+button:hover { background: #2ea043; }
+#logoutBtn { background: #da3633; }
+#logoutBtn:hover { background: #f85149; }
+.deleteBtn { background: #da3633; margin-top:5px; }
+.deleteBtn:hover { background: #f85149; }
+
+/* Info penting */
+.info {
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 15px;
+  background: #0d1117;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+}
+
+/* Status server */
+.server-status {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.server-status span {
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+.online { background-color: #2ea043; color: #fff; }
+.maintenance { background-color: #da3633; color: #fff; }
+
+/* Hasil create server */
+#result {
+  font-family: 'Poppins', sans-serif;
+  white-space: pre-wrap;
+  margin-top: 10px;
+  background: #0d1117;
+  padding: 10px;
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #30363d;
+  font-size: 13px;
+}
+
+/* Contact */
+.contact {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 22px;
+}
+.contact a {
+  color: #58a6ff;
+  transition: 0.3s;
+}
+.contact a:hover {
+  color: #1f6feb;
+  transform: scale(1.1);
+}
+
+/* Riwayat server */
+#historySection { display: none; }
+#historyList {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+#historyList .card { margin-bottom: 10px; }
+
+/* Responsive */
+@media(max-width: 500px){
+  .card {
+    width: 95%;
+    padding: 20px;
+  }
+}
 </style>
 </head>
 <body> 
@@ -120,15 +257,14 @@ const loadingScreen = document.getElementById('loadingScreen');
 // AUTO CHECK LOGIN (loading 2–3 detik)
 window.addEventListener('load', async ()=>{
   const username = localStorage.getItem('username');
-  const password = localStorage.getItem('password');
   await new Promise(r=>setTimeout(r,2000)); // delay 2 detik
 
-  if(username && password){
+  if(username){
     try {
       const res = await fetch('/api/account',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'check', username, password})
+        body:JSON.stringify({action:'check', username})
       });
       const data = await res.json();
       if(data.valid){
@@ -136,12 +272,10 @@ window.addEventListener('load', async ()=>{
         panel.style.display='block';
       } else {
         localStorage.removeItem('username');
-        localStorage.removeItem('password');
         loginDiv.style.display='block';
       }
     } catch {
       localStorage.removeItem('username');
-      localStorage.removeItem('password');
       loginDiv.style.display='block';
     }
   } else {
@@ -164,7 +298,6 @@ loginBtn.addEventListener('click', async ()=>{
     const data = await res.json();
     if(data.success){
       localStorage.setItem('username', username);
-      localStorage.setItem('password', password);
       loginDiv.style.display='none';
       panel.style.display='block';
     } else loginError.textContent = data.message;
@@ -174,7 +307,6 @@ loginBtn.addEventListener('click', async ()=>{
 // Logout
 document.getElementById('logoutBtn').addEventListener('click',()=>{
   localStorage.removeItem('username');
-  localStorage.removeItem('password');
   location.reload();
 });
 
@@ -275,4 +407,4 @@ function renderHistory(){
 </script>
 
 </body>
-</html>
+    </html>
