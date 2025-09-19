@@ -14,11 +14,26 @@ body {
   background: #0d1117;
   color: #e6e6e6;
   display: flex;
-  justify-content: center;   /* center horizontal */
-  align-items: center;       /* center vertical */
+  justify-content: center;
+  align-items: center;
   flex-direction: column;
-  min-height: 100vh;         /* biar pas layar */
-  overflow-y: hidden;        /* cegah scroll global */
+  min-height: 100vh;
+  overflow-y: hidden;
+}
+
+/* Loading screen */
+#loadingScreen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: #0d1117;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 20px;
+  z-index: 9999;
 }
 
 /* Judul */
@@ -34,7 +49,7 @@ h1, h2 {
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  width: 460px;              /* gede */
+  width: 460px;
   margin: 0;
   overflow-y: auto;
   max-height: 90vh;
@@ -148,42 +163,12 @@ button:hover { background: #2ea043; }
     padding: 20px;
   }
 }
-
-/* LOADER overlay */
-#boot-loader {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(13,17,23,0.96);
-  z-index: 9999;
-  color: #e6e6e6;
-  flex-direction: column;
-  gap: 12px;
-}
-#boot-spinner {
-  width:48px;
-  height:48px;
-  border-radius:50%;
-  border:6px solid #30363d;
-  border-top-color:#58a6ff;
-  animation:spin 1s linear infinite;
-}
-@keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
-#boot-text { font-size:16px; opacity:0.95; }
-#boot-sub { font-size:12px; color:#9aa8bf; }
-
 </style>
 </head>
 <body> 
 
-<!-- BOOT LOADER (muncul saat buka/refresh) -->
-<div id="boot-loader" style="display:none;">
-  <div id="boot-spinner"></div>
-  <div id="boot-text">Memeriksa akun...</div>
-  <div id="boot-sub">Sedang memverifikasi session — mohon tunggu sebentar</div>
-</div>
+<!-- LOADING -->
+<div id="loadingScreen">🔄 Checking account...</div>
 
 <!-- LOGIN PANEL -->
 <div class="card" id="loginDiv" style="display:none;">
@@ -230,18 +215,6 @@ button:hover { background: #2ea043; }
 </div>
 
 <script>
-/*
-  Perubahan penting:
-  - Tambah boot-loader overlay
-  - Saat load: tampilkan loader minimal 2000ms, cek localStorage.username.
-    * Jika tidak ada username -> sembunyikan loader dan tampilkan login form.
-    * Jika ada username -> panggil endpoint backend untuk verifikasi.
-      - Endpoint pertama: /api/account  (POST { action: 'verify', username })
-      - Jika backend mengembalikan valid -> tampil panel
-      - Jika tidak valid atau error -> hanya hapus key 'username' lalu tampil login
-  - Hanya index.html yang diubah (sesuai permintaan). Data lain di localStorage (mis. serverHistory) TETAP tidak dihapus.
-*/
-
 const loginDiv = document.getElementById('loginDiv');
 const panel = document.getElementById('panel');
 const historySection = document.getElementById('historySection');
@@ -254,19 +227,17 @@ const ramSelect = document.getElementById('serverRam');
 const historyBtn = document.getElementById('historyBtn');
 const historyList = document.getElementById('historyList');
 const backBtn = document.getElementById('backBtn');
-
-const bootLoader = document.getElementById('boot-loader');
-const LOADING_MIN_MS = 2000; // minimal 2 detik
+const loadingScreen = document.getElementById('loadingScreen');
 
 // RAM options
 ['1','2','3','4','5','6','7','8','9','10','Unlimited'].forEach((val,i)=>{
   const opt = document.createElement('option');
-  opt.value = i === 10 ? 'unlimited' : (i + 1); // kirim angka 1–10 atau "unlimited"
-  opt.textContent = i === 10 ? 'Unlimited' : `${val} GB`; // tampilan tetap 1GB, 2GB, dst
+  opt.value = i === 10 ? 'unlimited' : (i + 1);
+  opt.textContent = i === 10 ? 'Unlimited' : `${val} GB`;
   ramSelect.appendChild(opt);
 });
 
-// Check server status (tetap seperti sebelumnya)
+// Check server status
 (async () => {
   try {
     const res = await fetch('/api/server');
@@ -281,85 +252,37 @@ const LOADING_MIN_MS = 2000; // minimal 2 detik
   }
 })();
 
-/* ---- BOOT / AUTO-VERIFY FLOW ---- */
-function showLoader(){ bootLoader.style.display='flex'; }
-function hideLoader(){ bootLoader.style.display='none'; }
-function showLogin(){ loginDiv.style.display='block'; panel.style.display='none'; historySection.style.display='none'; }
-function showPanel(){ panel.style.display='block'; loginDiv.style.display='none'; historySection.style.display='none'; }
+// AUTO CHECK LOGIN (loading 2–3 detik)
+window.addEventListener('load', async ()=>{
+  const username = localStorage.getItem('username');
+  await new Promise(r=>setTimeout(r,2000)); // delay 2 detik
 
-function logoutClientOnlyLogin() {
-  // Hanya hapus data login (key 'username') — jangan clear semua.
-  localStorage.removeItem('username');
-  // reload supaya UI kembali ke form login
-  location.reload();
-}
-
-async function verifyUsernameWithBackend(username){
-  // Coba endpoint /api/account dulu (POST). Backend boleh balik { valid:true } atau { success:true }.
-  try {
-    const resp = await fetch('/api/account', {
-      method:'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ action: 'verify', username })
-    });
-    if (!resp.ok) return { ok:false, reason:'response-not-ok' };
-    const j = await resp.json();
-    // Accept multiple possible shapes from backend
-    if (j.valid === true || j.success === true || j.isValid === true) return { ok:true };
-    // fallback: maybe backend returns { user: {...} } - treat as ok
-    if (j.user) return { ok:true };
-    return { ok:false, reason:'not-valid' };
-  } catch (err) {
-    // kalau error jaringan/respon, tandai sebagai error
-    return { ok:false, reason:'network', error:err };
-  }
-}
-
-(async function bootCheck(){
-  showLoader();
-  const t0 = Date.now();
-
-  const rawUser = localStorage.getItem('username');
-  if (!rawUser) {
-    // tidak ada akun tersimpan -> tampilkan login setelah minimal delay
-    const elapsed = Date.now() - t0;
-    const wait = Math.max(0, LOADING_MIN_MS - elapsed);
-    await new Promise(r => setTimeout(r, wait));
-    hideLoader();
-    showLogin();
-    return;
-  }
-
-  // ada username -> verifikasi ke backend
-  // jangan kirim data sensitif selain username (kita cuma kirim username)
-  let username = rawUser;
-  try {
-    // jika disimpan JSON string, ambil value
-    username = JSON.parse(rawUser);
-  } catch(e){ /* bukan JSON, keep as-is */ }
-
-  // lakukan verifikasi
-  const verifyResult = await verifyUsernameWithBackend(username);
-
-  // pastikan loader minimal tampil LOADING_MIN_MS
-  const elapsed = Date.now() - t0;
-  const wait = Math.max(0, LOADING_MIN_MS - elapsed);
-  await new Promise(r => setTimeout(r, wait));
-
-  if (verifyResult.ok) {
-    // valid -> tampil panel
-    hideLoader();
-    showPanel();
+  if(username){
+    try {
+      const res = await fetch('/api/account',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'check', username})
+      });
+      const data = await res.json();
+      if(data.valid){
+        loginDiv.style.display='none';
+        panel.style.display='block';
+      } else {
+        localStorage.removeItem('username');
+        loginDiv.style.display='block';
+      }
+    } catch {
+      localStorage.removeItem('username');
+      loginDiv.style.display='block';
+    }
   } else {
-    // tidak valid or network error -> otomatis logout (hanya hapus login)
-    // NOTE: keputusan: saat network error kita juga logout untuk keamanan.
-    // Jika mau toleransi network, bisa ubah supaya tampil pesan retry — bisa kita saranin nanti.
-    hideLoader();
-    logoutClientOnlyLogin();
+    loginDiv.style.display='block';
   }
-})();
+  loadingScreen.style.display='none';
+});
 
-/* ---- Login (tetap seperti semula) ---- */
+// Login
 loginBtn.addEventListener('click', async ()=>{
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value.trim();
@@ -372,7 +295,6 @@ loginBtn.addEventListener('click', async ()=>{
     });
     const data = await res.json();
     if(data.success){
-      // simpan username saja di localStorage (seperti implementasi lama)
       localStorage.setItem('username', username);
       loginDiv.style.display='none';
       panel.style.display='block';
@@ -380,9 +302,9 @@ loginBtn.addEventListener('click', async ()=>{
   }catch(err){ loginError.textContent = err.message; }
 });
 
-// Logout (manual button)
+// Logout
 document.getElementById('logoutBtn').addEventListener('click',()=>{
-  localStorage.removeItem('username'); // cuma login yg dihapus
+  localStorage.removeItem('username');
   location.reload();
 });
 
@@ -402,7 +324,6 @@ document.getElementById('createBtn').addEventListener('click', async ()=>{
     if(data.success){
       resultDiv.textContent=`✅ Server berhasil dibuat!\nLogin Panel: ${data.panel}\nUsername: ${data.username}\nEmail: ${data.email}\nPassword: ${data.password}\nRAM: ${data.ram*550} MB`;
 
-      // Simpan ke riwayat
       const history = JSON.parse(localStorage.getItem('serverHistory')||'[]');
       history.push({
         date: new Date().toLocaleString(),
@@ -484,4 +405,4 @@ function renderHistory(){
 </script>
 
 </body>
-    </html>
+</html>
