@@ -9,6 +9,7 @@ export const accounts = [
 { username: "PAYZZ", password: "PAYZZ27" },
 { username: "adminch", password: "adminch5282" },
 { username: "adityagntng", password: "adit22376" },
+{ username: "Revan", password: "Revan3044" },
 ];
 
 export function validateLogin(username, password) {
