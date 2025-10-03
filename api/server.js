@@ -1,29 +1,66 @@
 // api/server.js
-import { validateLogin } from './account';
+import fetch from "node-fetch";
 
+const SHEET_URL =
+  "https://docs.google.com/spreadsheets/d/1YZOdM-Jq9pd4FRa8akZBmJ57KbGG8ROJqllcSn99Mas/export?format=csv";
+
+// Fixed config (gak dari sheet biar aman & stabil)
+const NODE_ID = 1;
+const EGG_ID = 15;
+const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_24";
+
+// Ambil data dari spreadsheet
+async function loadSheet() {
+  const res = await fetch(SHEET_URL);
+  const text = await res.text();
+  const rows = text.split("\n").map((r) => r.split(","));
+
+  // Config panel & API key
+  const PANEL_URL = rows[1][1].trim(); // kolom B baris 2
+  const API_KEY = rows[2][1].trim(); // kolom B baris 3
+
+  // User accounts
+  const users = [];
+  for (let i = 8; i < rows.length; i++) {
+    const username = rows[i][0]?.trim();
+    const password = rows[i][1]?.trim();
+    if (username && password) {
+      users.push({ username, password });
+    }
+  }
+
+  return { PANEL_URL, API_KEY, users };
+}
+
+// Validasi login
+function validateLogin(users, username, password) {
+  return users.some(
+    (u) => u.username === username && u.password === password
+  );
+}
+
+// Handler utama
 export default async function handler(req, res) {
-  const PANEL_URL = "https://adminpanel.anjayserverpanel.my.id";
-  const API_KEY   = "ptla_G3pQ2DOUvpYu6yoK7L6TmaHcNzdpXlCEKcrDhU2CiYO";
-  const NODE_ID   = 1;
-  const EGG_ID    = 15;
-  const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_24";
+  const { PANEL_URL, API_KEY, users } = await loadSheet();
 
   if (req.method === "GET") {
     try {
       const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
-        method: "GET",
         headers: {
-          "Authorization": `Bearer ${API_KEY}`,
-          "Accept": "application/json"
-        }
+          Authorization: `Bearer ${API_KEY}`,
+          Accept: "application/json",
+        },
       });
       const serverData = await serverRes.json();
       if (!serverRes.ok) {
-        return res.json({ success: false, message: JSON.stringify(serverData) });
+        return res.json({
+          success: false,
+          message: JSON.stringify(serverData),
+        });
       }
       return res.json({
         success: true,
-        count: serverData.meta.pagination.total
+        count: serverData.meta.pagination.total,
       });
     } catch (err) {
       return res.json({ success: false, message: err.message });
@@ -34,14 +71,16 @@ export default async function handler(req, res) {
     const { action, username, password, name, ram, serverId } = req.body;
 
     try {
+      // LOGIN
       if (action === "login") {
-        if (validateLogin(username, password)) {
+        if (validateLogin(users, username, password)) {
           return res.json({ success: true });
         } else {
           return res.json({ success: false, message: "Login gagal!" });
         }
       }
 
+      // CREATE SERVER
       if (action === "create") {
         const email = `user${Date.now()}@mail.com`;
         const userPassword = Math.random().toString(36).slice(-8);
@@ -50,9 +89,9 @@ export default async function handler(req, res) {
         const userRes = await fetch(`${PANEL_URL}/api/application/users`, {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${API_KEY}`,
+            Authorization: `Bearer ${API_KEY}`,
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            Accept: "application/json",
           },
           body: JSON.stringify({
             email,
@@ -60,54 +99,70 @@ export default async function handler(req, res) {
             first_name: name,
             last_name: "Client",
             password: userPassword,
-            root_admin: false
-          })
+            root_admin: false,
+          }),
         });
         const userData = await userRes.json();
         if (!userRes.ok) {
-          return res.json({ success: false, message: JSON.stringify(userData) });
+          return res.json({
+            success: false,
+            message: JSON.stringify(userData),
+          });
         }
         const userId = userData.attributes.id;
 
-        // Cari allocation kosong (loop semua halaman)
+        // Cari allocation kosong
         let freeAlloc = null;
         let page = 1;
         while (!freeAlloc) {
-          const allocRes = await fetch(`${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations?page=${page}`, {
-            headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
-          });
+          const allocRes = await fetch(
+            `${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations?page=${page}`,
+            {
+              headers: {
+                Authorization: `Bearer ${API_KEY}`,
+                Accept: "application/json",
+              },
+            }
+          );
           const allocData = await allocRes.json();
           if (!allocRes.ok) {
-            return res.json({ success: false, message: JSON.stringify(allocData) });
+            return res.json({
+              success: false,
+              message: JSON.stringify(allocData),
+            });
           }
-          freeAlloc = allocData.data.find(a => a.attributes.assigned === false);
+          freeAlloc = allocData.data.find(
+            (a) => a.attributes.assigned === false
+          );
           if (freeAlloc) break;
 
           if (page >= allocData.meta.pagination.total_pages) break;
           page++;
         }
-
         if (!freeAlloc) {
           return res.json({ success: false, message: "Ga ada allocation kosong!" });
         }
 
-        // Ambil environment variable default dari egg
-        const eggRes = await fetch(`${PANEL_URL}/api/application/nests/5/eggs/${EGG_ID}?include=variables`, {
-          headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
-        });
+        // Ambil env default dari egg
+        const eggRes = await fetch(
+          `${PANEL_URL}/api/application/nests/5/eggs/${EGG_ID}?include=variables`,
+          {
+            headers: { Authorization: `Bearer ${API_KEY}`, Accept: "application/json" },
+          }
+        );
         const eggData = await eggRes.json();
         const env = {};
-        eggData.attributes.relationships.variables.data.forEach(v => {
+        eggData.attributes.relationships.variables.data.forEach((v) => {
           env[v.attributes.env_variable] = v.attributes.default_value || "";
         });
 
-        // Buat server dengan limits sesuai permintaan
+        // Buat server
         const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${API_KEY}`,
+            Authorization: `Bearer ${API_KEY}`,
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            Accept: "application/json",
           },
           body: JSON.stringify({
             name,
@@ -116,7 +171,7 @@ export default async function handler(req, res) {
             docker_image: DOCKER_IMG,
             startup: eggData.attributes.startup,
             limits: (() => {
-              if (ram === 'unlimited') {
+              if (ram === "unlimited") {
                 return { memory: 0, swap: 0, disk: 0, io: 500, cpu: 0 };
               }
               const ramNumber = parseInt(ram);
@@ -125,18 +180,21 @@ export default async function handler(req, res) {
                 swap: 0,
                 disk: ramNumber * 550,
                 io: 500,
-                cpu: ramNumber * 150
+                cpu: ramNumber * 150,
               };
             })(),
             environment: env,
             feature_limits: { databases: 1, backups: 1, allocations: 1 },
-            allocation: { default: freeAlloc.attributes.id }
-          })
+            allocation: { default: freeAlloc.attributes.id },
+          }),
         });
 
         const serverData = await serverRes.json();
         if (!serverRes.ok) {
-          return res.json({ success: false, message: JSON.stringify(serverData) });
+          return res.json({
+            success: false,
+            message: JSON.stringify(serverData),
+          });
         }
 
         return res.json({
@@ -146,27 +204,36 @@ export default async function handler(req, res) {
           email: userData.attributes.email,
           password: userPassword,
           ram,
-          serverId: serverData.attributes.id
+          serverId: serverData.attributes.id,
         });
       }
 
+      // DELETE SERVER
       if (action === "delete") {
         if (!serverId) {
-          return res.json({ success: false, message: "Server ID harus ada!" });
+          return res.json({
+            success: false,
+            message: "Server ID harus ada!",
+          });
         }
-        const delRes = await fetch(`${PANEL_URL}/api/application/servers/${serverId}`, {
-          method: "DELETE",
-          headers: {
-            "Authorization": `Bearer ${API_KEY}`,
-            "Accept": "application/json"
+        const delRes = await fetch(
+          `${PANEL_URL}/api/application/servers/${serverId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${API_KEY}`,
+              Accept: "application/json",
+            },
           }
-        });
-
+        );
         if (delRes.status === 204) {
           return res.json({ success: true, message: "Server berhasil dihapus" });
         } else {
           const errData = await delRes.json();
-          return res.json({ success: false, message: JSON.stringify(errData) });
+          return res.json({
+            success: false,
+            message: JSON.stringify(errData),
+          });
         }
       }
 
@@ -177,4 +244,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ success: false, message: "Method not allowed" });
-            }
+          }
