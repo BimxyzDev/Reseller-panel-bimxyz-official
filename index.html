@@ -6,6 +6,7 @@
 <title>𝙒𝙀𝘽 𝘾𝙋𝘼𝙉𝙀𝙇 — 𝘽𝙞𝙢𝙭𝙮𝙯 𝙤𝙛𝙛𝙞𝙘𝙞𝙖𝙡</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
+/* === ORI STYLE JANGAN DIUBAH === */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Poppins&display=swap');
 
 body {
@@ -143,7 +144,7 @@ button:hover { background: #2ea043; }
 </head>
 <body> 
 
-<!-- LOGIN PANEL -->
+<!-- === ORI STRUCTURE LOGIN PANEL === -->
 <div class="card" id="loginDiv">
   <div class="server-status" id="serverStatus">Checking server...</div>
   <h1>Reseller Panel Login</h1>
@@ -188,6 +189,7 @@ button:hover { background: #2ea043; }
 </div>
 
 <script>
+/* === ORI SCRIPT, CUMA SESUAIKAN FETCH AGAR MATCH SERVER.JS === */
 const loginDiv = document.getElementById('loginDiv');
 const panel = document.getElementById('panel');
 const historySection = document.getElementById('historySection');
@@ -212,7 +214,7 @@ const backBtn = document.getElementById('backBtn');
 // Check server status
 (async () => {
   try {
-    const res = await fetch('/api/server');
+    const res = await fetch('/api/server?check=status');
     const data = await res.json();
     const statusHTML = `<span class="${data.success?'online':'maintenance'}">${data.success?'ONLINE':'MAINTENANCE'}</span>`;
     serverStatus.innerHTML = statusHTML;
@@ -224,40 +226,30 @@ const backBtn = document.getElementById('backBtn');
   }
 })();
 
-// === Auto login dengan cek expire 20 menit ===
+// === Auto login 20 menit ===
 (function checkLogin(){
   const username = localStorage.getItem('username');
   const loginTime = localStorage.getItem('loginTime');
-  
   if(username && loginTime){
-    const loginDate = new Date(loginTime);
-    const now = new Date();
-    const diffMinutes = (now - loginDate) / 60000;
-    
+    const diffMinutes = (new Date() - new Date(loginTime)) / 60000;
     if(diffMinutes >= 20){
-      localStorage.removeItem('username');
-      localStorage.removeItem('loginTime');
+      localStorage.clear();
       loginDiv.style.display='block';
       panel.style.display='none';
     } else {
       loginDiv.style.display='none';
       panel.style.display='block';
     }
-  } else {
-    loginDiv.style.display='block';
-    panel.style.display='none';
   }
 })();
 
-// Interval checker tiap menit
+// Interval auto logout
 setInterval(()=>{
   const loginTime = localStorage.getItem('loginTime');
   if(loginTime){
-    const now = new Date();
-    const diffMinutes = (now - new Date(loginTime)) / 60000;
+    const diffMinutes = (new Date() - new Date(loginTime)) / 60000;
     if(diffMinutes >= 20){
-      localStorage.removeItem('username');
-      localStorage.removeItem('loginTime');
+      localStorage.clear();
       location.reload();
     }
   }
@@ -276,9 +268,8 @@ loginBtn.addEventListener('click', async ()=>{
     });
     const data = await res.json();
     if(data.success){
-      const now = new Date();
       localStorage.setItem('username', username);
-      localStorage.setItem('loginTime', now.toISOString());
+      localStorage.setItem('loginTime', new Date().toISOString());
       loginDiv.style.display='none';
       panel.style.display='block';
     } else loginError.textContent = data.message;
@@ -287,8 +278,7 @@ loginBtn.addEventListener('click', async ()=>{
 
 // Logout
 document.getElementById('logoutBtn').addEventListener('click',()=>{
-  localStorage.removeItem('username');
-  localStorage.removeItem('loginTime');
+  localStorage.clear();
   location.reload();
 });
 
@@ -307,15 +297,8 @@ document.getElementById('createBtn').addEventListener('click', async ()=>{
     const data = await res.json();
     if(data.success){
       resultDiv.textContent=`✅ Server berhasil dibuat!\nLogin Panel: ${data.panel}\nUsername: ${data.username}\nEmail: ${data.email}\nPassword: ${data.password}\nRAM: ${data.ram*550} MB`;
-
       const history = JSON.parse(localStorage.getItem('serverHistory')||'[]');
-      history.push({
-        date: new Date().toLocaleString(),
-        username: data.username,
-        password: data.password,
-        panel: data.panel,
-        serverId: data.serverId
-      });
+      history.push({...data, date:new Date().toLocaleString()});
       localStorage.setItem('serverHistory', JSON.stringify(history));
     } else resultDiv.textContent="❌ Gagal: "+data.message;
   }catch(err){ resultDiv.textContent="⚠️ Error: "+err.message; }
@@ -325,27 +308,25 @@ document.getElementById('createBtn').addEventListener('click', async ()=>{
 document.getElementById('listBtn').addEventListener('click', async ()=>{
   resultDiv.textContent="Mengambil jumlah server...";
   try{
-    const res = await fetch('/api/server');
+    const res = await fetch('/api/server?check=count');
     const data = await res.json();
     if(data.success) resultDiv.textContent=`📊 Jumlah server di panel: ${data.count}`;
     else resultDiv.textContent="❌ Gagal ambil data: "+data.message;
   }catch(err){ resultDiv.textContent="⚠️ Error: "+err.message; }
 });
 
-// Lihat Riwayat
+// Riwayat
 historyBtn.addEventListener('click', ()=>{
   panel.style.display='none';
   historySection.style.display='block';
   renderHistory();
 });
-
-// Kembali ke panel utama
 backBtn.addEventListener('click', ()=>{
   historySection.style.display='none';
   panel.style.display='block';
 });
 
-// Render riwayat
+// Render history
 function renderHistory(){
   historyList.innerHTML='';
   const history = JSON.parse(localStorage.getItem('serverHistory')||'[]');
@@ -389,4 +370,4 @@ function renderHistory(){
 </script>
 
 </body>
-  </html>
+</html>
