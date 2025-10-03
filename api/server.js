@@ -1,247 +1,127 @@
-// api/server.js
-import fetch from "node-fetch";
+const express = require("express");
+const fetch = require("node-fetch");
+const { google } = require("googleapis");
 
-const SHEET_URL =
-  "https://docs.google.com/spreadsheets/d/1YZOdM-Jq9pd4FRa8akZBmJ57KbGG8ROJqllcSn99Mas/export?format=csv";
+const app = express();
+app.use(express.json());
 
-// Fixed config (gak dari sheet biar aman & stabil)
-const NODE_ID = 1;
-const EGG_ID = 15;
-const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_24";
+// === KONFIG GOOGLE SHEET ===
+const SHEET_ID = "1YZOdM-Jq9pd4FRa8akZBmJ57KbGG8ROJqllcSn99Mas";
+const RANGE_DOMAIN = "B2"; // domain
+const RANGE_APIKEY = "B3"; // apikey
+const RANGE_USERS = "A9:B"; // username & password mulai baris 9
 
-// Ambil data dari spreadsheet
-async function loadSheet() {
-  const res = await fetch(SHEET_URL);
-  const text = await res.text();
-  const rows = text.split("\n").map((r) => r.split(","));
+async function getSheetData(range) {
+  const sheets = google.sheets({ version: "v4", auth: process.env.GOOGLE_API_KEY });
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: SHEET_ID,
+    range,
+  });
+  return res.data.values || [];
+}
 
-  // Config panel & API key
-  const PANEL_URL = rows[1][1].trim(); // kolom B baris 2
-  const API_KEY = rows[2][1].trim(); // kolom B baris 3
+// === API ENDPOINT ===
+app.get("/api/server", async (req, res) => {
+  try {
+    const [domainData, apikeyData] = await Promise.all([
+      getSheetData(RANGE_DOMAIN),
+      getSheetData(RANGE_APIKEY),
+    ]);
 
-  // User accounts
-  const users = [];
-  for (let i = 8; i < rows.length; i++) {
-    const username = rows[i][0]?.trim();
-    const password = rows[i][1]?.trim();
-    if (username && password) {
-      users.push({ username, password });
+    if (!domainData[0] || !apikeyData[0]) {
+      return res.json({ success: false, message: "Domain atau API key tidak ditemukan" });
     }
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    return res.json({ success: false, message: "Server error" });
   }
+});
 
-  return { PANEL_URL, API_KEY, users };
-}
+app.post("/api/server", async (req, res) => {
+  const { action, username, password, name, ram, serverId } = req.body;
 
-// Validasi login
-function validateLogin(users, username, password) {
-  return users.some(
-    (u) => u.username === username && u.password === password
-  );
-}
+  try {
+    const [domainData, apikeyData, userData] = await Promise.all([
+      getSheetData(RANGE_DOMAIN),
+      getSheetData(RANGE_APIKEY),
+      getSheetData(RANGE_USERS),
+    ]);
 
-// Handler utama
-export default async function handler(req, res) {
-  const { PANEL_URL, API_KEY, users } = await loadSheet();
+    const domain = domainData[0][0];
+    const apiKey = apikeyData[0][0];
 
-  if (req.method === "GET") {
-    try {
-      const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
+    if (!domain || !apiKey) {
+      return res.json({ success: false, message: "Config tidak ditemukan di sheet" });
+    }
+
+    // === LOGIN ===
+    if (action === "login") {
+      const found = userData.find(
+        (u) => u[0] === username && u[1] === password
+      );
+      if (found) return res.json({ success: true });
+      else return res.json({ success: false, message: "Username atau password salah" });
+    }
+
+    // === CREATE SERVER ===
+    if (action === "create") {
+      const url = `${domain}/api/client`;
+      const body = {
+        name,
+        ram,
+        egg: 15,
+        docker_image: "ghcr.io/parkervcp/yolks:nodejs_18",
+      };
+
+      const response = await fetch(url, {
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${API_KEY}`,
-          Accept: "application/json",
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify(body),
       });
-      const serverData = await serverRes.json();
-      if (!serverRes.ok) {
-        return res.json({
-          success: false,
-          message: JSON.stringify(serverData),
-        });
-      }
-      return res.json({
-        success: true,
-        count: serverData.meta.pagination.total,
-      });
-    } catch (err) {
-      return res.json({ success: false, message: err.message });
-    }
-  }
 
-  if (req.method === "POST") {
-    const { action, username, password, name, ram, serverId } = req.body;
-
-    try {
-      // LOGIN
-      if (action === "login") {
-        if (validateLogin(users, username, password)) {
-          return res.json({ success: true });
-        } else {
-          return res.json({ success: false, message: "Login gagal!" });
-        }
-      }
-
-      // CREATE SERVER
-      if (action === "create") {
-        const email = `user${Date.now()}@mail.com`;
-        const userPassword = Math.random().toString(36).slice(-8);
-
-        // Buat user baru
-        const userRes = await fetch(`${PANEL_URL}/api/application/users`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${API_KEY}`,
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            username: name.toLowerCase().replace(/\s+/g, "_"),
-            first_name: name,
-            last_name: "Client",
-            password: userPassword,
-            root_admin: false,
-          }),
-        });
-        const userData = await userRes.json();
-        if (!userRes.ok) {
-          return res.json({
-            success: false,
-            message: JSON.stringify(userData),
-          });
-        }
-        const userId = userData.attributes.id;
-
-        // Cari allocation kosong
-        let freeAlloc = null;
-        let page = 1;
-        while (!freeAlloc) {
-          const allocRes = await fetch(
-            `${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations?page=${page}`,
-            {
-              headers: {
-                Authorization: `Bearer ${API_KEY}`,
-                Accept: "application/json",
-              },
-            }
-          );
-          const allocData = await allocRes.json();
-          if (!allocRes.ok) {
-            return res.json({
-              success: false,
-              message: JSON.stringify(allocData),
-            });
-          }
-          freeAlloc = allocData.data.find(
-            (a) => a.attributes.assigned === false
-          );
-          if (freeAlloc) break;
-
-          if (page >= allocData.meta.pagination.total_pages) break;
-          page++;
-        }
-        if (!freeAlloc) {
-          return res.json({ success: false, message: "Ga ada allocation kosong!" });
-        }
-
-        // Ambil env default dari egg
-        const eggRes = await fetch(
-          `${PANEL_URL}/api/application/nests/5/eggs/${EGG_ID}?include=variables`,
-          {
-            headers: { Authorization: `Bearer ${API_KEY}`, Accept: "application/json" },
-          }
-        );
-        const eggData = await eggRes.json();
-        const env = {};
-        eggData.attributes.relationships.variables.data.forEach((v) => {
-          env[v.attributes.env_variable] = v.attributes.default_value || "";
-        });
-
-        // Buat server
-        const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${API_KEY}`,
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            name,
-            user: userId,
-            egg: EGG_ID,
-            docker_image: DOCKER_IMG,
-            startup: eggData.attributes.startup,
-            limits: (() => {
-              if (ram === "unlimited") {
-                return { memory: 0, swap: 0, disk: 0, io: 500, cpu: 0 };
-              }
-              const ramNumber = parseInt(ram);
-              return {
-                memory: ramNumber * 550,
-                swap: 0,
-                disk: ramNumber * 550,
-                io: 500,
-                cpu: ramNumber * 150,
-              };
-            })(),
-            environment: env,
-            feature_limits: { databases: 1, backups: 1, allocations: 1 },
-            allocation: { default: freeAlloc.attributes.id },
-          }),
-        });
-
-        const serverData = await serverRes.json();
-        if (!serverRes.ok) {
-          return res.json({
-            success: false,
-            message: JSON.stringify(serverData),
-          });
-        }
-
+      const data = await response.json();
+      if (response.ok) {
         return res.json({
           success: true,
-          panel: PANEL_URL,
-          username: userData.attributes.username,
-          email: userData.attributes.email,
-          password: userPassword,
+          panel: domain,
+          username: data.username || "autogen",
+          email: data.email || "autogen@example.com",
+          password: data.password || "autogenpass",
           ram,
-          serverId: serverData.attributes.id,
+          serverId: data.id || "123",
         });
+      } else {
+        return res.json({ success: false, message: data.errors?.[0]?.detail || "Gagal membuat server" });
       }
-
-      // DELETE SERVER
-      if (action === "delete") {
-        if (!serverId) {
-          return res.json({
-            success: false,
-            message: "Server ID harus ada!",
-          });
-        }
-        const delRes = await fetch(
-          `${PANEL_URL}/api/application/servers/${serverId}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${API_KEY}`,
-              Accept: "application/json",
-            },
-          }
-        );
-        if (delRes.status === 204) {
-          return res.json({ success: true, message: "Server berhasil dihapus" });
-        } else {
-          const errData = await delRes.json();
-          return res.json({
-            success: false,
-            message: JSON.stringify(errData),
-          });
-        }
-      }
-
-      return res.json({ success: false, message: "Action tidak dikenal" });
-    } catch (err) {
-      return res.json({ success: false, message: err.message });
     }
-  }
 
-  return res.status(405).json({ success: false, message: "Method not allowed" });
-          }
+    // === DELETE SERVER ===
+    if (action === "delete") {
+      const url = `${domain}/api/client/servers/${serverId}`;
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${apiKey}` },
+      });
+
+      if (response.ok) {
+        return res.json({ success: true });
+      } else {
+        return res.json({ success: false, message: "Gagal hapus server" });
+      }
+    }
+
+    return res.json({ success: false, message: "Action tidak valid" });
+  } catch (err) {
+    console.error(err);
+    return res.json({ success: false, message: "Server error: " + err.message });
+  }
+});
+
+// === JALANKAN SERVER ===
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("Server running on port " + PORT));
