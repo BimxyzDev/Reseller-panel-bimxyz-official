@@ -142,7 +142,6 @@ button:hover { background: #2ea043; }
 </style>
 </head>
 <body> 
-
 <!-- LOGIN PANEL -->
 <div class="card" id="loginDiv">
   <div class="server-status" id="serverStatus">Checking server...</div>
@@ -151,7 +150,16 @@ button:hover { background: #2ea043; }
   <input type="password" id="password" placeholder="Password">
   <button id="loginBtn">Login</button>
   <div id="loginError" style="color:red; text-align:center; margin-top:5px;"></div>
+
+  <!-- Tambahan baru -->
+  <div style="text-align:center; margin-top:15px; font-size:13px;">
+    Belum punya akun? 
+    <a href="https://www.bimxyz.my.id" target="_blank" style="color:#58a6ff; text-decoration:none;">
+      <b>Beli sekarang</b>
+    </a>
+  </div>
 </div>
+
 
 <!-- CPANEL UTAMA -->
 <div class="card" id="panel" style="display:none;">
@@ -389,5 +397,4 @@ function renderHistory(){
 </script>
 
 </body>
-  </html>
-  
+</html>
