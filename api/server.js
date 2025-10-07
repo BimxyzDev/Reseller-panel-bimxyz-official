@@ -2,8 +2,8 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://panelpublicrusuhh.resellergaming-official.my.id";
-  const API_KEY   = "ptla_18qeId6XM7dWAZOUyM6DTRQiVDicaApEDv6zEFAGFyM";
+  const PANEL_URL = "https://fanzztzypublic.pteroweb.my.id";
+  const API_KEY   = "ptla_wBkqEbgKDY4cVrEFvZSAEHOIMP2OXrp8mvBKVm1e1RE";
   const NODE_ID   = 1;
   const EGG_ID    = 15;
   const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_24";
