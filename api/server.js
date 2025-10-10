@@ -2,8 +2,8 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://alifserver.privateserverr.my.id";
-  const API_KEY   = "ptla_w3ySrOlKI7YExDN2kILnwvWWoAsvDoKkxxlg7stChbs";
+  const PANEL_URL = "https://mikasawangy.servercloud.my.id";
+  const API_KEY   = "ptla_lFp3NLCQ7cm9eqIm6pY9Z53EO8tcZY3IEA2vsMrjlca";
   const NODE_ID   = 1;
   const EGG_ID    = 15;
   const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_24";
