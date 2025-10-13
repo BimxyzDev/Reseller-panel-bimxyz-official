@@ -3,7 +3,7 @@ import { validateLogin } from './account';
 
 export default async function handler(req, res) {
   const PANEL_URL = "https://mikasawangy.servercloud.my.id";
-  const API_KEY   = "ptla_lFp3NLCQ7cm9eqIm6pY9Z53EO8tcZY3IEA2vsMrjlca";
+  const API_KEY   = "ptla_RxwnELYaOkLzEgDHjO6T1HTD3qn6dxBVWc2yPX8I3rc";
   const NODE_ID   = 1;
   const EGG_ID    = 15;
   const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_20";
