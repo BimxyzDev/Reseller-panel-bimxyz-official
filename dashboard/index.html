@@ -1,257 +1,210 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bimxyz Dashboard</title>
-  <link rel="icon" href="/favicon.png" />
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-
-    body {
-      background-color: #0d0f11;
-      color: white;
-      font-family: 'Poppins', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-
-    .container {
-      background-color: #111315;
-      padding: 30px;
-      border-radius: 12px;
-      width: 95%;
-      max-width: 420px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
-    }
-
-    .maintenance {
-      background-color: #dc2626;
-      color: white;
-      text-align: center;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-weight: 600;
-      display: inline-block;
-      margin: 0 auto 15px;
-    }
-
-    .note {
-      background-color: #1a1c1f;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 14px;
-      line-height: 1.5;
-      border: 1px solid #2a2d31;
-    }
-
-    h2 {
-      margin-top: 25px;
-      text-align: left;
-      font-weight: 600;
-    }
-
-    input[type="text"], select {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #2a2d31;
-      border-radius: 8px;
-      background-color: #0e1012;
-      color: white;
-      font-size: 15px;
-      box-sizing: border-box;
-      transition: border 0.2s;
-    }
-
-    input[type="text"]:focus, select:focus {
-      outline: none;
-      border-color: #22c55e;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.1s, opacity 0.1s;
-    }
-
-    button:hover {
-      transform: scale(1.02);
-      opacity: 0.95;
-    }
-
-    .btn-green {
-      background-color: #16a34a;
-      color: white;
-    }
-
-    .btn-red {
-      background-color: #dc2626;
-      color: white;
-    }
-
-    #status {
-      margin-top: 10px;
-      padding: 10px;
-      background-color: #0e1012;
-      border: 1px solid #2a2d31;
-      border-radius: 8px;
-      color: #ccc;
-      font-size: 14px;
-      text-align: center;
-      word-wrap: break-word;
-    }
-
-    .server-output {
-      margin-top: 12px;
-      background-color: #0e1012;
-      border: 1px solid #2a2d31;
-      border-radius: 8px;
-      padding: 10px;
-      font-size: 14px;
-      color: #cbd5e1;
-    }
-
-    .copy-btn {
-      margin-top: 8px;
-      background-color: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 8px;
-      font-size: 14px;
-      width: 100%;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .copy-btn:hover {
-      opacity: 0.9;
-    }
-
-    .social-icons {
-      text-align: center;
-      margin-top: 15px;
-    }
-
-    .social-icons i {
-      font-size: 22px;
-      margin: 0 10px;
-      cursor: pointer;
-      color: #60a5fa;
-      transition: color 0.2s;
-    }
-
-    .social-icons i:hover {
-      color: #22c55e;
-    }
-
-    @media (max-width: 480px) {
-      .container {
-        width: 90%;
-        padding: 25px;
-      }
-
-      h2 {
-        font-size: 18px;
-      }
-
-      button, input, select {
-        font-size: 14px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Bimxyz Web Cpanel</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Poppins&display=swap');
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #0d1117;
+  color: #e6e6e6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.card {
+  background: #161b22;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+button, input, select, #result {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+  background: #0d1117;
+  color: #e6e6e6;
+  font-size: 14px;
+}
+button {
+  cursor: pointer;
+  background: #238636;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+}
+button:hover { background: #2ea043; }
+#logoutBtn { background: #da3633; }
+#logoutBtn:hover { background: #f85149; }
+.server-status {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.server-status span {
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+.online { background-color: #2ea043; color: #fff; }
+.maintenance { background-color: #da3633; color: #fff; }
+.info {
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 15px;
+  background: #0d1117;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+}
+.contact {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 22px;
+}
+.contact a {
+  color: #58a6ff;
+  transition: 0.3s;
+}
+.contact a:hover {
+  color: #1f6feb;
+  transform: scale(1.1);
+}
+#result {
+  white-space: pre-wrap;
+  font-size: 13px;
+}
+#copyBtn {
+  background: #238636;
+  color: #fff;
+  font-size: 13px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  width: 100%;
+  margin-top: 6px;
+  display: none;
+}
+#copyBtn:hover { background: #2ea043; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="maintenance">MAINTENANCE</div>
-
-    <div class="note">
-      <p>📌 <b>Catatan Penting:</b><br>
-      • Jangan sebarkan domain panel.<br>
-      • Semua transaksi <b>no refund</b>.<br>
-      • Masa aktif ±1 bulan.<br>
-      • Gunakan server dengan bijak.</p>
-    </div>
-
-    <h2>Buat Server</h2>
-    <input type="text" id="serverName" placeholder="Nama Server">
-    <select id="serverType">
-      <option value="1GB">1 GB</option>
-      <option value="2GB">2 GB</option>
-      <option value="4GB">4 GB</option>
-    </select>
-
-    <button class="btn-green" onclick="buatServer()">Buat Server</button>
-    <button class="btn-green" onclick="lihatJumlah()">Lihat Jumlah Server</button>
-    <button class="btn-green" onclick="lihatRiwayat()">Lihat Riwayat</button>
-
-    <div id="status">Menunggu aksi...</div>
-
-    <button class="btn-red" onclick="logout()">Logout</button>
-
-    <div class="social-icons">
-      <i class="fa-brands fa-whatsapp"></i>
-      <i class="fa-solid fa-headset"></i>
-    </div>
+<div class="card" id="panel">
+  <div class="server-status" id="serverStatusPanel">Checking server...</div>
+  <div class="info">
+    📍 Catatan Penting:<br>
+    • Jangan sebarkan domain panel.<br>
+    • Semua transaksi no refund.<br>
+    • Masa aktif ±1 bulan.<br>
+    • Gunakan server dengan bijak.
   </div>
+  <h2>Buat Server</h2>
+  <input type="text" id="serverName" placeholder="Nama Server" maxlength="20">
+  <select id="serverRam"></select>
+  <button id="createBtn">Buat Server</button>
+  <button id="listBtn">Lihat Jumlah Server</button>
+  <button onclick="location.href='/riwayat'">Lihat Riwayat</button>
+  <div id="result">Menunggu aksi...</div>
+  <button id="copyBtn">Salin Data Server</button>
+  <button id="logoutBtn">Logout</button>
+  <div class="contact">
+    <a href="https://chat.whatsapp.com/K5ZEb5PYYBkCddNPwLNVvQ" target="_blank"><i class="fab fa-whatsapp"></i></a>
+    <a href="https://wa.me/6282231176451" target="_blank"><i class="fas fa-headset"></i></a>
+  </div>
+</div>
 
-  <script src="https://kit.fontawesome.com/a2e0e6ad61.js" crossorigin="anonymous"></script>
-  <script>
-    function buatServer() {
-      const name = document.getElementById("serverName").value.trim();
-      const type = document.getElementById("serverType").value;
-      const status = document.getElementById("status");
+<script>
+if(!localStorage.getItem('username')) location.href='/login';
+const loginTime=localStorage.getItem('loginTime');
+if(!loginTime||(Date.now()-new Date(loginTime))/60000>=20){
+  localStorage.clear();location.href='/login';
+}
+setInterval(()=>{
+  const time=localStorage.getItem('loginTime');
+  if(!time||(Date.now()-new Date(time))/60000>=20){
+    localStorage.clear();location.href='/login';
+  }
+},60000);
 
-      if (!name) {
-        status.innerHTML = "❗ Nama server wajib diisi.";
-        return;
-      }
+['1','2','3','4','5','6','7','8','9','10','Unlimited'].forEach((v,i)=>{
+  const opt=document.createElement('option');
+  opt.value=i===10?'unlimited':(i+1);
+  opt.textContent=i===10?'Unlimited':`${v} GB`;
+  serverRam.appendChild(opt);
+});
 
-      status.innerHTML = "🔄 Membuat server...";
+(async()=>{
+  try{
+    const res=await fetch('/api/server');
+    const d=await res.json();
+    const h=`<span class="${d.success?'online':'maintenance'}">${d.success?'ONLINE':'MAINTENANCE'}</span>`;
+    serverStatusPanel.innerHTML=h;
+  }catch{
+    serverStatusPanel.innerHTML=`<span class='maintenance'>MAINTENANCE</span>`;
+  }
+})();
 
-      setTimeout(() => {
-        const serverInfo = `Server berhasil dibuat!<br><br>Nama: <b>${name}</b><br>Tipe: <b>${type}</b><br>IP: 103.125.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}<br>Username: <b>admin_${name}</b><br>Password: <b>${Math.random().toString(36).slice(2, 8)}</b>`;
-        status.innerHTML = `<div class='server-output'>${serverInfo}<br><button class='copy-btn' onclick='copyServerData(this)'>📋 Salin Data Server</button></div>`;
-      }, 2000);
+createBtn.onclick=async()=>{
+  const name=serverName.value.trim();
+  const ram=serverRam.value;
+  const result=document.getElementById('result');
+  const copyBtn=document.getElementById('copyBtn');
+  copyBtn.style.display='none';
+  if(!name)return alert('Nama server wajib diisi!');
+  result.textContent='Membuat server...';
+  try{
+    const res=await fetch('/api/server',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'create',name,ram})});
+    const data=await res.json();
+    if(data.success){
+      const text=`✅ Server berhasil dibuat!\nPanel: ${data.panel}\nUsername: ${data.username}\nPassword: ${data.password}`;
+      result.textContent=text;
+      copyBtn.style.display='block';
+      copyBtn.onclick=()=>{
+        navigator.clipboard.writeText(text);
+        copyBtn.textContent='✅ Disalin!';
+        setTimeout(()=>copyBtn.textContent='Salin Data Server',2000);
+      };
+      const history=JSON.parse(localStorage.getItem('serverHistory')||'[]');
+      history.push({...data,date:new Date().toLocaleString()});
+      localStorage.setItem('serverHistory',JSON.stringify(history));
+    }else{
+      result.textContent='❌ '+data.message;
     }
+  }catch(e){
+    result.textContent='⚠️ '+e.message;
+  }
+};
 
-    function copyServerData(btn) {
-      const data = btn.parentElement.innerText.replace("📋 Salin Data Server", "").trim();
-      navigator.clipboard.writeText(data);
-      btn.innerText = "✅ Disalin!";
-      setTimeout(() => (btn.innerText = "📋 Salin Data Server"), 1500);
-    }
+listBtn.onclick=async()=>{
+  const result=document.getElementById('result');
+  const copyBtn=document.getElementById('copyBtn');
+  copyBtn.style.display='none';
+  result.textContent='Mengambil jumlah server...';
+  try{
+    const r=await fetch('/api/server');
+    const d=await r.json();
+    result.textContent=d.success?`📊 Total server: ${d.count}`:`❌ ${d.message}`;
+  }catch(e){
+    result.textContent='⚠️ '+e.message;
+  }
+};
 
-    function lihatJumlah() {
-      document.getElementById("status").innerText = "📡 Mengambil jumlah server...";
-      setTimeout(() => {
-        document.getElementById("status").innerText = "Total server aktif: 12";
-      }, 1500);
-    }
-
-    function lihatRiwayat() {
-      document.getElementById("status").innerText = "📜 Mengambil riwayat server...";
-      setTimeout(() => {
-        document.getElementById("status").innerText = "Tidak ada riwayat server baru.";
-      }, 1500);
-    }
-
-    function logout() {
-      document.getElementById("status").innerText = "🚪 Logout berhasil.";
-      setTimeout(() => {
-        window.location.href = "/login";
-      }, 1000);
-    }
-  </script>
+logoutBtn.onclick=()=>{localStorage.clear();location.href='/login';};
+</script>
 </body>
-    </html>
+</html>
