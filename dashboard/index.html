@@ -23,11 +23,11 @@ body {
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  width: 400px;
+  width: 420px;
   max-height: 90vh;
   overflow-y: auto;
 }
-button, input, select, #result {
+button, input, select {
   width: 100%;
   padding: 10px;
   margin: 8px 0;
@@ -36,6 +36,7 @@ button, input, select, #result {
   background: #0d1117;
   color: #e6e6e6;
   font-size: 14px;
+  box-sizing: border-box;
 }
 button {
   cursor: pointer;
@@ -83,11 +84,20 @@ button:hover { background: #2ea043; }
   color: #1f6feb;
   transform: scale(1.1);
 }
+
+/* Kotak hasil rapi */
 #result {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  padding: 10px;
+  border-radius: 8px;
   white-space: pre-wrap;
   font-size: 13px;
+  margin-top: 8px;
+  text-align: left;
 }
 #copyBtn {
+  display: none;
   background: #238636;
   color: #fff;
   font-size: 13px;
@@ -97,7 +107,6 @@ button:hover { background: #2ea043; }
   padding: 8px;
   width: 100%;
   margin-top: 6px;
-  display: none;
 }
 #copyBtn:hover { background: #2ea043; }
 </style>
@@ -118,8 +127,10 @@ button:hover { background: #2ea043; }
   <button id="createBtn">Buat Server</button>
   <button id="listBtn">Lihat Jumlah Server</button>
   <button onclick="location.href='/riwayat'">Lihat Riwayat</button>
+  
   <div id="result">Menunggu aksi...</div>
   <button id="copyBtn">Salin Data Server</button>
+
   <button id="logoutBtn">Logout</button>
   <div class="contact">
     <a href="https://chat.whatsapp.com/K5ZEb5PYYBkCddNPwLNVvQ" target="_blank"><i class="fab fa-whatsapp"></i></a>
