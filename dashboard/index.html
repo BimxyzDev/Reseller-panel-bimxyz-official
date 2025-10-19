@@ -83,6 +83,28 @@ button:hover { background: #2ea043; }
   color: #1f6feb;
   transform: scale(1.1);
 }
+#result {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  padding: 10px;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  font-size: 13px;
+  margin-top: 8px;
+}
+#copyBtn {
+  background: #238636;
+  color: #fff;
+  font-size: 13px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  width: 100%;
+  margin-top: 6px;
+  display: none;
+}
+#copyBtn:hover { background: #2ea043; }
 </style>
 </head>
 <body>
@@ -101,7 +123,8 @@ button:hover { background: #2ea043; }
   <button id="createBtn">Buat Server</button>
   <button id="listBtn">Lihat Jumlah Server</button>
   <button onclick="location.href='/riwayat'">Lihat Riwayat</button>
-  <div id="result"></div>
+  <div id="result">Menunggu aksi...</div>
+  <button id="copyBtn">Salin Data Server</button>
   <button id="logoutBtn">Logout</button>
   <div class="contact">
     <a href="https://chat.whatsapp.com/K5ZEb5PYYBkCddNPwLNVvQ" target="_blank"><i class="fab fa-whatsapp"></i></a>
@@ -110,24 +133,18 @@ button:hover { background: #2ea043; }
 </div>
 
 <script>
-// Cek login
-if (!localStorage.getItem('username')) location.href = '/login';
-
-// Auto logout setelah 20 menit
-const loginTime = localStorage.getItem('loginTime');
-if (!loginTime || (Date.now() - new Date(loginTime)) / 60000 >= 20) {
-  localStorage.clear();
-  location.href = '/login';
+if(!localStorage.getItem('username')) location.href='/login';
+const loginTime=localStorage.getItem('loginTime');
+if(!loginTime||(Date.now()-new Date(loginTime))/60000>=20){
+  localStorage.clear();location.href='/login';
 }
-setInterval(() => {
-  const time = localStorage.getItem('loginTime');
-  if (!time || (Date.now() - new Date(time)) / 60000 >= 20) {
-    localStorage.clear();
-    location.href = '/login';
+setInterval(()=>{
+  const time=localStorage.getItem('loginTime');
+  if(!time||(Date.now()-new Date(time))/60000>=20){
+    localStorage.clear();location.href='/login';
   }
-}, 60000);
+},60000);
 
-// Isi dropdown RAM
 ['1','2','3','4','5','6','7','8','9','10','Unlimited'].forEach((v,i)=>{
   const opt=document.createElement('option');
   opt.value=i===10?'unlimited':(i+1);
@@ -135,7 +152,6 @@ setInterval(() => {
   serverRam.appendChild(opt);
 });
 
-// Cek status server panel
 (async()=>{
   try{
     const res=await fetch('/api/server');
@@ -147,30 +163,42 @@ setInterval(() => {
   }
 })();
 
-// Tombol create server
 createBtn.onclick=async()=>{
   const name=serverName.value.trim();
   const ram=serverRam.value;
+  const result=document.getElementById('result');
+  const copyBtn=document.getElementById('copyBtn');
+  copyBtn.style.display='none';
   if(!name)return alert('Nama server wajib diisi!');
   result.textContent='Membuat server...';
   try{
-    const res=await fetch('/api/server',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'create',name,ram})
-    });
+    const res=await fetch('/api/server',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'create',name,ram})});
     const data=await res.json();
     if(data.success){
-      result.textContent=`✅ Server dibuat!\nPanel: ${data.panel}\nUsername: ${data.username}\nPassword: ${data.password}`;
+      const text=`✅ Server berhasil dibuat!\nPanel: ${data.panel}\nUsername: ${data.username}\nPassword: ${data.password}`;
+      result.textContent=text;
+      copyBtn.style.display='block';
+      copyBtn.onclick=()=>{
+        navigator.clipboard.writeText(text);
+        copyBtn.textContent='✅ Disalin!';
+        setTimeout(()=>copyBtn.textContent='Salin Data Server',2000);
+      };
       const history=JSON.parse(localStorage.getItem('serverHistory')||'[]');
       history.push({...data,date:new Date().toLocaleString()});
       localStorage.setItem('serverHistory',JSON.stringify(history));
-    } else result.textContent='❌ '+data.message;
-  }catch(e){ result.textContent='⚠️ '+e.message; }
+    }else{
+      result.textContent='❌ '+data.message;
+    }
+  }catch(e){
+    result.textContent='⚠️ '+e.message;
+  }
 };
 
-// Tombol lihat jumlah server
 listBtn.onclick=async()=>{
+  const result=document.getElementById('result');
+  const copyBtn=document.getElementById('copyBtn');
+  copyBtn.style.display='none';
   result.textContent='Mengambil jumlah server...';
   try{
     const r=await fetch('/api/server');
@@ -181,11 +209,7 @@ listBtn.onclick=async()=>{
   }
 };
 
-// Logout
-logoutBtn.onclick=()=>{
-  localStorage.clear();
-  location.href='/login';
-};
+logoutBtn.onclick=()=>{localStorage.clear();location.href='/login';};
 </script>
 </body>
 </html>
