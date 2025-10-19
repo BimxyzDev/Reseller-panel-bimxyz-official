@@ -7,24 +7,82 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Poppins&display=swap');
-body{margin:0;font-family:'Poppins',sans-serif;background:#0d1117;color:#e6e6e6;
-display:flex;justify-content:center;align-items:center;flex-direction:column;min-height:100vh;}
-.card{background:#161b22;padding:30px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.5);
-width:450px;max-height:90vh;overflow-y:auto;}
-button,input,select{width:100%;padding:10px;margin:8px 0;border-radius:8px;
-border:1px solid #30363d;background:#0d1117;color:#e6e6e6;font-size:14px;}
-button{cursor:pointer;background:#238636;color:#fff;font-weight:bold;border:none;}
-button:hover{background:#2ea043;}
-#logoutBtn{background:#da3633;}#logoutBtn:hover{background:#f85149;}
-.server-status{text-align:center;margin-bottom:10px;font-size:13px;}
-.server-status span{padding:4px 10px;border-radius:5px;font-weight:bold;}
-.online{background-color:#2ea043;color:#fff;}
-.maintenance{background-color:#da3633;color:#fff;}
-.info{font-size:12px;line-height:1.4;margin-bottom:15px;background:#0d1117;
-padding:10px;border-radius:8px;border:1px solid #30363d;}
-.contact{margin-top:20px;display:flex;justify-content:center;gap:20px;font-size:22px;}
-.contact a{color:#58a6ff;transition:0.3s;}
-.contact a:hover{color:#1f6feb;transform:scale(1.1);}
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #0d1117;
+  color: #e6e6e6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.card {
+  background: #161b22;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  width: 450px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+button, input, select {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+  background: #0d1117;
+  color: #e6e6e6;
+  font-size: 14px;
+}
+button {
+  cursor: pointer;
+  background: #238636;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+}
+button:hover { background: #2ea043; }
+#logoutBtn { background: #da3633; }
+#logoutBtn:hover { background: #f85149; }
+.server-status {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.server-status span {
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+.online { background-color: #2ea043; color: #fff; }
+.maintenance { background-color: #da3633; color: #fff; }
+.info {
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 15px;
+  background: #0d1117;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+}
+.contact {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 22px;
+}
+.contact a {
+  color: #58a6ff;
+  transition: 0.3s;
+}
+.contact a:hover {
+  color: #1f6feb;
+  transform: scale(1.1);
+}
 </style>
 </head>
 <body>
@@ -32,7 +90,10 @@ padding:10px;border-radius:8px;border:1px solid #30363d;}
   <div class="server-status" id="serverStatusPanel">Checking server...</div>
   <div class="info">
     📍 Catatan Penting:<br>
-    • Jangan sebarkan domain panel.<br>• Semua transaksi no refund.<br>• Masa aktif ±1 bulan.<br>• Gunakan server dengan bijak.
+    • Jangan sebarkan domain panel.<br>
+    • Semua transaksi no refund.<br>
+    • Masa aktif ±1 bulan.<br>
+    • Gunakan server dengan bijak.
   </div>
   <h2>Buat Server</h2>
   <input type="text" id="serverName" placeholder="Nama Server" maxlength="20">
@@ -49,20 +110,24 @@ padding:10px;border-radius:8px;border:1px solid #30363d;}
 </div>
 
 <script>
-if(!localStorage.getItem('username')) location.href='/login';
-const loginTime=localStorage.getItem('loginTime');
-if(!loginTime||(Date.now()-new Date(loginTime))/60000>=20){
-  localStorage.clear();location.href='/login';
+// Cek login
+if (!localStorage.getItem('username')) location.href = '/login';
+
+// Auto logout setelah 20 menit
+const loginTime = localStorage.getItem('loginTime');
+if (!loginTime || (Date.now() - new Date(loginTime)) / 60000 >= 20) {
+  localStorage.clear();
+  location.href = '/login';
 }
-
-// Auto logout tiap menit
-setInterval(()=>{
-  const time=localStorage.getItem('loginTime');
-  if(!time||(Date.now()-new Date(time))/60000>=20){
-    localStorage.clear();location.href='/login';
+setInterval(() => {
+  const time = localStorage.getItem('loginTime');
+  if (!time || (Date.now() - new Date(time)) / 60000 >= 20) {
+    localStorage.clear();
+    location.href = '/login';
   }
-},60000);
+}, 60000);
 
+// Isi dropdown RAM
 ['1','2','3','4','5','6','7','8','9','10','Unlimited'].forEach((v,i)=>{
   const opt=document.createElement('option');
   opt.value=i===10?'unlimited':(i+1);
@@ -70,40 +135,57 @@ setInterval(()=>{
   serverRam.appendChild(opt);
 });
 
+// Cek status server panel
 (async()=>{
   try{
     const res=await fetch('/api/server');
     const d=await res.json();
     const h=`<span class="${d.success?'online':'maintenance'}">${d.success?'ONLINE':'MAINTENANCE'}</span>`;
     serverStatusPanel.innerHTML=h;
-  }catch{serverStatusPanel.innerHTML=`<span class='maintenance'>MAINTENANCE</span>`;}
+  }catch{
+    serverStatusPanel.innerHTML=`<span class='maintenance'>MAINTENANCE</span>`;
+  }
 })();
 
+// Tombol create server
 createBtn.onclick=async()=>{
-  const name=serverName.value.trim();const ram=serverRam.value;
+  const name=serverName.value.trim();
+  const ram=serverRam.value;
   if(!name)return alert('Nama server wajib diisi!');
   result.textContent='Membuat server...';
   try{
-    const res=await fetch('/api/server',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({action:'create',name,ram})});
+    const res=await fetch('/api/server',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'create',name,ram})
+    });
     const data=await res.json();
     if(data.success){
       result.textContent=`✅ Server dibuat!\nPanel: ${data.panel}\nUsername: ${data.username}\nPassword: ${data.password}`;
       const history=JSON.parse(localStorage.getItem('serverHistory')||'[]');
       history.push({...data,date:new Date().toLocaleString()});
       localStorage.setItem('serverHistory',JSON.stringify(history));
-    }else result.textContent='❌ '+data.message;
-  }catch(e){result.textContent='⚠️ '+e.message;}
+    } else result.textContent='❌ '+data.message;
+  }catch(e){ result.textContent='⚠️ '+e.message; }
 };
 
+// Tombol lihat jumlah server
 listBtn.onclick=async()=>{
   result.textContent='Mengambil jumlah server...';
   try{
-    const r=await fetch('/api/server');const d=await r.json();
+    const r=await fetch('/api/server');
+    const d=await r.json();
     result.textContent=d.success?`📊 Total server: ${d.count}`:`❌ ${d.message}`;
-  }catch(e){result.textContent='⚠️ '+e.message;}
+  }catch(e){
+    result.textContent='⚠️ '+e.message;
+  }
 };
-logoutBtn.onclick=()=>{localStorage.clear();location.href='/login';};
+
+// Logout
+logoutBtn.onclick=()=>{
+  localStorage.clear();
+  location.href='/login';
+};
 </script>
 </body>
 </html>
