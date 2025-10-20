@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   const API_KEY   = "ptla_VWTjh6YzM35OSNQRukAxdSE1nOHUWGUrdyTxs4sl2yE";
   const NODE_ID   = 1;
   const EGG_ID    = 15;
-  const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_20";
+  const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_21";
 
   if (req.method === "GET") {
     try {
