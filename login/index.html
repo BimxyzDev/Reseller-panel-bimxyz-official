@@ -42,49 +42,42 @@ a:hover{color:#1f6feb;}
   </div>
 </div>
 
-<script>
-// Cek server online
-(async()=>{
-  try{
-    const res=await fetch('/api/server');
-    const data=await res.json();
-    const statusHTML=`<span class="${data.success?'online':'maintenance'}">${data.success?'ONLINE':'MAINTENANCE'}</span>`;
-    serverStatus.innerHTML=statusHTML;
-  }catch{
-    serverStatus.innerHTML=`<span class="maintenance">MAINTENANCE</span>`;
-  }
-})();
+<script type="module">
+import { db } from './supabase.js';
 
-// Cek login auto-redirect
+// Cek login otomatis
 (function(){
   const username=localStorage.getItem('username');
   const loginTime=localStorage.getItem('loginTime');
   if(username&&loginTime){
     const diff=(Date.now()-new Date(loginTime))/60000;
     if(diff<20) location.href="/dashboard";
-    else {localStorage.clear();}
+    else localStorage.clear();
   }
 })();
 
-// Login handler
-document.getElementById('loginBtn').addEventListener('click',async()=>{
+// Tombol login
+document.getElementById('loginBtn').addEventListener('click', async ()=>{
   const username=document.getElementById('username').value.trim();
   const password=document.getElementById('password').value.trim();
   const loginError=document.getElementById('loginError');
   loginError.textContent="";
-  try{
-    const res=await fetch('/api/server',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'login',username,password})
-    });
-    const data=await res.json();
-    if(data.success){
-      localStorage.setItem('username',username);
-      localStorage.setItem('loginTime',new Date().toISOString());
+
+  try {
+    const { data, error } = await db.from("account").select();
+    if (error) throw error;
+
+    const user = data.find(u => u.username === username && u.password === password);
+    if (user) {
+      localStorage.setItem('username', username);
+      localStorage.setItem('loginTime', new Date().toISOString());
       location.href="/dashboard";
-    }else loginError.textContent=data.message;
-  }catch(err){loginError.textContent=err.message;}
+    } else {
+      loginError.textContent = "Username atau password salah!";
+    }
+  } catch(err){
+    loginError.textContent = "Login gagal: " + err.message;
+  }
 });
 </script>
 </body>
