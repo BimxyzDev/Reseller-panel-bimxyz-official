@@ -1,80 +1,401 @@
-
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta http-equiv="refresh" content="0; url=/login" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>𝙒𝙀𝘽 𝘾𝙋𝘼𝙉𝙀𝙇 — 𝘽𝙞𝙢𝙭𝙮𝙯 𝙤𝙛𝙛𝙞𝙘𝙞𝙖𝙡</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Poppins&display=swap');
 
-  <!-- Title -->
-  <title>WEB CPANEL — Bimxyz Official — Akses Panel</title>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #0d1117;
+  color: #e6e6e6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-y: hidden;
+}
 
-  <!-- Basic SEO -->
-  <meta name="description" content="PANEL: Jangan di-DDoS. Tutupi domain panel saat screenshot. Jangan sebar domain. All transaksi no refund. Expired panel ±1 bulan penuh. Gunakan server dengan bijak. Gabung grup informasi untuk update." />
-  <meta name="keywords" content="web cpanel, reseller panel, bimxyz, server panel, panel admin, informasi panel, aturan panel" />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://web.cpanel.bimxyz.my.id/" />
+h1, h2 {
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
+  margin-bottom: 15px;
+}
 
-  <!-- Open Graph (social preview) -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="WEB CPANEL — Bimxyz Official — Akses Panel" />
-  <meta property="og:description" content="PANEL: Jangan di-DDoS. Tutupi domain panel saat screenshot. Jangan sebar domain. All transaksi no refund. Expired panel ±1 bulan penuh. Gunakan server dengan bijak." />
-  <meta property="og:url" content="https://web.cpanel.bimxyz.my.id/" />
-  <meta property="og:site_name" content="Bimxyz Web Cpanel" />
+.card {
+  background: #161b22;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  width: 460px;
+  margin: 0;
+  overflow-y: auto;
+  max-height: 90vh;
+  box-sizing: border-box;
+}
 
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="WEB CPANEL — Bimxyz Official — Akses Panel" />
-  <meta name="twitter:description" content="PANEL: Jangan di-DDoS. Tutupi domain panel saat screenshot. Jangan sebar domain. All transaksi no refund. Expired panel ±1 bulan penuh. Gunakan server dengan bijak." />
+input, select, button {
+  margin: 10px 0;
+  padding: 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+  outline: none;
+  font-size: 14px;
+  background: #0d1117;
+  color: #e6e6e6;
+  transition: all 0.2s ease;
+}
 
-  <!-- Custom meta with the full peraturan (so it's present in page metadata) -->
-  <meta name="site-rules" content="📍 ᴄᴀᴛᴀᴛᴀɴ ᴘᴇɴᴛɪɴɢ: • PANEL JANGAN DI DDOS • TUTUPI DOMAIN PANEL KETIKA DI SCREENSHOT • DOMAIN PANEL JANGAN DI SEBAR • ALL TRANSAKSI NO REFUND • EXPIRED PANEL ±1 BULAN PENUH • BIKIN SERVER HARUS DIPAKAI • MASUK GRUB INFORMATION (IKON WHATSAPP DIBAWAH) UNTUK UPDATE STATUS" />
+input:focus, select:focus {
+  border-color: #58a6ff;
+  box-shadow: 0 0 0 2px rgba(88,166,255,0.3);
+}
 
-  <!-- Structured data (JSON-LD) for clarity to crawlers -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "Bimxyz Web Cpanel",
-    "url": "https://web.cpanel.bimxyz.my.id/",
-    "description": "PANEL: Jangan di-DDoS. Tutupi domain panel saat screenshot. Jangan sebar domain. All transaksi no refund. Expired panel ±1 bulan penuh. Gunakan server dengan bijak.",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://web.cpanel.bimxyz.my.id/login",
-      "query-input": "required name=search_term"
+button {
+  cursor: pointer;
+  background: #238636;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  transition: 0.3s;
+}
+button:hover { background: #2ea043; }
+#logoutBtn { background: #da3633; }
+#logoutBtn:hover { background: #f85149; }
+.deleteBtn { background: #da3633; margin-top:5px; }
+.deleteBtn:hover { background: #f85149; }
+
+.info {
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 15px;
+  background: #0d1117;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+}
+
+.server-status {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.server-status span {
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+.online { background-color: #2ea043; color: #fff; }
+.maintenance { background-color: #da3633; color: #fff; }
+
+#result {
+  font-family: 'Poppins', sans-serif;
+  white-space: pre-wrap;
+  margin-top: 10px;
+  background: #0d1117;
+  padding: 10px;
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #30363d;
+  font-size: 13px;
+}
+
+.contact {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 22px;
+}
+.contact a {
+  color: #58a6ff;
+  transition: 0.3s;
+}
+.contact a:hover {
+  color: #1f6feb;
+  transform: scale(1.1);
+}
+
+#historySection { display: none; }
+#historyList {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+#historyList .card { margin-bottom: 10px; }
+
+@media(max-width: 500px){
+  .card {
+    width: 95%;
+    padding: 20px;
+  }
+}
+</style>
+</head>
+<body> 
+<!-- LOGIN PANEL -->
+<div class="card" id="loginDiv">
+  <div class="server-status" id="serverStatus">Checking server...</div>
+  <h1>Reseller Panel Login</h1>
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+  <button id="loginBtn">Login</button>
+  <div id="loginError" style="color:red; text-align:center; margin-top:5px;"></div>
+
+  <!-- Tambahan baru -->
+  <div style="text-align:center; margin-top:15px; font-size:13px;">
+    Belum punya akun? 
+    <a href="https://www.bimxyz.my.id" target="_blank" style="color:#58a6ff; text-decoration:none;">
+      <b>Beli sekarang</b>
+    </a>
+  </div>
+</div>
+
+
+<!-- CPANEL UTAMA -->
+<div class="card" id="panel" style="display:none;">
+  <div class="server-status" id="serverStatusPanel">Checking server...</div>
+  <div class="info">
+    📍 ᴄᴀᴛᴀᴛᴀɴ ᴘᴇɴᴛɪɴɢ:
+    <br>• PANEL JANGAN DI DDOS
+    <br>• TUTUPI DOMAIN PANEL KETIKA DI SCREENSHOT
+    <br>• DOMAIN PANEL JANGAN DI SEBAR
+    <br>• ALL TRANSAKSI NO REFUND
+    <br>• EXPIRED PANEL ±1 BULAN PENUH
+    <br>• BIKIN SERVER HARUS DIPAKAI
+    <br>• MASUK GRUB INFORMATION (IKON WHATSAPP DIBAWAH) UNTUK UPDATE STATUS
+  </div>
+  <h2>Buat Server</h2>
+  <input type="text" id="serverName" placeholder="Nama Server" maxlength="20">
+  <select id="serverRam"></select>
+  <button id="createBtn">Buat Server</button>
+  <button id="listBtn">Lihat Jumlah Server</button>
+  <button id="historyBtn">Lihat Riwayat</button>
+  <div id="result"></div>
+  <button id="logoutBtn" style="margin-top:10px;">Logout</button>
+  <div class="contact">
+    <a href="https://chat.whatsapp.com/K5ZEb5PYYBkCddNPwLNVvQ" target="_blank"><i class="fab fa-whatsapp"></i></a>
+    <a href="https://wa.me/6282231176451" target="_blank"><i class="fas fa-headset"></i></a>
+  </div>
+</div>
+
+<!-- RIWAYAT SERVER -->
+<div class="card" id="historySection">
+  <h2>Riwayat Server</h2>
+  <div id="historyList"></div>
+  <button id="backBtn">Kembali</button>
+</div>
+
+<script>
+const loginDiv = document.getElementById('loginDiv');
+const panel = document.getElementById('panel');
+const historySection = document.getElementById('historySection');
+const loginBtn = document.getElementById('loginBtn');
+const loginError = document.getElementById('loginError');
+const resultDiv = document.getElementById('result');
+const serverStatus = document.getElementById('serverStatus');
+const serverStatusPanel = document.getElementById('serverStatusPanel');
+const ramSelect = document.getElementById('serverRam');
+const historyBtn = document.getElementById('historyBtn');
+const historyList = document.getElementById('historyList');
+const backBtn = document.getElementById('backBtn');
+
+// RAM options
+['1','2','3','4','5','6','7','8','9','10','Unlimited'].forEach((val,i)=>{
+  const opt = document.createElement('option');
+  opt.value = i === 10 ? 'unlimited' : (i + 1);
+  opt.textContent = i === 10 ? 'Unlimited' : `${val} GB`;
+  ramSelect.appendChild(opt);
+});
+
+// Check server status
+(async () => {
+  try {
+    const res = await fetch('/api/server');
+    const data = await res.json();
+    const statusHTML = `<span class="${data.success?'online':'maintenance'}">${data.success?'ONLINE':'MAINTENANCE'}</span>`;
+    serverStatus.innerHTML = statusHTML;
+    serverStatusPanel.innerHTML = statusHTML;
+  } catch {
+    const offlineHTML = `<span class="maintenance">MAINTENANCE</span>`;
+    serverStatus.innerHTML = offlineHTML;
+    serverStatusPanel.innerHTML = offlineHTML;
+  }
+})();
+
+// === Auto login dengan cek expire 20 menit ===
+(function checkLogin(){
+  const username = localStorage.getItem('username');
+  const loginTime = localStorage.getItem('loginTime');
+  
+  if(username && loginTime){
+    const loginDate = new Date(loginTime);
+    const now = new Date();
+    const diffMinutes = (now - loginDate) / 60000;
+    
+    if(diffMinutes >= 20){
+      localStorage.removeItem('username');
+      localStorage.removeItem('loginTime');
+      loginDiv.style.display='block';
+      panel.style.display='none';
+    } else {
+      loginDiv.style.display='none';
+      panel.style.display='block';
+    }
+  } else {
+    loginDiv.style.display='block';
+    panel.style.display='none';
+  }
+})();
+
+// Interval checker tiap menit
+setInterval(()=>{
+  const loginTime = localStorage.getItem('loginTime');
+  if(loginTime){
+    const now = new Date();
+    const diffMinutes = (now - new Date(loginTime)) / 60000;
+    if(diffMinutes >= 20){
+      localStorage.removeItem('username');
+      localStorage.removeItem('loginTime');
+      location.reload();
     }
   }
-  </script>
+}, 60000);
 
-  <style>
-    /* Minimal inline styles so search engines / noscript users see a tidy page while redirecting */
-    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;}
-    body{display:flex;align-items:center;justify-content:center;background:#0d1117;color:#e6e6e6}
-    .box{max-width:760px;padding:20px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:#111418}
-    h1{margin:0 0 10px;font-size:18px}
-    p{margin:6px 0;color:#c9d1d9;font-size:14px;line-height:1.45}
-    .rules{background:#0d1117;padding:12px;border-radius:8px;border:1px solid #222;white-space:pre-line;font-family:monospace;font-size:13px}
-    a{color:#58a6ff;text-decoration:none}
-  </style>
-</head>
-<body>
-  <div class="box" role="status" aria-live="polite">
-    <h1>Redirecting…</h1>
-    <p>Anda akan dialihkan ke halaman <a href="/login">/login</a>. Jika tidak otomatis, klik link tersebut.</p>
+// Login
+loginBtn.addEventListener('click', async ()=>{
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  loginError.textContent="";
+  try{
+    const res = await fetch('/api/server',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'login', username, password})
+    });
+    const data = await res.json();
+    if(data.success){
+      const now = new Date();
+      localStorage.setItem('username', username);
+      localStorage.setItem('loginTime', now.toISOString());
+      loginDiv.style.display='none';
+      panel.style.display='block';
+    } else loginError.textContent = data.message;
+  }catch(err){ loginError.textContent = err.message; }
+});
 
-    <div style="margin-top:12px">
-      <strong>Peraturan & Catatan Penting:</strong>
-      <div class="rules">
-📍 ᴄᴀᴛᴀᴛᴀɴ ᴘᴇɴᴛɪɴɢ:
-• PANEL JANGAN DI DDOS
-• TUTUPI DOMAIN PANEL KETIKA DI SCREENSHOT
-• DOMAIN PANEL JANGAN DI SEBAR
-• ALL TRANSAKSI NO REFUND
-• EXPIRED PANEL ±1 BULAN PENUH
-• BIKIN SERVER HARUS DIPAKAI
-• MASUK GRUB INFORMATION (IKON WHATSAPP DIBAWAH) UNTUK UPDATE STATUS
-      </div>
-    </div>
-  </div>
+// Logout
+document.getElementById('logoutBtn').addEventListener('click',()=>{
+  localStorage.removeItem('username');
+  localStorage.removeItem('loginTime');
+  location.reload();
+});
+
+// Create server
+document.getElementById('createBtn').addEventListener('click', async ()=>{
+  const name = document.getElementById('serverName').value.trim();
+  const ram = ramSelect.value;
+  if(!name) return alert("Nama server harus diisi");
+  resultDiv.textContent="Membuat server...";
+  try{
+    const res = await fetch('/api/server',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'create', name, ram})
+    });
+    const data = await res.json();
+    if(data.success){
+      resultDiv.textContent=`✅ Server berhasil dibuat!\nLogin Panel: ${data.panel}\nUsername: ${data.username}\nEmail: ${data.email}\nPassword: ${data.password}\nRAM: ${data.ram*550} MB`;
+
+      const history = JSON.parse(localStorage.getItem('serverHistory')||'[]');
+      history.push({
+        date: new Date().toLocaleString(),
+        username: data.username,
+        password: data.password,
+        panel: data.panel,
+        serverId: data.serverId
+      });
+      localStorage.setItem('serverHistory', JSON.stringify(history));
+    } else resultDiv.textContent="❌ Gagal: "+data.message;
+  }catch(err){ resultDiv.textContent="⚠️ Error: "+err.message; }
+});
+
+// List servers
+document.getElementById('listBtn').addEventListener('click', async ()=>{
+  resultDiv.textContent="Mengambil jumlah server...";
+  try{
+    const res = await fetch('/api/server');
+    const data = await res.json();
+    if(data.success) resultDiv.textContent=`📊 Jumlah server di panel: ${data.count}`;
+    else resultDiv.textContent="❌ Gagal ambil data: "+data.message;
+  }catch(err){ resultDiv.textContent="⚠️ Error: "+err.message; }
+});
+
+// Lihat Riwayat
+historyBtn.addEventListener('click', ()=>{
+  panel.style.display='none';
+  historySection.style.display='block';
+  renderHistory();
+});
+
+// Kembali ke panel utama
+backBtn.addEventListener('click', ()=>{
+  historySection.style.display='none';
+  panel.style.display='block';
+});
+
+// Render riwayat
+function renderHistory(){
+  historyList.innerHTML='';
+  const history = JSON.parse(localStorage.getItem('serverHistory')||'[]');
+  if(history.length===0){
+    historyList.innerHTML='<p>Tidak ada riwayat server.</p>';
+    return;
+  }
+  history.forEach((entry,i)=>{
+    const card = document.createElement('div');
+    card.className='card';
+    card.innerHTML=`
+      <strong>${entry.username}</strong><br>
+      Password: ${entry.password}<br>
+      Panel: <a href="${entry.panel}" target="_blank">${entry.panel}</a><br>
+      Tanggal: ${entry.date}
+    `;
+    const delBtn = document.createElement('button');
+    delBtn.textContent='Delete Server';
+    delBtn.className='deleteBtn';
+    delBtn.addEventListener('click', async ()=>{
+      if(!confirm('Yakin hapus server ini?')) return;
+      try{
+        const res = await fetch('/api/server',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'delete', serverId: entry.serverId})
+        });
+        const data = await res.json();
+        if(data.success){
+          alert('Server berhasil dihapus!');
+          history.splice(i,1);
+          localStorage.setItem('serverHistory', JSON.stringify(history));
+          renderHistory();
+        } else alert('Gagal hapus server: '+data.message);
+      }catch(err){ alert('Error: '+err.message); }
+    });
+    card.appendChild(delBtn);
+    historyList.appendChild(card);
+  });
+}
+</script>
+
 </body>
-</html>
+  </html>
+  
