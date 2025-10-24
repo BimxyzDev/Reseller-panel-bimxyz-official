@@ -2,8 +2,8 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://domain.panel.com";
-  const API_KEY   = "ptla_panel";
+  const PANEL_URL = "https://zarhosting.panel.publicserverr.my.id";
+  const API_KEY   = "ptla_bjvtIC75lrubiF5OxmpQU5k3U0bbQBdyBu4ZVHmxOat";
   const NODE_ID   = 1;
   const EGG_ID    = 15;
   const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_20";
