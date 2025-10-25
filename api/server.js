@@ -2,8 +2,8 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://alluffyhosting.new.server.lightsecretaja.web.id";
-  const API_KEY   = "ptla_eJCNrMyShlOJYWABCOrYMBtXT5o6ZPv3dv1YK49a56D";
+  const PANEL_URL = "https://luffyprivate.rullzalifah.my.id";
+  const API_KEY   = "ptla_N8QoDWCOkeGDVjKGMk7Ods3hUdGnzeZTxHixS4saKAj";
   const NODE_ID   = 1;
   const EGG_ID    = 15;
   const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_20";
