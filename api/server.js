@@ -2,8 +2,8 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://public-server.kingstoree.web.id";
-  const API_KEY   = "ptla_4SrYbLo1YcjFBI8ARp98s2PdCKut9anYs41kzOR9kCp";
+  const PANEL_URL = "https://hanzpublikkk.xyzraa.biz.id";
+  const API_KEY   = "ptla_EFltmIJ7UwVSWZHUVQEKd0CjhdWxUtP0eQX8dFFZ89d";
   const NODE_ID   = 1;
   const EGG_ID    = 15;
   const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_20";
