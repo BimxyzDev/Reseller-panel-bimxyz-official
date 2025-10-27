@@ -5,6 +5,7 @@ export default async function handler(req, res) {
   const PANEL_URL = "https://rapzxfazz.ptrodactlyserver.biz.id";
   const API_KEY   = "ptla_hvn6ZyKlybPAmLFegvbFILOh2qsCp8kTHOndzyeL3KA";
   const NODE_ID   = 5;
+  const NEST_ID   = 5;
   const EGG_ID    = 1;
   const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_20";
 
@@ -92,7 +93,7 @@ export default async function handler(req, res) {
         }
 
         // Ambil environment variable default dari egg
-        const eggRes = await fetch(`${PANEL_URL}/api/application/nests/5/eggs/${EGG_ID}?include=variables`, {
+        const eggRes = await fetch(`${PANEL_URL}/api/application/nests/${NEST_ID}/eggs/${EGG_ID}?include=variables`, {
           headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
         });
         const eggData = await eggRes.json();
@@ -177,6 +178,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ success: false, message: "Method not allowed" });
-    }
-
-            
+      }
