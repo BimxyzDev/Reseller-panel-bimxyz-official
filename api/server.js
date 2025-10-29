@@ -2,11 +2,11 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://rapzxfazz.ptrodactlyserver.biz.id";
-  const API_KEY   = "ptla_hvn6ZyKlybPAmLFegvbFILOh2qsCp8kTHOndzyeL3KA";
+  const PANEL_URL = "https://naaofficial.web.id";
+  const API_KEY   = "ptla_1KeMFdy06UxprcLvvuQKroDZNR95NhwtyS0t7zW4j7m";
   const NODE_ID   = 1;
   const NEST_ID   = 5;
-  const EGG_ID    = 17;
+  const EGG_ID    = 15;
   const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_20";
 
   if (req.method === "GET") {
