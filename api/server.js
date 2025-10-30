@@ -2,8 +2,8 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://naaofficial.web.id";
-  const API_KEY   = "ptla_1KeMFdy06UxprcLvvuQKroDZNR95NhwtyS0t7zW4j7m";
+  const PANEL_URL = "https://luffyprivate.rullzalifah.my.id";
+  const API_KEY   = "ptla_1I794S0tH8Q1b0PS3nWVHXDlLTRPsb2TEVGwoLsGv38";
   const NODE_ID   = 1;
   const NEST_ID   = 5;
   const EGG_ID    = 15;
