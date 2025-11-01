@@ -2,8 +2,8 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://masvilprivate.storedigital.web.id";
-  const API_KEY   = "ptla_8yZhJeusdkGNCmUuyLUe5JPgXJlMo0BDxbZAj8aXcvA";
+  const PANEL_URL = "https://irpakprivate.privateeserverr.my.id";
+  const API_KEY   = "ptla_vU18OCxSg7iMkWefGAusta2GGLJvoyVWGuwwa0jfbc9";
   const NODE_ID   = 1;
   const NEST_ID   = 5;
   const EGG_ID    = 15;
