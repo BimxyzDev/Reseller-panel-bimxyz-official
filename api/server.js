@@ -2,7 +2,7 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://panelpublicbyraflyshop.wibusoft.my.id/";
+  const PANEL_URL = "https://panelpublicbyraflyshop.wibusoft.my.id";
   const API_KEY   = "ptla_xsr9FrUFEHVRfvdPrA8Pxx7tp302qPNldfIwpqS7dK6";
   const NODE_ID   = 1;
   const NEST_ID   = 5;
