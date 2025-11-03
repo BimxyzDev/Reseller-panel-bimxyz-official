@@ -2,8 +2,8 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://panelpublicbyraflyshop.wibusoft.my.id";
-  const API_KEY   = "ptla_xsr9FrUFEHVRfvdPrA8Pxx7tp302qPNldfIwpqS7dK6";
+  const PANEL_URL = "https://winterhosting.kantinvps.my.id";
+  const API_KEY   = "ptla_n3ZTx34zNex1or3JdwINUoGKLvScyTLaxKB1at8TFZj";
   const NODE_ID   = 1;
   const NEST_ID   = 5;
   const EGG_ID    = 15;
