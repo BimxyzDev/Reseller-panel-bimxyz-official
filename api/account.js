@@ -29,6 +29,8 @@ export const accounts = [
   { username: "reggstcu2", password: "reggstcu2" },
   { username: "sirwyu", password: "sirwyu001" },
   { username: "pias", password: "juned1122" },
+  { username: "Captain", password: "Memek123" },
+{ username: "Lynx", password: "anjay123" },
 
   
 ];
