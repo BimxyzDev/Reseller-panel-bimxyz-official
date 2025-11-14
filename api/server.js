@@ -2,8 +2,8 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://prodiamond.xpanelprivate.my.id";
-  const API_KEY   = "ptla_TLNyTnIHn2M8vy7vG1EbhieNdOqUD5nT43rzxdB6F9E";
+  const PANEL_URL = "https://yogzxpublik.xyzraa.biz.id";
+  const API_KEY   = "ptla_Z2Oy7BXgFVZVtXFOwHHT5auSyyfXMQCiUhi08nmgRfz";
   const NODE_ID   = 1;
   const NEST_ID   = 5;
   const EGG_ID    = 15;
