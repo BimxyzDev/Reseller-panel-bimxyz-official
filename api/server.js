@@ -3,7 +3,7 @@ import { validateLogin } from './account';
 
 export default async function handler(req, res) {
   const PANEL_URL = "https://panelku.bimxyz.my.id";
-  const API_KEY   = "ptla_neROabftBE6hMcRZ4v37zpy4ocJbA7IUzoNaCGqZ19r";
+  const API_KEY   = "ptla_Lt9jRCCBBVLdgm3jbQsAMuSjKfJ3JbtPOU2nRgutLjW";
   const NODE_ID   = 1;
   const NEST_ID   = 5;
   const EGG_ID    = 15;
