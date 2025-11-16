@@ -1,6 +1,4 @@
 accounts = [
-  {
-    "username": "6",
-    "password": "6"
-  }
+  { username: "Admin", password: "Admin089" },
+  { username: "User1", password: "Pass123" },
 ];
