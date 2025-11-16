@@ -1,7 +1,6 @@
-[
+accounts = [
   {
-    "username": "Rr",
-    "password": "E"
+    "username": "Admin",
+    "password": "Admin089"
   }
 ];
-
