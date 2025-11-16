@@ -1,5 +1,13 @@
 // api/server.js
-import { validateLogin } from './account';
+import fs from 'fs';
+import path from 'path';
+
+// === LOAD account.js yang formatnya "accounts = [ ... ]" TANPA EXPORT ===
+const accountPath = path.join(process.cwd(), 'api', 'account.js');
+const accountRaw = fs.readFileSync(accountPath, 'utf8');
+eval(accountRaw); 
+// setelah eval(), variabel global "accounts" muncul otomatis
+
 
 export default async function handler(req, res) {
   const PANEL_URL = "https://panelku.bimxyz.my.id";
@@ -36,7 +44,9 @@ export default async function handler(req, res) {
 
     try {
       if (action === "login") {
-        if (validateLogin(username, password)) {
+
+        // === VALIDASI LOGIN BARU (PAKAI accounts dari account.js) ===
+        if (accounts.some(acc => acc.username === username && acc.password === password)) {
           return res.json({ success: true });
         } else {
           return res.json({ success: false, message: "Login gagal!" });
@@ -178,4 +188,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ success: false, message: "Method not allowed" });
-      }
+    }
