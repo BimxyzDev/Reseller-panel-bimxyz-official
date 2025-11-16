@@ -1,4 +1,4 @@
-accounts = [
-  { username: "1", password: "1" },
-  { username: "admin", password: "admin089654" }
-];
+export const users = [
+  { username: "Admin", password: "Admin089" },
+  { username: "User1", password: "Pass123" },
+  { username: "User2", password: "Password2" },
