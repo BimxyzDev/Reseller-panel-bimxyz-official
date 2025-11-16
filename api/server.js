@@ -1,15 +1,9 @@
 // api/server.js
-import fs from 'fs';
-import path from 'path';
-
-// LOAD account.js TANPA MENGUBAH FILENYA
-const accountPath = path.join(process.cwd(), 'api', 'account.js');
-const accountRaw = fs.readFileSync(accountPath, 'utf8');
-eval(accountRaw); // <-- membuat variable "accounts" tersedia secara global
+import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://panelku.bimxyz.my.id";
-  const API_KEY   = "ptla_Lt9jRCCBBVLdgm3jbQsAMuSjKfJ3JbtPOU2nRgutLjW";
+  const PANEL_URL = "https://panel.lu.com";
+  const API_KEY   = "ptla_panellu";
   const NODE_ID   = 1;
   const NEST_ID   = 5;
   const EGG_ID    = 15;
@@ -24,15 +18,7 @@ export default async function handler(req, res) {
           "Accept": "application/json"
         }
       });
-      const text = await serverRes.text();
-
-      let serverData;
-      try {
-        serverData = JSON.parse(text);
-      } catch {
-        return res.json({ success: false, message: text });
-      }
-
+      const serverData = await serverRes.json();
       if (!serverRes.ok) {
         return res.json({ success: false, message: JSON.stringify(serverData) });
       }
@@ -49,11 +35,8 @@ export default async function handler(req, res) {
     const { action, username, password, name, ram, serverId } = req.body;
 
     try {
-      // ================================
-      // LOGIN DARI account.js FORMAT LAMA
-      // ================================
       if (action === "login") {
-        if (accounts.some(acc => acc.username === username && acc.password === password)) {
+        if (validateLogin(username, password)) {
           return res.json({ success: true });
         } else {
           return res.json({ success: false, message: "Login gagal!" });
@@ -81,40 +64,23 @@ export default async function handler(req, res) {
             root_admin: false
           })
         });
-
-        const userText = await userRes.text();
-        let userData;
-        try {
-          userData = JSON.parse(userText);
-        } catch {
-          return res.json({ success: false, message: userText });
-        }
-
+        const userData = await userRes.json();
         if (!userRes.ok) {
           return res.json({ success: false, message: JSON.stringify(userData) });
         }
         const userId = userData.attributes.id;
 
-        // Cari allocation kosong
+        // Cari allocation kosong (loop semua halaman)
         let freeAlloc = null;
         let page = 1;
         while (!freeAlloc) {
           const allocRes = await fetch(`${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations?page=${page}`, {
             headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
           });
-          
-          const allocText = await allocRes.text();
-          let allocData;
-          try {
-            allocData = JSON.parse(allocText);
-          } catch {
-            return res.json({ success: false, message: allocText });
-          }
-
+          const allocData = await allocRes.json();
           if (!allocRes.ok) {
             return res.json({ success: false, message: JSON.stringify(allocData) });
           }
-
           freeAlloc = allocData.data.find(a => a.attributes.assigned === false);
           if (freeAlloc) break;
 
@@ -126,25 +92,17 @@ export default async function handler(req, res) {
           return res.json({ success: false, message: "Ga ada allocation kosong!" });
         }
 
-        // Ambil egg variables
+        // Ambil environment variable default dari egg
         const eggRes = await fetch(`${PANEL_URL}/api/application/nests/${NEST_ID}/eggs/${EGG_ID}?include=variables`, {
           headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
         });
-
-        const eggText = await eggRes.text();
-        let eggData;
-        try {
-          eggData = JSON.parse(eggText);
-        } catch {
-          return res.json({ success: false, message: eggText });
-        }
-
+        const eggData = await eggRes.json();
         const env = {};
         eggData.attributes.relationships.variables.data.forEach(v => {
           env[v.attributes.env_variable] = v.attributes.default_value || "";
         });
 
-        // Buat server
+        // Buat server dengan limits sesuai permintaan
         const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
           method: "POST",
           headers: {
@@ -177,14 +135,7 @@ export default async function handler(req, res) {
           })
         });
 
-        const serverText = await serverRes.text();
-        let serverData;
-        try {
-          serverData = JSON.parse(serverText);
-        } catch {
-          return res.json({ success: false, message: serverText });
-        }
-
+        const serverData = await serverRes.json();
         if (!serverRes.ok) {
           return res.json({ success: false, message: JSON.stringify(serverData) });
         }
@@ -204,7 +155,6 @@ export default async function handler(req, res) {
         if (!serverId) {
           return res.json({ success: false, message: "Server ID harus ada!" });
         }
-
         const delRes = await fetch(`${PANEL_URL}/api/application/servers/${serverId}`, {
           method: "DELETE",
           headers: {
@@ -216,14 +166,7 @@ export default async function handler(req, res) {
         if (delRes.status === 204) {
           return res.json({ success: true, message: "Server berhasil dihapus" });
         } else {
-          const delText = await delRes.text();
-          let errData;
-          try {
-            errData = JSON.parse(delText);
-          } catch {
-            return res.json({ success: false, message: delText });
-          }
-
+          const errData = await delRes.json();
           return res.json({ success: false, message: JSON.stringify(errData) });
         }
       }
@@ -235,4 +178,5 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ success: false, message: "Method not allowed" });
-}
+  }
+      
