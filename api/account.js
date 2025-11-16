@@ -1,7 +1,10 @@
-export const accounts = [
-  { username: "admin", password: "admin089654" },
+accounts = [
+  {
+    "username": "admin",
+    "password": "admin089654"
+  },
+  {
+    "username": "11",
+    "password": "22"
+  }
 ];
-
-export function validateLogin(username, password) {
-  return accounts.some(acc => acc.username === username && acc.password === password);
-}
