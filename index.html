@@ -195,9 +195,6 @@ button:hover { background: #2ea043; }
   <button id="backBtn">Kembali</button>
 </div>
 
-<!-- Import account.js -->
-<script src="api/account.js"></script>
-
 <script>
 const loginDiv = document.getElementById('loginDiv');
 const panel = document.getElementById('panel');
@@ -274,22 +271,26 @@ setInterval(()=>{
   }
 }, 60000);
 
-// Login langsung ke account.js
-loginBtn.addEventListener('click', ()=>{
+// Login
+loginBtn.addEventListener('click', async ()=>{
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value.trim();
-  loginError.textContent = "";
-
-  const user = accounts.find(acc => acc.username === username && acc.password === password);
-  if(user){
-    const now = new Date();
-    localStorage.setItem('username', username);
-    localStorage.setItem('loginTime', now.toISOString());
-    loginDiv.style.display='none';
-    panel.style.display='block';
-  } else {
-    loginError.textContent = "Login gagal!";
-  }
+  loginError.textContent="";
+  try{
+    const res = await fetch('/api/server',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'login', username, password})
+    });
+    const data = await res.json();
+    if(data.success){
+      const now = new Date();
+      localStorage.setItem('username', username);
+      localStorage.setItem('loginTime', now.toISOString());
+      loginDiv.style.display='none';
+      panel.style.display='block';
+    } else loginError.textContent = data.message;
+  }catch(err){ loginError.textContent = err.message; }
 });
 
 // Logout
@@ -396,5 +397,6 @@ function renderHistory(){
 </script>
 
 </body>
-</html>
+  </html>
+
   
