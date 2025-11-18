@@ -2,8 +2,8 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://azizxofficial.alyabotz.my.id";
-  const API_KEY   = "ptla_xFZo3kycrK17mJdcR7wseCMm8Vur9KTDfzbsK1q7gpD";
+  const PANEL_URL = "https://private.bimxyz.my.id";
+  const API_KEY   = "ptla_pbpBRRV1vf5FYeoFELG32BI4TIGPhJP6ExZSLnxlVai";
   const NODE_ID   = 1;
   const NEST_ID   = 5;
   const EGG_ID    = 15;
