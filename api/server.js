@@ -2,8 +2,8 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://kenz-ai.zayprivate.my.id";
-  const API_KEY   = "ptla_i0lIIW8QwXpDxYKUKQFx3NNYd7xbpnOjwzcypvHBtz6";
+  const PANEL_URL = "https://yogz-publik.cfxcloud.com";
+  const API_KEY   = "ptla_r4xPFk9mTdWXrR7qFXb5WyZcb6Y6N32IAUW44KA5toq";
   const NODE_ID   = 1;
   const NEST_ID   = 5;
   const EGG_ID    = 15;
