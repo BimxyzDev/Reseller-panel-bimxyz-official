@@ -2,8 +2,8 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://yogz-publik.cfxcloud.com";
-  const API_KEY   = "ptla_r4xPFk9mTdWXrR7qFXb5WyZcb6Y6N32IAUW44KA5toq";
+  const PANEL_URL = "https://bamzurt.privatterbaik.my.id";
+  const API_KEY   = "ptla_1rZXJuGilsLs5VuWZOvYBhHey0iYEOfZYwxokSLCofP";
   const NODE_ID   = 1;
   const NEST_ID   = 5;
   const EGG_ID    = 15;
