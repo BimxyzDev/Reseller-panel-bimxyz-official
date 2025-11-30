@@ -2,8 +2,8 @@
 import { validateLogin } from './account';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://aogiri.tree.poumodss.my.id";
-  const API_KEY   = "ptla_KNNFunS0oeERCxHCTdJAQH1uCFLI05dKCLpsEwTKk0Q";
+  const PANEL_URL = "https://acbd.bimxyz.my.id";
+  const API_KEY   = "ptla_Mg5BpTbXyrbjYrJ2Dnn9TK1ixwemGP6pAFjHF8oAq6z";
   const NODE_ID   = 1;
   const NEST_ID   = 5;
   const EGG_ID    = 15;
