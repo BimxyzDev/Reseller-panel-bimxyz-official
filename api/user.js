@@ -148,10 +148,6 @@ export const users = [
     "password": "dani7876"
   },
   {
-    "username": "ABOCIHUYY",
-    "password": "ab00"
-  },
-  {
     "username": "Nika v18",
     "password": "123456"
   },
