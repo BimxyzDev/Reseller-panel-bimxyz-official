@@ -1,9 +1,10 @@
 // api/setting.js
 
-export default function handler(req, res) {
+
+/*export default function handler(req, res) {
   res.json({
     github: {
-      token: "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",
+      token: "token",
       owner: "BimxyzDev",
       repo: "Reseller-panel-bimxyzoffc",
 
@@ -25,3 +26,4 @@ export default function handler(req, res) {
     }
   });
 }
+*/
