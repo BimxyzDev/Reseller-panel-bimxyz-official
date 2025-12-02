@@ -3,7 +3,7 @@
 export default function handler(req, res) {
   res.json({
     github: {
-      token: "YOUR_GITHUB_TOKEN",
+      token: "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",
       owner: "BimxyzDev",
       repo: "Reseller-panel-bimxyzoffc",
 
@@ -12,10 +12,12 @@ export default function handler(req, res) {
     },
 
     login: {
+      //data web manage user
       userManager: {
         username: "adminUser",
         password: "1234"
       },
+      //data web manage panel
       panelManager: {
         username: "adminPanel",
         password: "9876"
