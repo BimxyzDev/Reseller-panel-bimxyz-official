@@ -1,13 +1,8 @@
 // api/server.js
 import { validateLogin } from './account';
+import { PANEL_URL, API_KEY, NODE_ID, NEST_ID, EGG_ID, DOCKER_IMG } from './panel';
 
 export default async function handler(req, res) {
-  const PANEL_URL = "https://azizganteng.mbbstore.my.id";
-  const API_KEY   = "ptla_wJtvUAQLFJV45BBXvIvqeMgbMcnRv6NB5DP8IB8LkEk";
-  const NODE_ID   = 1;
-  const NEST_ID   = 5;
-  const EGG_ID    = 15;
-  const DOCKER_IMG = "ghcr.io/parkervcp/yolks:nodejs_20";
 
   if (req.method === "GET") {
     try {
@@ -18,14 +13,18 @@ export default async function handler(req, res) {
           "Accept": "application/json"
         }
       });
+
       const serverData = await serverRes.json();
+
       if (!serverRes.ok) {
         return res.json({ success: false, message: JSON.stringify(serverData) });
       }
+
       return res.json({
         success: true,
         count: serverData.meta.pagination.total
       });
+
     } catch (err) {
       return res.json({ success: false, message: err.message });
     }
@@ -35,6 +34,7 @@ export default async function handler(req, res) {
     const { action, username, password, name, ram, serverId } = req.body;
 
     try {
+      // 🔐 LOGIN
       if (action === "login") {
         if (validateLogin(username, password)) {
           return res.json({ success: true });
@@ -43,11 +43,13 @@ export default async function handler(req, res) {
         }
       }
 
+      // 🟩 CREATE SERVER
       if (action === "create") {
+
         const email = `user${Date.now()}@buyer.bimxyz.com`;
         const userPassword = Math.random().toString(36).slice(-8);
 
-        // Buat user baru
+        // Buat user
         const userRes = await fetch(`${PANEL_URL}/api/application/users`, {
           method: "POST",
           headers: {
@@ -64,23 +66,31 @@ export default async function handler(req, res) {
             root_admin: false
           })
         });
+
         const userData = await userRes.json();
         if (!userRes.ok) {
           return res.json({ success: false, message: JSON.stringify(userData) });
         }
+
         const userId = userData.attributes.id;
 
-        // Cari allocation kosong (loop semua halaman)
+        // Cari allocation kosong
         let freeAlloc = null;
         let page = 1;
+
         while (!freeAlloc) {
           const allocRes = await fetch(`${PANEL_URL}/api/application/nodes/${NODE_ID}/allocations?page=${page}`, {
-            headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
+            headers: {
+              "Authorization": `Bearer ${API_KEY}`,
+              "Accept": "application/json"
+            }
           });
+
           const allocData = await allocRes.json();
           if (!allocRes.ok) {
             return res.json({ success: false, message: JSON.stringify(allocData) });
           }
+
           freeAlloc = allocData.data.find(a => a.attributes.assigned === false);
           if (freeAlloc) break;
 
@@ -92,17 +102,22 @@ export default async function handler(req, res) {
           return res.json({ success: false, message: "Ga ada allocation kosong!" });
         }
 
-        // Ambil environment variable default dari egg
+        // Ambil environment variable dari egg
         const eggRes = await fetch(`${PANEL_URL}/api/application/nests/${NEST_ID}/eggs/${EGG_ID}?include=variables`, {
-          headers: { "Authorization": `Bearer ${API_KEY}`, "Accept": "application/json" }
+          headers: {
+            "Authorization": `Bearer ${API_KEY}`,
+            "Accept": "application/json"
+          }
         });
+
         const eggData = await eggRes.json();
+
         const env = {};
         eggData.attributes.relationships.variables.data.forEach(v => {
           env[v.attributes.env_variable] = v.attributes.default_value || "";
         });
 
-        // Buat server dengan limits sesuai permintaan
+        // Buat server
         const serverRes = await fetch(`${PANEL_URL}/api/application/servers`, {
           method: "POST",
           headers: {
@@ -151,10 +166,13 @@ export default async function handler(req, res) {
         });
       }
 
+      // ❌ DELETE SERVER
       if (action === "delete") {
+
         if (!serverId) {
           return res.json({ success: false, message: "Server ID harus ada!" });
         }
+
         const delRes = await fetch(`${PANEL_URL}/api/application/servers/${serverId}`, {
           method: "DELETE",
           headers: {
@@ -172,11 +190,11 @@ export default async function handler(req, res) {
       }
 
       return res.json({ success: false, message: "Action tidak dikenal" });
+
     } catch (err) {
       return res.json({ success: false, message: err.message });
     }
   }
 
   return res.status(405).json({ success: false, message: "Method not allowed" });
-  }
-      
+      }
