@@ -14,13 +14,13 @@ export default function handler(req, res) {
     login: {
       //data web manage user
       userManager: {
-        username: "adminUser",
-        password: "1234"
+        username: "Bimxyz",
+        password: "0857971"
       },
       //data web manage panel
       panelManager: {
-        username: "adminPanel",
-        password: "9876"
+        username: "Admin",
+        password: "089654288"
       }
     }
   });
