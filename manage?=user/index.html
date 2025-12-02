@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard CPanel Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    background: #000;
+    color: #00ff95;
+    font-family: 'Share Tech Mono', monospace;
+    margin: 0;
+    padding: 0;
+  }
+
+  .topbar {
+    background: #001a0f;
+    padding: 20px;
+    font-size: 27px;
+    text-align: center;
+    box-shadow: 0 0 20px #00ff9570;
+    border-bottom: 1px solid #00ff95;
+  }
+
+  .container {
+    padding: 20px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #001a0f;
+    border: 1px solid #00ff95;
+    box-shadow: 0 0 10px #00ff9570;
+  }
+
+  th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #00ff95;
+  }
+
+  th {
+    color: #00ffea;
+    font-size: 18px;
+    text-shadow: 0 0 5px #00ffc8;
+  }
+
+  tr:hover {
+    background: #003d22;
+  }
+
+  .btn {
+    padding: 10px 14px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  .btn-add {
+    background: #00ff95;
+    color: #000;
+    box-shadow: 0 0 10px #00ff95;
+    margin-bottom: 18px;
+  }
+  .btn-add:hover {
+    background: #00ffbe;
+  }
+
+  .btn-del {
+    background: #ff0044;
+    color: #fff;
+    box-shadow: 0 0 8px #ff0044;
+  }
+  .btn-del:hover {
+    background: #ff2266;
+  }
+
+  input {
+    background: #000;
+    border: 1px solid #00ff95;
+    padding: 10px;
+    width: 95%;
+    color: #00ff95;
+    font-family: inherit;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+
+  .modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #000000cc;
+    display: none;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-box {
+    background: #001a0f;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    border: 1px solid #00ff95;
+    box-shadow: 0 0 15px #00ff9570;
+    border-radius: 10px;
+  }
+
+  .modal-title {
+    font-size: 20px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 5px #00ff95;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">🟩 BIMXYZ — PANEL ACCOUNT EDITOR 🟩</div>
+
+<div class="container">
+  <button class="btn btn-add" onclick="openModal()">+ Tambah User</button>
+
+  <table>
+    <thead>
+      <tr><th>Username</th><th>Password</th><th>Aksi</th></tr>
+    </thead>
+    <tbody id="userTable">
+      <tr><td colspan="3" style="text-align:center;">Loading...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="modal-title">Tambah User Baru</div>
+
+    <input type="text" id="newUser" placeholder="Username">
+    <input type="text" id="newPass" placeholder="Password">
+
+    <button class="btn btn-add" onclick="addUser()">Tambahkan</button>
+    <button class="btn btn-del" onclick="closeModal()">Batal</button>
+  </div>
+</div>
+
+<script>
+// ------------------------------
+//   LOAD SETTING DARI BACKEND
+// ------------------------------
+let TOKEN = "";
+let OWNER = "";
+let REPO = "";
+let FILE_PATH = "";
+
+let ADMIN_USER = "";
+let ADMIN_PASS = "";
+
+async function loadSetting() {
+  const res = await fetch("/api/setting");
+  const set = await res.json();
+
+  TOKEN     = set.github.token;
+  OWNER     = set.github.owner;
+  REPO      = set.github.repo;
+  FILE_PATH = set.github.userFile;
+
+  ADMIN_USER = set.login.userManager.username;
+  ADMIN_PASS = set.login.userManager.password;
+
+  askLogin();
+  loadUsers();
+}
+
+// ------------------------------
+//   LOGIN
+// ------------------------------
+function askLogin() {
+  const u = prompt("Username admin:");
+  const p = prompt("Password admin:");
+
+  if (u !== ADMIN_USER || p !== ADMIN_PASS) {
+    alert("Akses ditolak!");
+    location.reload();
+  }
+}
+
+// ------------------------------
+//   LOAD USERS DARI GITHUB
+// ------------------------------
+let fileSHA = "";
+let users = [];
+
+async function loadUsers() {
+  const res = await fetch(
+    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`,
+    { headers: { "Authorization": `token ${TOKEN}` } }
+  );
+
+  const data = await res.json();
+  fileSHA = data.sha;
+
+  const raw = atob(data.content);
+
+  const match = raw.match(/export\s+const\s+users\s*=\s*(\[[\s\S]*?\]);/);
+  users = match ? eval(match[1]) : [];
+
+  renderTable();
+}
+
+// ------------------------------
+//   RENDER TABLE
+// ------------------------------
+function renderTable() {
+  const tbody = document.getElementById("userTable");
+  tbody.innerHTML = "";
+
+  users.forEach((u, i) => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${u.username}</td>
+        <td>${u.password}</td>
+        <td><button class="btn btn-del" onclick="deleteUser(${i})">Hapus</button></td>
+      </tr>
+    `;
+  });
+}
+
+// ------------------------------
+//   SAVE KE GITHUB
+// ------------------------------
+async function saveToGitHub() {
+  const content = `export const users = ${JSON.stringify(users, null, 2)};`;
+  const encoded = btoa(content);
+
+  await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, {
+    method: "PUT",
+    headers: {
+      "Authorization": `token ${TOKEN}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message: "update users",
+      content: encoded,
+      sha: fileSHA
+    })
+  });
+
+  alert("Berhasil disimpan ke GitHub!");
+}
+
+// ------------------------------
+//   ADD USER
+// ------------------------------
+function addUser() {
+  const u = document.getElementById("newUser").value.trim();
+  const p = document.getElementById("newPass").value.trim();
+  if (!u || !p) return alert("Isi dulu bang.");
+
+  users.push({ username: u, password: p });
+  saveToGitHub();
+  renderTable();
+  closeModal();
+}
+
+// ------------------------------
+//   DELETE USER
+// ------------------------------
+function deleteUser(i) {
+  if (!confirm("Yakin mau hapus user ini?")) return;
+
+  users.splice(i, 1);
+  saveToGitHub();
+  renderTable();
+}
+
+function openModal() { document.getElementById("modal").style.display = "flex"; }
+function closeModal() { document.getElementById("modal").style.display = "none"; }
+
+// START
+loadSetting();
+</script>
+
+</body>
+  </html>
