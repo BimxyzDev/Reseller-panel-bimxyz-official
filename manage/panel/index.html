@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Panel Settings Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    background: #000;
+    color: #00ff95;
+    font-family: 'Share Tech Mono', monospace;
+    margin: 0;
+    padding: 0;
+  }
+
+  .topbar {
+    background: #001a0f;
+    padding: 20px;
+    font-size: 27px;
+    text-align: center;
+    box-shadow: 0 0 20px #00ff9570;
+    border-bottom: 1px solid #00ff95;
+  }
+
+  .container {
+    padding: 20px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #001a0f;
+    border: 1px solid #00ff95;
+    box-shadow: 0 0 10px #00ff9570;
+  }
+
+  th, td {
+    padding: 12px;
+    border-bottom: 1px solid #00ff95;
+  }
+
+  th {
+    color: #00ffea;
+    font-size: 18px;
+    text-shadow: 0 0 5px #00ffc8;
+    text-align: left;
+  }
+
+  .btn-save {
+    padding: 12px 20px;
+    font-size: 15px;
+    border: none;
+    background: #00ff95;
+    color: #000;
+    font-weight: bold;
+    border-radius: 6px;
+    box-shadow: 0 0 10px #00ff95;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+
+  .btn-save:hover {
+    background: #00ffbe;
+  }
+
+  input {
+    background: #000;
+    border: 1px solid #00ff95;
+    padding: 10px;
+    width: 96%;
+    color: #00ff95;
+    font-family: inherit;
+    border-radius: 5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">🟩 BIMXYZ — PANEL CONFIG EDITOR 🟩</div>
+
+<div class="container">
+  <table>
+    <thead>
+      <tr><th>Key</th><th>Value</th></tr>
+    </thead>
+    <tbody id="panelTable">
+      <tr><td colspan="2" style="text-align:center;">Loading...</td></tr>
+    </tbody>
+  </table>
+
+  <button class="btn-save" onclick="saveSetting()">Simpan Perubahan</button>
+</div>
+
+<script>
+// ------------------------------
+//   LOAD SETTING
+// ------------------------------
+let TOKEN = "";
+let OWNER = "";
+let REPO = "";
+let PANEL_FILE = "";
+
+let ADMIN_USER = "";
+let ADMIN_PASS = "";
+
+let fileSHA = "";
+let panelSetting = {};
+
+async function loadSetting() {
+  const res = await fetch("/api/setting");
+  const cfg = await res.json();
+
+  TOKEN = cfg.github.token;
+  OWNER = cfg.github.owner;
+  REPO = cfg.github.repo;
+  PANEL_FILE = cfg.github.panelFile;
+
+  ADMIN_USER = cfg.login.panelManager.username;
+  ADMIN_PASS = cfg.login.panelManager.password;
+
+  askLogin();
+  loadPanelFile();
+}
+
+// ------------------------------
+//   LOGIN
+// ------------------------------
+function askLogin() {
+  const u = prompt("Username admin panel:");
+  const p = prompt("Password admin panel:");
+
+  if (u !== ADMIN_USER || p !== ADMIN_PASS) {
+    alert("Akses ditolak!");
+    location.reload();
+  }
+}
+
+// ------------------------------
+//   LOAD PANEL.JS FROM GITHUB
+// ------------------------------
+async function loadPanelFile() {
+  const res = await fetch(
+    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PANEL_FILE}`,
+    { headers: { "Authorization": `token ${TOKEN}` } }
+  );
+
+  const data = await res.json();
+  fileSHA = data.sha;
+
+  const raw = atob(data.content);
+
+  const match = raw.match(/export\s+const\s+panelSetting\s*=\s*(\{[\s\S]*?\});/);
+
+  panelSetting = match ? eval("(" + match[1] + ")") : {};
+
+  renderTable();
+}
+
+// ------------------------------
+//   RENDER TABLE UI
+// ------------------------------
+function renderTable() {
+  const tbody = document.getElementById("panelTable");
+  tbody.innerHTML = "";
+
+  Object.keys(panelSetting).forEach(key => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${key}</td>
+        <td><input id="field_${key}" value="${panelSetting[key]}"></td>
+      </tr>
+    `;
+  });
+}
+
+// ------------------------------
+//   SAVE TO GITHUB
+// ------------------------------
+async function saveSetting() {
+  // ambil nilai baru
+  Object.keys(panelSetting).forEach(key => {
+    panelSetting[key] = document.getElementById(`field_${key}`).value;
+  });
+
+  const content = `export const panelSetting = ${JSON.stringify(panelSetting, null, 2)};`;
+  const encoded = btoa(content);
+
+  await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PANEL_FILE}`, {
+    method: "PUT",
+    headers: {
+      "Authorization": `token ${TOKEN}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message: "update panel settings",
+      content: encoded,
+      sha: fileSHA
+    })
+  });
+
+  alert("Berhasil disimpan ke GitHub!");
+}
+
+// START
+loadSetting();
+</script>
+
+</body>
+</html>
