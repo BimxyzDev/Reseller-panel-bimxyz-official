@@ -24,8 +24,46 @@
     border-bottom: 1px solid #00ff95;
   }
 
+  /* LOGIN UI */
+  #loginBox {
+    width: 90%;
+    max-width: 380px;
+    margin: 60px auto;
+    background: #001a0f;
+    padding: 25px;
+    border-radius: 10px;
+    border: 1px solid #00ff95;
+    box-shadow: 0 0 15px #00ff9570;
+    text-align: center;
+  }
+
+  #loginBox input {
+    width: 95%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #00ff95;
+    background: #000;
+    color: #00ff95;
+    font-family: inherit;
+  }
+
+  #loginBtn {
+    width: 100%;
+    padding: 12px;
+    background: #00ff95;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    margin-top: 6px;
+  }
+
+  #loginBtn:hover { background: #00ffbe; }
+
   .container {
     padding: 20px;
+    display: none; /* hidden sebelum login */
   }
 
   table {
@@ -48,9 +86,7 @@
     text-shadow: 0 0 5px #00ffc8;
   }
 
-  tr:hover {
-    background: #003d22;
-  }
+  tr:hover { background: #003d22; }
 
   .btn {
     padding: 10px 14px;
@@ -68,18 +104,14 @@
     box-shadow: 0 0 10px #00ff95;
     margin-bottom: 18px;
   }
-  .btn-add:hover {
-    background: #00ffbe;
-  }
+  .btn-add:hover { background: #00ffbe; }
 
   .btn-del {
     background: #ff0044;
     color: #fff;
     box-shadow: 0 0 8px #ff0044;
   }
-  .btn-del:hover {
-    background: #ff2266;
-  }
+  .btn-del:hover { background: #ff2266; }
 
   input {
     background: #000;
@@ -123,7 +155,17 @@
 
 <div class="topbar">🟩 BIMXYZ — PANEL ACCOUNT EDITOR 🟩</div>
 
-<div class="container">
+<!-- LOGIN UI -->
+<div id="loginBox">
+  <h2 style="margin-bottom:15px;color:#00ffea;text-shadow:0 0 5px #00ffc8;">Login Admin</h2>
+  <input type="text" id="loginUser" placeholder="Username Admin">
+  <input type="password" id="loginPass" placeholder="Password Admin">
+  <button id="loginBtn">Login</button>
+  <p id="loginError" style="color:red;margin-top:10px;"></p>
+</div>
+
+<!-- PANEL -->
+<div class="container" id="mainPanel">
   <button class="btn btn-add" onclick="openModal()">+ Tambah User</button>
 
   <table>
@@ -150,9 +192,6 @@
 </div>
 
 <script>
-// ------------------------------
-//   LOAD SETTING DARI BACKEND
-// ------------------------------
 let TOKEN = "";
 let OWNER = "";
 let REPO = "";
@@ -172,26 +211,23 @@ async function loadSetting() {
 
   ADMIN_USER = set.login.userManager.username;
   ADMIN_PASS = set.login.userManager.password;
-
-  askLogin();
-  loadUsers();
 }
+loadSetting();
 
-// ------------------------------
-//   LOGIN
-// ------------------------------
-function askLogin() {
-  const u = prompt("Username admin:");
-  const p = prompt("Password admin:");
+// LOGIN BUTTON CLICK
+document.getElementById("loginBtn").onclick = () => {
+  const u = document.getElementById("loginUser").value.trim();
+  const p = document.getElementById("loginPass").value.trim();
 
-  if (u !== ADMIN_USER || p !== ADMIN_PASS) {
-    alert("Akses ditolak!");
-    location.reload();
+  if (u === ADMIN_USER && p === ADMIN_PASS) {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("mainPanel").style.display = "block";
+    loadUsers();
+  } else {
+    document.getElementById("loginError").textContent = "Username atau password salah!";
   }
-}
+};
 
-// ------------------------------
-//   LOAD USERS DARI GITHUB
 // ------------------------------
 let fileSHA = "";
 let users = [];
@@ -213,9 +249,6 @@ async function loadUsers() {
   renderTable();
 }
 
-// ------------------------------
-//   RENDER TABLE
-// ------------------------------
 function renderTable() {
   const tbody = document.getElementById("userTable");
   tbody.innerHTML = "";
@@ -231,9 +264,6 @@ function renderTable() {
   });
 }
 
-// ------------------------------
-//   SAVE KE GITHUB
-// ------------------------------
 async function saveToGitHub() {
   const content = `export const users = ${JSON.stringify(users, null, 2)};`;
   const encoded = btoa(content);
@@ -254,9 +284,6 @@ async function saveToGitHub() {
   alert("Berhasil disimpan ke GitHub!");
 }
 
-// ------------------------------
-//   ADD USER
-// ------------------------------
 function addUser() {
   const u = document.getElementById("newUser").value.trim();
   const p = document.getElementById("newPass").value.trim();
@@ -268,9 +295,6 @@ function addUser() {
   closeModal();
 }
 
-// ------------------------------
-//   DELETE USER
-// ------------------------------
 function deleteUser(i) {
   if (!confirm("Yakin mau hapus user ini?")) return;
 
@@ -282,8 +306,6 @@ function deleteUser(i) {
 function openModal() { document.getElementById("modal").style.display = "flex"; }
 function closeModal() { document.getElementById("modal").style.display = "none"; }
 
-// START
-loadSetting();
 </script>
 
 </body>
