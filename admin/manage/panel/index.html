@@ -24,8 +24,43 @@
     border-bottom: 1px solid #00ff95;
   }
 
+  /* LOGIN UI */
+  #loginBox {
+    width: 90%;
+    max-width: 380px;
+    margin: 60px auto;
+    background: #001a0f;
+    padding: 25px;
+    border-radius: 10px;
+    border: 1px solid #00ff95;
+    box-shadow: 0 0 15px #00ff9570;
+    text-align: center;
+  }
+
+  #loginBox input {
+    width: 95%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #00ff95;
+    background: #000;
+    color: #00ff95;
+    font-family: inherit;
+  }
+
+  #loginBtn {
+    width: 100%;
+    padding: 12px;
+    background: #00ff95;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+
   .container {
     padding: 20px;
+    display: none; /* ditutup sebelum login */
   }
 
   table {
@@ -80,7 +115,17 @@
 
 <div class="topbar">🟩 BIMXYZ — PANEL CONFIG EDITOR 🟩</div>
 
-<div class="container">
+<!-- LOGIN UI -->
+<div id="loginBox">
+  <h2 style="margin-bottom:15px;color:#00ffea;text-shadow:0 0 5px #00ffc8;">Login Admin</h2>
+  <input type="text" id="loginUser" placeholder="Username Admin">
+  <input type="password" id="loginPass" placeholder="Password Admin">
+  <button id="loginBtn">Login</button>
+  <p id="loginError" style="color:red;margin-top:10px;"></p>
+</div>
+
+<!-- PANEL EDITOR -->
+<div class="container" id="mainPanel">
   <table>
     <thead>
       <tr><th>Key</th><th>Value</th></tr>
@@ -94,9 +139,6 @@
 </div>
 
 <script>
-// -------------------------
-// LOAD SETTING.JS
-// -------------------------
 let TOKEN = "";
 let OWNER = "";
 let REPO = "";
@@ -106,9 +148,9 @@ let ADMIN_USER = "";
 let ADMIN_PASS = "";
 
 let fileSHA = "";
-let panelVars = {}; // simpan key-value
+let panelSetting = {};
 
-async function loadSetting() {
+async function loadConfig() {
   const res = await fetch("/api/setting");
   const cfg = await res.json();
 
@@ -119,28 +161,25 @@ async function loadSetting() {
 
   ADMIN_USER = cfg.login.panelManager.username;
   ADMIN_PASS = cfg.login.panelManager.password;
-
-  askLogin();
-  loadPanel();
 }
+loadConfig();
 
-// -------------------------
-// LOGIN
-// -------------------------
-function askLogin() {
-  const u = prompt("Username admin panel:");
-  const p = prompt("Password admin panel:");
+// LOGIN SYSTEM UI
+document.getElementById("loginBtn").addEventListener("click", () => {
+  const u = document.getElementById("loginUser").value.trim();
+  const p = document.getElementById("loginPass").value.trim();
 
-  if (u !== ADMIN_USER || p !== ADMIN_PASS) {
-    alert("Akses ditolak!");
-    location.reload();
+  if (u === ADMIN_USER && p === ADMIN_PASS) {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("mainPanel").style.display = "block";
+    loadPanelFile();
+  } else {
+    document.getElementById("loginError").textContent = "Username atau password salah!";
   }
-}
+});
 
-// -------------------------
-// LOAD panel.js AS RAW
-// -------------------------
-async function loadPanel() {
+// LOAD panel.js
+async function loadPanelFile() {
   const res = await fetch(
     `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PANEL_FILE}`,
     { headers: { "Authorization": `token ${TOKEN}` } }
@@ -151,49 +190,47 @@ async function loadPanel() {
 
   const raw = atob(data.content);
 
-  // cari semua "export const KEY = VALUE;"
-  const regex = /export\s+const\s+(\w+)\s*=\s*([^\n;]+);/g;
-  let match;
+  // ambil struktur EXACT:
+  // export const PANEL_URL = "....";
+  // ...
+  const matches = raw.match(/export\s+const\s+(\w+)\s*=\s*([^;]+);/g);
 
-  while ((match = regex.exec(raw)) !== null) {
-    panelVars[match[1]] = match[2].trim().replace(/^"|"$/g, "");
-  }
+  panelSetting = {};
+  matches.forEach(line => {
+    const [_, key, value] = line.match(/export\s+const\s+(\w+)\s*=\s*(.+);/);
+    panelSetting[key] = value.replace(/^"|"$/g, "").trim();
+  });
 
   renderTable();
 }
 
-// -------------------------
-// RENDER UI
-// -------------------------
 function renderTable() {
   const tbody = document.getElementById("panelTable");
   tbody.innerHTML = "";
 
-  Object.keys(panelVars).forEach(key => {
+  Object.keys(panelSetting).forEach(key => {
     tbody.innerHTML += `
       <tr>
         <td>${key}</td>
-        <td><input id="field_${key}" value="${panelVars[key]}"></td>
+        <td><input id="field_${key}" value="${panelSetting[key]}"></td>
       </tr>
     `;
   });
 }
 
-// -------------------------
-// SAVE BACK TO GITHUB
-// -------------------------
+// SAVE TO GITHUB
 async function saveSetting() {
-  Object.keys(panelVars).forEach(key => {
-    panelVars[key] = document.getElementById(`field_${key}`).value.trim();
+  Object.keys(panelSetting).forEach(key => {
+    panelSetting[key] = document.getElementById(`field_${key}`).value;
   });
 
-  // rebuild file EXACT FORMAT
-  let output = "";
-  Object.keys(panelVars).forEach(key => {
-    output += `export const ${key} = "${panelVars[key]}";\n`;
+  // rebuild file EXACT same structure
+  let content = "";
+  Object.keys(panelSetting).forEach(k => {
+    content += `export const ${k} = "${panelSetting[k]}";\n`;
   });
 
-  const encoded = btoa(output);
+  const encoded = btoa(content);
 
   await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PANEL_FILE}`, {
     method: "PUT",
@@ -202,7 +239,7 @@ async function saveSetting() {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      message: "update panel.js",
+      message: "update panel settings",
       content: encoded,
       sha: fileSHA
     })
@@ -210,9 +247,7 @@ async function saveSetting() {
 
   alert("Berhasil disimpan ke GitHub!");
 }
-
-loadSetting();
 </script>
 
 </body>
-</html>
+  </html>
