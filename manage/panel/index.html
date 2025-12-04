@@ -94,9 +94,9 @@
 </div>
 
 <script>
-// ------------------------------
-//   LOAD SETTING
-// ------------------------------
+// -------------------------
+// LOAD SETTING.JS
+// -------------------------
 let TOKEN = "";
 let OWNER = "";
 let REPO = "";
@@ -106,7 +106,7 @@ let ADMIN_USER = "";
 let ADMIN_PASS = "";
 
 let fileSHA = "";
-let panelSetting = {};
+let panelVars = {}; // simpan key-value
 
 async function loadSetting() {
   const res = await fetch("/api/setting");
@@ -121,12 +121,12 @@ async function loadSetting() {
   ADMIN_PASS = cfg.login.panelManager.password;
 
   askLogin();
-  loadPanelFile();
+  loadPanel();
 }
 
-// ------------------------------
-//   LOGIN
-// ------------------------------
+// -------------------------
+// LOGIN
+// -------------------------
 function askLogin() {
   const u = prompt("Username admin panel:");
   const p = prompt("Password admin panel:");
@@ -137,10 +137,10 @@ function askLogin() {
   }
 }
 
-// ------------------------------
-//   LOAD PANEL.JS FROM GITHUB
-// ------------------------------
-async function loadPanelFile() {
+// -------------------------
+// LOAD panel.js AS RAW
+// -------------------------
+async function loadPanel() {
   const res = await fetch(
     `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PANEL_FILE}`,
     { headers: { "Authorization": `token ${TOKEN}` } }
@@ -151,41 +151,49 @@ async function loadPanelFile() {
 
   const raw = atob(data.content);
 
-  const match = raw.match(/export\s+const\s+panelSetting\s*=\s*(\{[\s\S]*?\});/);
+  // cari semua "export const KEY = VALUE;"
+  const regex = /export\s+const\s+(\w+)\s*=\s*([^\n;]+);/g;
+  let match;
 
-  panelSetting = match ? eval("(" + match[1] + ")") : {};
+  while ((match = regex.exec(raw)) !== null) {
+    panelVars[match[1]] = match[2].trim().replace(/^"|"$/g, "");
+  }
 
   renderTable();
 }
 
-// ------------------------------
-//   RENDER TABLE UI
-// ------------------------------
+// -------------------------
+// RENDER UI
+// -------------------------
 function renderTable() {
   const tbody = document.getElementById("panelTable");
   tbody.innerHTML = "";
 
-  Object.keys(panelSetting).forEach(key => {
+  Object.keys(panelVars).forEach(key => {
     tbody.innerHTML += `
       <tr>
         <td>${key}</td>
-        <td><input id="field_${key}" value="${panelSetting[key]}"></td>
+        <td><input id="field_${key}" value="${panelVars[key]}"></td>
       </tr>
     `;
   });
 }
 
-// ------------------------------
-//   SAVE TO GITHUB
-// ------------------------------
+// -------------------------
+// SAVE BACK TO GITHUB
+// -------------------------
 async function saveSetting() {
-  // ambil nilai baru
-  Object.keys(panelSetting).forEach(key => {
-    panelSetting[key] = document.getElementById(`field_${key}`).value;
+  Object.keys(panelVars).forEach(key => {
+    panelVars[key] = document.getElementById(`field_${key}`).value.trim();
   });
 
-  const content = `export const panelSetting = ${JSON.stringify(panelSetting, null, 2)};`;
-  const encoded = btoa(content);
+  // rebuild file EXACT FORMAT
+  let output = "";
+  Object.keys(panelVars).forEach(key => {
+    output += `export const ${key} = "${panelVars[key]}";\n`;
+  });
+
+  const encoded = btoa(output);
 
   await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PANEL_FILE}`, {
     method: "PUT",
@@ -194,7 +202,7 @@ async function saveSetting() {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      message: "update panel settings",
+      message: "update panel.js",
       content: encoded,
       sha: fileSHA
     })
@@ -203,7 +211,6 @@ async function saveSetting() {
   alert("Berhasil disimpan ke GitHub!");
 }
 
-// START
 loadSetting();
 </script>
 
