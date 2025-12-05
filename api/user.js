@@ -12,10 +12,10 @@ export const users = [
     "password": "sinz01"
   },
   {
- "username": "Ednzz",
- "password": "Edwin1933"
- },
-{
+    "username": "Ednzz",
+    "password": "Edwin1933"
+  },
+  {
     "username": "Alvaz_Store",
     "password": "alvaz_store"
   },
@@ -42,10 +42,6 @@ export const users = [
   {
     "username": "nesa",
     "password": "nesastr331"
-  },
-  {
-    "username": "Ednzz",
-    "password": "Edwin1933"
   },
   {
     "username": "KINGucup",
