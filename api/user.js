@@ -31,16 +31,20 @@ export const users = [
     "username": "Mirza",
     "password": "mirza2020"
   },
-{
+  {
     "username": "nesa",
     "password": "nesastr331"
   },
-{
+  {
     "username": "Ednzz",
     "password": "Edwin1933"
   },
-{
+  {
     "username": "KINGucup",
     "password": "KINGucup"
+  },
+  {
+    "username": "Vanz",
+    "password": "Vanz"
   }
 ];
