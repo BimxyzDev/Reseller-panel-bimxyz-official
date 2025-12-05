@@ -26,5 +26,9 @@ export const users = [
   {
     "username": "Akmal",
     "password": "17"
+  },
+  {
+    "username": "Qienz",
+    "password": "Qienz123"
   }
 ];
