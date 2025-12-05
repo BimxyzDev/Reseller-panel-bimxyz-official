@@ -63,7 +63,7 @@
 
   .container {
     padding: 20px;
-    display: none; /* hidden sebelum login */
+    display: none;
   }
 
   table {
@@ -104,6 +104,7 @@
     box-shadow: 0 0 10px #00ff95;
     margin-bottom: 18px;
   }
+
   .btn-add:hover { background: #00ffbe; }
 
   .btn-del {
@@ -111,6 +112,7 @@
     color: #fff;
     box-shadow: 0 0 8px #ff0044;
   }
+
   .btn-del:hover { background: #ff2266; }
 
   input {
@@ -214,7 +216,7 @@ async function loadSetting() {
 }
 loadSetting();
 
-// LOGIN BUTTON CLICK
+// LOGIN
 document.getElementById("loginBtn").onclick = () => {
   const u = document.getElementById("loginUser").value.trim();
   const p = document.getElementById("loginPass").value.trim();
@@ -281,26 +283,29 @@ async function saveToGitHub() {
     })
   });
 
+  // AUTO REFRESH DB
+  await loadUsers();
+
   alert("Berhasil disimpan ke GitHub!");
 }
 
-function addUser() {
+async function addUser() {
   const u = document.getElementById("newUser").value.trim();
   const p = document.getElementById("newPass").value.trim();
   if (!u || !p) return alert("Isi dulu bang.");
 
   users.push({ username: u, password: p });
-  saveToGitHub();
-  renderTable();
+
+  await saveToGitHub();
   closeModal();
 }
 
-function deleteUser(i) {
+async function deleteUser(i) {
   if (!confirm("Yakin mau hapus user ini?")) return;
 
   users.splice(i, 1);
-  saveToGitHub();
-  renderTable();
+
+  await saveToGitHub();
 }
 
 function openModal() { document.getElementById("modal").style.display = "flex"; }
@@ -309,4 +314,4 @@ function closeModal() { document.getElementById("modal").style.display = "none";
 </script>
 
 </body>
-  </html>
+</html>
